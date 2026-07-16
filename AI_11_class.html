@@ -43,7 +43,7 @@
                         <i class="fa-solid fa-school text-indigo-500"></i> 참여 클래스(반) 선택
                     </label>
                     <select id="gateway-class-select" class="w-full p-3 border border-slate-200 rounded-xl bg-slate-50/50 text-sm focus:outline-none focus:border-indigo-500 focus:bg-white transition">
-                        <option value="local_class">기본 오프라인 학급</option>
+                        <option value="local_class">클래스 목록을 불러오는 중...</option>
                     </select>
                 </div>
 
@@ -629,7 +629,10 @@
 
         // RULE 3 준수: 익명 인증 완료 대기 후 쿼리 시작 및 하이브리드 자동 우회
         async function initFirebase() {
-            if (!firebaseConfig.apiKey || firebaseConfig.apiKey.startsWith("AIzaSyB") || firebaseConfig.apiKey === "") {
+            // [★ 버그 수정 완료 ★]
+            // 실제 구글 파이어베이스 API Key는 언제나 "AIzaSyB"로 시작합니다.
+            // 기존의 startsWith("AIzaSyB") 조건문이 올바른 설정값까지 가짜 데이터로 감지하여 차단하던 오류를 완벽히 제거했습니다.
+            if (!firebaseConfig.apiKey || firebaseConfig.apiKey === "") {
                 console.warn("Firebase config is empty. Operating in local mode.");
                 setLocalFallback();
                 return;
@@ -843,7 +846,7 @@
                     listContainer.innerHTML += `
                         <span class="inline-flex items-center gap-1 px-3 py-1 bg-slate-100 border text-xs font-bold rounded-full">
                             ${m} 
-                            <button onclick="removeMember(${idx})" class="text-slate-400 hover:text-rose-500 font-bold ml-1">x</button>
+                            <button onclick="removeMember(${idx})" class="text-slate-400 hover:text-rose-500 font-bold ml-1 font-sans">×</button>
                         </span>
                     `;
                 });
