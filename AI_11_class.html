@@ -1,0 +1,1419 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>데이터 기반 학생 성장 진단 및 환류 설계 실습 툴킷</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js for Instructor Dashboard -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- FontAwesome Icons for Beautiful UX -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Pretendard', sans-serif;
+            background-color: #fdfbf7;
+            color: #334155;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-card:hover {
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Nav Transition */
+        .nav-btn {
+            transition: all 0.2s ease;
+        }
+        
+        .nav-btn.active {
+            background-color: #4f46e5;
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        /* Print Media styling for clean reports */
+        @media print {
+            body {
+                background-color: #ffffff;
+                color: #000000;
+            }
+            .no-print {
+                display: none !important;
+            }
+            .print-layout {
+                display: block !important;
+                width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                border: none !important;
+                box-shadow: none !important;
+            }
+            .page-break {
+                page-break-before: always;
+            }
+        }
+    </style>
+</head>
+<body class="antialiased min-h-screen flex flex-col">
+
+<script>
+    // Embedded 10-Student Dataset matching previous specification exactly
+    const dataset = {
+        lms: {
+            title: "LMS 로그 데이터 (거시적 참여도)",
+            desc: "접속 횟수, 학습창 총 체류시간, 상호작용(질문, 파일 다운로드 등 클릭수) 정보와 동영상 완강 여부입니다.",
+            headers: ["학생 ID", "접속 횟수(회)", "총 체류 시간(분)", "상호작용 빈도(클릭)", "동영상 완료율(%)", "형성평가 점수(100점 만점)"],
+            rows: [
+                { id: "S01", access: 2, time: 35, clicks: 45, video: 100, score: 80 },
+                { id: "S02", access: 3, time: 42, clicks: 58, video: 100, score: 90 },
+                { id: "S03", access: 1, time: 1,  clicks: 2,  video: 5,   score: 100 }, // 선행학습형 이상치
+                { id: "S04", access: 2, time: 31, clicks: 38, video: 90,  score: 70 },
+                { id: "S05", access: 2, time: 15, clicks: 12, video: 100, score: 20 },  // 학습포기 무기력형
+                { id: "S06", access: 2, time: 28, clicks: 32, video: 85,  score: 60 },  // 불안정 형식참여형
+                { id: "S07", access: 2, time: 27, clicks: 31, video: 90,  score: 60 },
+                { id: "S08", access: 1, time: 95, clicks: 1,  video: 10,  score: 20 },  // 화면방치형
+                { id: "S09", access: 2, time: 30, clicks: 40, video: 90,  score: 70 },
+                { id: "S10", access: 3, time: 40, clicks: 45, video: 100, score: 70 }   // 완벽주의 고위험군
+            ]
+        },
+        observation: {
+            title: "활동 관찰 및 정성 데이터 (미시적 이해도)",
+            desc: "형성평가 풀이 전반에 소요된 누적 시간, 고난도 핵심 문항인 5번 문항의 반응 데이터와 학생 성찰 일지 정성 데이터입니다.",
+            headers: ["학생 ID", "평가 소요시간(초)", "5번 문항 고민 시간(초)", "5번 정답 여부", "성찰일지 글자 수", "서술형 성찰 일지 내용"],
+            rows: [
+                { id: "S01", totalTime: 320, q5Time: 85,  q5Ok: "O", chars: 42, text: "오늘 배운 내용을 시각 자료와 함께 확인해서 쉽게 이해되었습니다." },
+                { id: "S02", totalTime: 280, q5Time: 90,  q5Ok: "O", chars: 58, text: "어려웠던 인과 관계 그래프를 직접 분석해보는 과정이 꽤 흥미로웠습니다." },
+                { id: "S03", totalTime: 90,  q5Time: 10,  q5Ok: "O", chars: 35, text: "이미 학원에서 다 배운 아는 내용이라 막힘없이 쉽게 다 풀었습니다." }, // 선행학습형
+                { id: "S04", totalTime: 350, q5Time: 110, q5Ok: "O", chars: 31, text: "실습할 때 헷갈리는 부분이 있었지만 재미있었어요." },
+                { id: "S05", totalTime: 25,  q5Time: 2,   q5Ok: "X", chars: 12, text: "ㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇ" }, // 무기력형 찍기
+                { id: "S06", totalTime: 310, q5Time: 85,  q5Ok: "X", chars: 75, text: "ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ" }, // 형식참여형
+                { id: "S07", totalTime: 380, q5Time: 125, q5Ok: "X", chars: 33, text: "5번 빼고는 다 괜찮았는데, 5번이 제일 어렵네요." },
+                { id: "S08", totalTime: 450, q5Time: 120, q5Ok: "X", chars: 5,  text: "모르겠음" }, // 화면방치형
+                { id: "S09", totalTime: 340, q5Time: 105, q5Ok: "O", chars: 38, text: "전체적으로 무난했고 실습 활동이 조금 더 길었으면 좋겠습니다." },
+                { id: "S10", totalTime: 720, q5Time: 540, q5Ok: "X", chars: 71, text: "5번 문제 표에서 변인 통제 조건이 너무 헷갈렸어요. 9분 넘게 붙잡고 고민했는데 결국 틀렸네요. 자존심 상해요." } // 완벽주의 고위험
+            ]
+        },
+        exam: {
+            title: "정기시험 문항별 반응 데이터 (문항 오답 패턴)",
+            desc: "정기시험 고난도 순 배치 5문항의 문항별 응답 선택지 정보입니다. Q2 문항의 급락 포인트를 발견해보세요.",
+            headers: ["학생 ID", "Q1(최하/정답①)", "Q2(하/정답③)", "Q3(중/정답④)", "Q4(상/정답②)", "Q5(최상/정답⑤)", "정답수(개)"],
+            rows: [
+                { id: "S01", q1: "①", q2: "③", q3: "④", q4: "②", q5: "④", correct: 4 },
+                { id: "S02", q1: "①", q2: "③", q3: "④", q4: "②", q5: "③", correct: 4 },
+                { id: "S03", q1: "①", q2: "③", q3: "④", q4: "②", q5: "⑤", correct: 5 },
+                { id: "S04", q1: "①", q2: "⑤", q3: "④", q4: "①", q5: "③", correct: 2 }, // Q2 ⑤ 오선택
+                { id: "S05", q1: "③", q2: "⑤", q3: "②", q4: "①", q5: "⑤", correct: 1 }, // 무지성 찍기형, Q5 우연히 맞춤
+                { id: "S06", q1: "①", q2: "③", q3: "④", q4: "③", q5: "②", correct: 3 },
+                { id: "S07", q1: "①", q2: "⑤", q3: "④", q4: "③", q5: "①", correct: 2 }, // Q2 ⑤ 오선택
+                { id: "S08", q1: "④", q2: "②", q3: "①", q4: "③", q5: "④", correct: 0 }, // 올오답
+                { id: "S09", q1: "①", q2: "⑤", q3: "④", q4: "②", q5: "③", correct: 3 }, // Q2 ⑤ 오선택
+                { id: "S10", q1: "①", q2: "③", q3: "④", q4: "①", q5: "①", correct: 3 }
+            ]
+        },
+        social: {
+            title: "사회정서 관찰 데이터 (심리·관계망)",
+            desc: "디지털 기기 활용 개별 및 모둠 활동 간에 관찰된 학습 흥미 수준, 동료가 평가한 모둠 공헌도, 학업적 긴장(스트레스) 데이터입니다.",
+            headers: ["학생 ID", "수업 흥미도 (5점)", "협업 기여도 (5점)", "학업 스트레스 지수 (5점)", "주요 교사 관찰 정서 신호"],
+            rows: [
+                { id: "S01", interest: 4.0, contribution: 4.0, stress: 2.0, signal: "안정적이고 차분함" },
+                { id: "S02", interest: 5.0, contribution: 5.0, stress: 2.0, signal: "배움에 대한 성취감" },
+                { id: "S03", interest: 2.0, contribution: 2.0, stress: 1.0, signal: "지루함 및 자극 부족" },
+                { id: "S04", interest: 4.0, contribution: 3.0, stress: 2.0, signal: "평온하고 무난함" },
+                { id: "S05", interest: 1.0, contribution: 1.2, stress: 1.5, signal: "무기력 및 과제 회피 경향성 강함" },
+                { id: "S06", interest: 4.0, contribution: 2.0, stress: 1.0, signal: "과도한 들뜸 및 주의 산만" },
+                { id: "S07", interest: 3.0, contribution: 3.0, stress: 3.0, signal: "개념 적용에 대한 걱정 신호" },
+                { id: "S08", interest: 1.0, contribution: 1.0, stress: 1.2, signal: "배움에 대한 무관심 및 심리적 철수" },
+                { id: "S09", interest: 4.0, contribution: 4.0, stress: 2.0, signal: "긍정적이고 모범적인 태도" },
+                { id: "S10", interest: 5.0, contribution: 4.0, stress: 5.0, signal: "과도한 불안감 및 완벽주의(실패 민감)" }
+            ]
+        }
+    };
+
+    // Instructor Exemplar Guides for reference
+    const instructorExemplars = {
+        "S03": { type: "초고속 선행학습형", analysis: "접속시간 단 1분, 동영상 5% 시청 후 형성평가 100점 만점 및 고난도 5번 10초 컷 정답. 정기시험 전원 만점(5/5)이나 흥미도(2.0), 기여도(2.0)는 최하위며 '지루함' 정서 보임.", try: "반복 지식 주입 지양. 심화 과제 비계(데이터 모델링, 모둠장 임무)를 부여해 수업 참여도를 견인해야 함." },
+        "S05": { type: "학습 포기 및 무기력형", analysis: "동영상은 다 켜두었으나 형성평가는 20점이며 총 소요시간 단 25초로 기둥 세우기 관찰. 성찰 일지는 무의미 자음 도배. 정기시험에서 하위 문항은 틀리고 최고난도 Q5를 찍어서 맞춤. 극도의 무기력과 흥미 결여 관찰.", try: "일방적 다그침 금지. 한두 단계를 통과하면 완수할 수 있는 초소형 스캐폴딩과 대면 지지를 통한 작은 성취 경험 주입." },
+        "S06": { type: "불안정 형식 참여형", analysis: "접속이나 진도(85%)는 평범하여 모니터링상으로는 정상이지만 성찰 일지를 무의미 문자('ㅋㅋㅋ...') 75자로 가득 채워 기계적 필터를 우회함. 협업 기여도(2.0)는 매우 낮음.", try: "성찰 일지의 질문 틀(Sentence Starter)을 명확히 좁히고 모둠 협업 도구(패들렛 등) 활용 시 분담 역할을 구체적으로 기입하도록 강제하는 수업 구조화 적용." },
+        "S08": { type: "화면 방치 및 유령 학습형", analysis: "누적 접속 체류시간 95분으로 학급 1위지만 실 상호작용 클릭수는 단 1회, 동영상 완료율 10%, 형성평가는 20점에 정기시험 0점. 배움에 대한 철수 및 방치 상태 증명.", try: "창만 켜놓은 유령 수강자이므로 실시간 확인용 팝업 퀴즈 등 인터랙티브 상호작용 툴을 수업 도중에 불규칙적으로 배치하여 주의 환기 유도." },
+        "S10": { type: "완벽주의적 학업 스트레스 고위험군", analysis: "진도 완벽, 흥미도 5.0 극상이나 형성평가 5번 문항 하나에 9분(540초)을 다 쏟아 부어 심각한 인지적 교착 상태(Bottleneck) 관찰. 학업 스트레스 지수 최고(5.0)이며 성찰일지에 자존심이 상했다는 극심한 불안을 피력함.", try: "정서 구출 최우선 대상자. 오답이 배움의 거름이라는 성장 마인드셋 피드백 제공 및 혼자 고통받지 않도록 고전부에서 즉시 활용 가능한 실시간 힌트 보조 도구(AI 코칭 등) 투입 시점 세팅." }
+    };
+</script>
+
+<script>
+    // State initialization from localStorage
+    function getInitialState() {
+        const defaultState = {};
+        for (let i = 1; i <= 5; i++) {
+            defaultState[`group${i}`] = {
+                currentDataType: 'lms',
+                perspective: '',
+                overallTry: '',
+                students: [] // Array of { id, reason }
+            };
+        }
+        
+        try {
+            const saved = localStorage.getItem('data_reflection_state_v1');
+            if (saved) {
+                const parsed = JSON.parse(saved);
+                // Merge to ensure structure integrity
+                return Object.assign({}, defaultState, parsed);
+            }
+        } catch (e) {
+            console.error("Local storage error:", e);
+        }
+        return defaultState;
+    }
+
+    let appState = getInitialState();
+
+    function saveState() {
+        try {
+            localStorage.setItem('data_reflection_state_v1', JSON.stringify(appState));
+        } catch (e) {
+            console.error("Failed to save state:", e);
+        }
+    }
+
+    function resetState() {
+        if (confirm("정말 모든 모둠 실습 데이터를 초기화하시겠습니까?")) {
+            localStorage.removeItem('data_reflection_state_v1');
+            appState = getInitialState();
+            saveState();
+            location.reload();
+        }
+    }
+</script>
+
+<!-- Header Banner (no-print) -->
+<header class="no-print bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-950 text-white shadow-md">
+    <div class="max-w-7xl mx-auto px-6 py-5 flex flex-col md:flex-row justify-between items-center gap-4">
+        <div class="flex items-center gap-3">
+            <div class="bg-indigo-600 p-2.5 rounded-xl shadow-lg">
+                <i class="fa-solid fa-chart-line text-2xl text-white"></i>
+            </div>
+            <div>
+                <h1 class="text-xl font-bold tracking-tight">선도교사 연수 11과정 실습 툴킷</h1>
+                <p class="text-xs text-indigo-300 font-medium">데이터로 학생 성장을 마주하다 • 협업 진단 도구</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-3">
+            <button onclick="resetState()" class="px-4 py-2 text-xs bg-slate-800 hover:bg-rose-950 text-rose-300 hover:text-white rounded-lg border border-slate-700 transition duration-150 flex items-center gap-1.5 font-semibold">
+                <i class="fa-solid fa-arrow-rotate-left"></i> 실습 초기화
+            </button>
+            <span class="text-xs px-3 py-1.5 bg-indigo-900/50 border border-indigo-700 rounded-lg text-indigo-200">
+                <i class="fa-solid fa-users"></i> EBP 공동 분석 모드
+            </span>
+        </div>
+    </div>
+</header>
+
+<!-- Navigation Bar (no-print) -->
+<nav class="no-print bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+    <div class="max-w-7xl mx-auto px-6 py-2 flex overflow-x-auto gap-2 items-center">
+        <button onclick="switchTab('main')" id="tab-main" class="nav-btn px-4 py-2 text-sm font-semibold text-slate-600 hover:text-indigo-600 rounded-lg flex items-center gap-2 shrink-0">
+            <i class="fa-solid fa-house-chimney"></i> 메인 개요
+        </button>
+        <div class="h-4 w-[1px] bg-slate-300 mx-1 shrink-0"></div>
+        <button onclick="switchTab('group1')" id="tab-group1" class="nav-btn px-3.5 py-2 text-sm font-semibold text-slate-600 hover:text-indigo-600 rounded-lg flex items-center gap-1.5 shrink-0">
+            <span class="w-5 h-5 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center text-xs font-bold">1</span> 모둠 1
+        </button>
+        <button onclick="switchTab('group2')" id="tab-group2" class="nav-btn px-3.5 py-2 text-sm font-semibold text-slate-600 hover:text-indigo-600 rounded-lg flex items-center gap-1.5 shrink-0">
+            <span class="w-5 h-5 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center text-xs font-bold">2</span> 모둠 2
+        </button>
+        <button onclick="switchTab('group3')" id="tab-group3" class="nav-btn px-3.5 py-2 text-sm font-semibold text-slate-600 hover:text-indigo-600 rounded-lg flex items-center gap-1.5 shrink-0">
+            <span class="w-5 h-5 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center text-xs font-bold">3</span> 모둠 3
+        </button>
+        <button onclick="switchTab('group4')" id="tab-group4" class="nav-btn px-3.5 py-2 text-sm font-semibold text-slate-600 hover:text-indigo-600 rounded-lg flex items-center gap-1.5 shrink-0">
+            <span class="w-5 h-5 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center text-xs font-bold">4</span> 모둠 4
+        </button>
+        <button onclick="switchTab('group5')" id="tab-group5" class="nav-btn px-3.5 py-2 text-sm font-semibold text-slate-600 hover:text-indigo-600 rounded-lg flex items-center gap-1.5 shrink-0">
+            <span class="w-5 h-5 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center text-xs font-bold">5</span> 모둠 5
+        </button>
+        <div class="h-4 w-[1px] bg-slate-300 mx-1 shrink-0"></div>
+        <button onclick="switchTab('conclusion')" id="tab-conclusion" class="nav-btn px-4 py-2 text-sm font-semibold text-slate-600 hover:text-indigo-600 rounded-lg flex items-center gap-2 shrink-0">
+            <i class="fa-solid fa-graduation-cap"></i> 실습 마무리
+        </button>
+        <div class="h-4 w-[1px] bg-slate-300 mx-1 shrink-0 ml-auto"></div>
+        <button onclick="openInstructorModal()" id="tab-instructor" class="nav-btn px-4 py-2 text-sm font-bold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 rounded-lg flex items-center gap-2 shrink-0 border border-indigo-200">
+            <i class="fa-solid fa-lock"></i> 강사 관찰 페이지
+        </button>
+    </div>
+</nav>
+
+<!-- Main Wrapper -->
+<main class="flex-grow max-w-7xl w-full mx-auto px-4 md:px-6 py-8">
+
+    <!-- 1) MAIN PAGE -->
+    <section id="page-main" class="tab-content hidden space-y-8 animate-in fade-in duration-300">
+        <div class="glass-card p-8 md:p-10 rounded-3xl shadow-sm border border-slate-200 bg-white relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-64 h-64 bg-indigo-100 rounded-full mix-blend-multiply filter blur-3xl opacity-30 -mr-20 -mt-20"></div>
+            <div class="max-w-3xl">
+                <div class="inline-block px-3 py-1 mb-4 text-xs font-bold tracking-wider text-indigo-600 bg-indigo-100/60 rounded-full uppercase">
+                    AI 활용 교수·학습 설계 및 성찰
+                </div>
+                <h2 class="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight mb-4">
+                    데이터 기반 교수학습설계에서<br><span class="text-indigo-600">데이터 분석의 진정한 의미</span>
+                </h2>
+                <p class="text-slate-600 leading-relaxed text-lg mb-6">
+                    많은 교사들이 "오늘 수업은 학생들이 재미있어했고 무난했다"는 직관에 의존합니다. 
+                    그러나 이는 데이터 분석의 부재로 인해 실제 인지 장벽을 마주하지 못한 한낱 <strong>'감상'</strong>일 수 있습니다. 
+                    우리는 <strong>EBP(증거기반 실천)</strong>적 렌즈를 통해, 화려해 보이는 학생들의 적극적 참여 속에 숨어 있는 <strong>'인지적 이탈'</strong>과 <strong>'오개념 블랙홀'</strong>을 구체적 로그 데이터로 선별해 낼 것입니다.
+                </p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-10 border-t border-slate-100 pt-8">
+                <div class="p-5 bg-indigo-50/50 rounded-2xl border border-indigo-50">
+                    <div class="text-indigo-600 mb-3"><i class="fa-solid fa-brain text-2xl"></i></div>
+                    <h4 class="font-bold text-slate-800 text-lg mb-1.5">스웰러의 인지부하 제어</h4>
+                    <p class="text-sm text-slate-500 leading-relaxed">
+                        교사는 정보의 홍수 속에 인지 부하를 겪습니다. 데이터 시각화를 통해 불필요한 인지 과정을 줄여, 오직 학생 맞춤 비계(Try) 설계라는 결정에만 집중합니다.
+                    </p>
+                </div>
+                <div class="p-5 bg-indigo-50/50 rounded-2xl border border-indigo-50">
+                    <div class="text-indigo-600 mb-3"><i class="fa-solid fa-arrows-spin text-2xl"></i></div>
+                    <h4 class="font-bold text-slate-800 text-lg mb-1.5">Schön & Kolb의 성찰 루프</h4>
+                    <p class="text-sm text-slate-500 leading-relaxed">
+                        내가 실행한 마이크로티칭을 데이터라는 고해상도 거울로 되감기(Rewind)하여, 수업 내 발생한 실제 오개념의 좌표를 완벽하게 역추적합니다.
+                    </p>
+                </div>
+                <div class="p-5 bg-indigo-50/50 rounded-2xl border border-indigo-50">
+                    <div class="text-indigo-600 mb-3"><i class="fa-solid fa-bullseye text-2xl"></i></div>
+                    <h4 class="font-bold text-slate-800 text-lg mb-1.5">거시-미시 교차 추적</h4>
+                    <p class="text-sm text-slate-500 leading-relaxed">
+                        LMS 참여도(거시)라는 포장지 아래에 실제 형성평가 오답 패턴(미시) 및 사회정서 데이터(정성)를 포개어 보아야만 다차원적 병목을 발견할 수 있습니다.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="glass-card p-8 rounded-3xl shadow-sm border border-slate-200 bg-white">
+            <h3 class="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
+                <i class="fa-solid fa-circle-play text-indigo-600"></i> 실습 프로세스 & 미션 로드맵
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 relative">
+                <!-- Connectors -->
+                <div class="hidden md:block absolute top-12 left-20 right-20 h-[2px] bg-slate-200 z-0"></div>
+                
+                <!-- Step 1 -->
+                <div class="relative z-10 bg-white p-5 rounded-2xl border border-slate-100 flex flex-col items-center text-center shadow-sm">
+                    <div class="w-10 h-10 bg-indigo-600 text-white rounded-full flex items-center justify-center font-bold text-sm mb-4 shadow-md shadow-indigo-200">1</div>
+                    <h4 class="font-bold text-slate-800 mb-1.5">데이터 분석 및 선택</h4>
+                    <p class="text-xs text-slate-500 leading-relaxed">자신의 모둠 탭으로 이동하여 제공된 4가지 다차원 데이터를 교대로 확인합니다.</p>
+                </div>
+                <!-- Step 2 -->
+                <div class="relative z-10 bg-white p-5 rounded-2xl border border-slate-100 flex flex-col items-center text-center shadow-sm">
+                    <div class="w-10 h-10 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center font-bold text-sm mb-4">2</div>
+                    <h4 class="font-bold text-slate-800 mb-1.5">관점 세우기 & 이상치 수집</h4>
+                    <p class="text-xs text-slate-500 leading-relaxed">모둠의 분석 렌즈를 선언하고, 수치와 텍스트가 심각하게 엇갈리는 이상치 학생을 발굴합니다.</p>
+                </div>
+                <!-- Step 3 -->
+                <div class="relative z-10 bg-white p-5 rounded-2xl border border-slate-100 flex flex-col items-center text-center shadow-sm">
+                    <div class="w-10 h-10 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center font-bold text-sm mb-4">3</div>
+                    <h4 class="font-bold text-slate-800 mb-1.5">수업 설계 수정 (Try)</h4>
+                    <p class="text-xs text-slate-500 leading-relaxed">가장 우선 구출해야 할 학생을 대상으로 다음 차시에서 실행할 피드백 처방전을 도출합니다.</p>
+                </div>
+                <!-- Step 4 -->
+                <div class="relative z-10 bg-white p-5 rounded-2xl border border-slate-100 flex flex-col items-center text-center shadow-sm">
+                    <div class="w-10 h-10 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center font-bold text-sm mb-4">4</div>
+                    <h4 class="font-bold text-slate-800 mb-1.5">출력 및 동료 성찰 공유</h4>
+                    <p class="text-xs text-slate-500 leading-relaxed">작성한 보고서를 인쇄 모드로 도출해 패들렛 혹은 공동 슬라이드에 게시하고 공유합니다.</p>
+                </div>
+            </div>
+            
+            <div class="mt-8 p-5 bg-amber-50 border border-amber-100 rounded-2xl flex items-start gap-4">
+                <div class="text-amber-500 mt-1"><i class="fa-solid fa-circle-info text-xl"></i></div>
+                <div>
+                    <h4 class="text-amber-800 font-bold mb-1">교사를 위한 오늘의 골든 룰 (EBP 데이터 독해 가이드)</h4>
+                    <p class="text-xs text-amber-900 leading-relaxed">
+                        <strong>"수업에 참여한 척하는 가짜 참여 데이터(Ghost Engagement)"</strong>에 주의하세요. 체류 시간은 1등인데 정답률은 처절하거나, 성찰 글자 수는 무척 많으나 장난으로 가득 채워진 데이터를 모둠원들과의 날카로운 협력 분석으로 잡아내는 것이 핵심 목표입니다.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 2) GROUP PAGES TEMPLATE (Rendered dynamically by JS logic) -->
+    <section id="page-group-workspace" class="tab-content hidden space-y-8 animate-in fade-in duration-300">
+        <!-- Group Dashboard Header -->
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white p-6 rounded-2xl border border-slate-200">
+            <div>
+                <h2 class="text-2xl font-black text-slate-900 flex items-center gap-2">
+                    <span id="group-title-num" class="w-8 h-8 bg-indigo-600 text-white rounded-full flex items-center justify-center text-sm font-bold">1</span>
+                    <span id="group-title-text">모둠 1 데이터 분석 작업실</span>
+                </h2>
+                <p class="text-xs text-slate-500 mt-1">실시간으로 입력 내용이 자동 저장되어 복구와 공유가 자유롭습니다.</p>
+            </div>
+            
+            <!-- Tab selector for Data types -->
+            <div class="flex flex-wrap gap-1 bg-slate-100 p-1.5 rounded-xl border border-slate-200">
+                <button onclick="setGroupDataType('lms')" id="dt-lms" class="dt-btn px-3 py-1.5 text-xs font-semibold rounded-lg transition duration-150">LMS 로그</button>
+                <button onclick="setGroupDataType('observation')" id="dt-observation" class="dt-btn px-3 py-1.5 text-xs font-semibold rounded-lg transition duration-150">활동 관찰</button>
+                <button onclick="setGroupDataType('exam')" id="dt-exam" class="dt-btn px-3 py-1.5 text-xs font-semibold rounded-lg transition duration-150">정기시험 오답</button>
+                <button onclick="setGroupDataType('social')" id="dt-social" class="dt-btn px-3 py-1.5 text-xs font-semibold rounded-lg transition duration-150">사회정서</button>
+            </div>
+        </div>
+
+        <!-- Selected Data Display Segment -->
+        <div class="glass-card p-6 rounded-3xl bg-white shadow-sm border border-slate-200 space-y-4">
+            <div class="border-l-4 border-indigo-600 pl-3">
+                <h3 id="selected-data-title" class="text-lg font-bold text-slate-800">LMS 로그 데이터 (거시적 참여도)</h3>
+                <p id="selected-data-desc" class="text-xs text-slate-500 mt-1">접속 횟수, 총 학습시간, 비디오 완료 여부 등 학습에 머무른 기본 정량 지표입니다.</p>
+            </div>
+            
+            <!-- Scrollable Data Table -->
+            <div class="overflow-x-auto rounded-xl border border-slate-200">
+                <table id="dynamic-data-table" class="w-full text-left border-collapse">
+                    <!-- Loaded dynamically -->
+                </table>
+            </div>
+        </div>
+
+        <!-- Workspace Section (Inputs vs live preview) -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            
+            <!-- Left Workspace: Interactive Forms -->
+            <div class="lg:col-span-6 space-y-6">
+                <!-- Section Title -->
+                <div class="border-b border-slate-200 pb-3 flex items-center gap-2">
+                    <i class="fa-solid fa-pen-to-square text-indigo-600 text-lg"></i>
+                    <h3 class="text-lg font-bold text-slate-800">모둠 데이터 진단 워크북 (입력부)</h3>
+                </div>
+
+                <!-- Input 1: Group Perspective -->
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 space-y-3">
+                    <label class="block text-sm font-bold text-slate-700 flex items-center gap-1.5">
+                        <i class="fa-solid fa-eye text-indigo-500"></i> 입력 1) 우리 모둠의 데이터 분석 관점
+                    </label>
+                    <p class="text-xs text-slate-400">데이터를 독해할 때 세운 기준을 정의해 주세요. (예: "로그 접속 시간 대비 형성평가 성취가 극도로 불일치하는 유령 수강생 포커싱")</p>
+                    <textarea id="input-perspective" oninput="handleStateChange('perspective', this.value)" rows="3" placeholder="우리 모둠만의 독창적인 가설이나 분석 기준을 구체적으로 기입하세요..." class="w-full p-3.5 bg-slate-50/50 border border-slate-200 focus:border-indigo-500 focus:bg-white rounded-xl text-sm transition duration-150 focus:outline-none"></textarea>
+                </div>
+
+                <!-- Input 2: Outlier Student Registration -->
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 space-y-4">
+                    <div class="flex justify-between items-center">
+                        <label class="block text-sm font-bold text-slate-700 flex items-center gap-1.5">
+                            <i class="fa-solid fa-user-tag text-rose-500"></i> 입력 2) 특이 학습자 발굴 및 개별 진단
+                        </label>
+                        <span class="text-[10px] px-2 py-0.5 bg-rose-50 border border-rose-200 text-rose-600 rounded font-bold">오개념/이탈 진단</span>
+                    </div>
+                    <p class="text-xs text-slate-400">수치나 성찰이 엇박자를 내며 심각한 장벽을 겪고 있는 학생을 선택하여, 데이터 증거 기반 진단 사유를 명시해 주세요.</p>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div class="sm:col-span-1">
+                            <label class="block text-xs font-semibold text-slate-400 mb-1">대상 학생 ID</label>
+                            <select id="input-student-id" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold focus:outline-none focus:border-indigo-500">
+                                <option value="S01">S01</option>
+                                <option value="S02">S02</option>
+                                <option value="S03">S03 (선행학습형)</option>
+                                <option value="S04">S04</option>
+                                <option value="S05">S05 (무기력찍기)</option>
+                                <option value="S06">S06 (형식적참여)</option>
+                                <option value="S07">S07</option>
+                                <option value="S08">S08 (화면방치형)</option>
+                                <option value="S09">S09</option>
+                                <option value="S10">S10 (완벽주의형)</option>
+                            </select>
+                        </div>
+                        <div class="sm:col-span-2">
+                            <label class="block text-xs font-semibold text-slate-400 mb-1">분석 관점 및 진단 사유</label>
+                            <input type="text" id="input-student-reason" placeholder="LMS 체류 대비 성취가 왜 이런지 구체적 사유 기재..." class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-indigo-500">
+                        </div>
+                    </div>
+                    
+                    <button onclick="addOrUpdateStudent()" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl transition duration-150 flex items-center justify-center gap-1.5 shadow-sm">
+                        <i class="fa-solid fa-plus-circle"></i> 이상치 학생 리스트에 추가 / 수정
+                    </button>
+                </div>
+
+                <!-- Input 3: Overall Try & Pedagogy Alternatives -->
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 space-y-3">
+                    <label class="block text-sm font-bold text-slate-700 flex items-center gap-1.5">
+                        <i class="fa-solid fa-lightbulb text-amber-500"></i> 입력 3) 종합 평가 및 수업 설계 대안 (Try)
+                    </label>
+                    <p class="text-xs text-slate-400">발굴한 이상치 학생이나 학급 공통 병목에 대하여 차기 마이크로티칭(11과정) 수업 시 즉각 처방할 비계 및 발판 재배치 설계 구상을 정리해 주세요.</p>
+                    <textarea id="input-try" oninput="handleStateChange('overallTry', this.value)" rows="3" placeholder="개념 발판 추가, AI 도구 투입 시점 조정, 협업 역할 분담 보완 등 구체적인 Try를 설계하세요..." class="w-full p-3.5 bg-slate-50/50 border border-slate-200 focus:border-indigo-500 focus:bg-white rounded-xl text-sm transition duration-150 focus:outline-none"></textarea>
+                </div>
+
+                <!-- Action Button for PDF Report generating modal -->
+                <div class="pt-2">
+                    <button onclick="generateReportModal()" class="w-full py-4 bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm rounded-2xl transition duration-150 flex items-center justify-center gap-2 shadow-md">
+                        <i class="fa-solid fa-file-invoice text-indigo-400 text-base"></i> 모둠 분석 보고서 작성 및 인쇄하기
+                    </button>
+                </div>
+            </div>
+
+            <!-- Right Workspace: Live Reflection preview (Live Accumulator) -->
+            <div class="lg:col-span-6 space-y-6">
+                <!-- Section Title -->
+                <div class="border-b border-slate-200 pb-3 flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-receipt text-indigo-600 text-lg"></i>
+                        <h3 class="text-lg font-bold text-slate-800">모둠 데이터 분석 보고서 (실시간 동기화)</h3>
+                    </div>
+                    <span class="text-[10px] px-2 py-0.5 bg-emerald-50 text-emerald-600 border border-emerald-200 rounded font-bold">LIVE MIRROR</span>
+                </div>
+
+                <!-- Live Perspective Segment -->
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 space-y-2">
+                    <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">우리 모둠 분석 관점</div>
+                    <div id="live-perspective" class="text-sm font-semibold text-slate-700 italic border-l-2 border-indigo-400 pl-3 py-1">
+                        - 현재 분석 관점이 입력되지 않았습니다.
+                    </div>
+                </div>
+
+                <!-- Live Diagnosed Outliers Segment -->
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 space-y-3">
+                    <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">발굴된 이상치 학생 분석 기록</div>
+                    <div id="live-student-list" class="space-y-2 max-h-[220px] overflow-y-auto pr-1">
+                        <!-- List populated dynamically -->
+                    </div>
+                </div>
+
+                <!-- Live Alternatives Segment -->
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 space-y-2">
+                    <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">종합 평가 및 수업설계 대안 (Try)</div>
+                    <div id="live-try" class="text-sm text-slate-600 leading-relaxed bg-slate-50 p-4 rounded-xl border border-slate-100 min-h-[80px]">
+                        - 차기 설계안에 적용할 구체적인 Try를 대안 제시 입력창에 작성하세요.
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- REPORT MODAL LAYOUT (Invisible until triggered) -->
+    <div id="report-modal" class="no-print hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-4xl rounded-3xl shadow-2xl border border-slate-200 flex flex-col max-h-[90vh]">
+            <!-- Modal Header (Controls) -->
+            <div class="px-8 py-5 border-b border-slate-100 flex justify-between items-center bg-slate-50 rounded-t-3xl">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-file-pdf text-rose-500 text-lg"></i>
+                    <h3 class="font-extrabold text-slate-900 text-lg">실습 결과 출력 보고서 확인</h3>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="printReport()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm">
+                        <i class="fa-solid fa-print"></i> 보고서 인쇄 / PDF 저장
+                    </button>
+                    <button onclick="copyReportToClipboard()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5">
+                        <i class="fa-solid fa-copy"></i> 보고서 복사하기
+                    </button>
+                    <button onclick="closeReportModal()" class="w-8 h-8 flex items-center justify-center hover:bg-slate-200 rounded-full text-slate-500 transition duration-150">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Modal Content (Report Body) -->
+            <div class="p-8 overflow-y-auto flex-grow bg-white" id="report-modal-body">
+                <!-- Loaded Dynamically via buildReportDocument() -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 3) CONCLUSION PAGE -->
+    <section id="page-conclusion" class="tab-content hidden space-y-8 animate-in fade-in duration-300">
+        <div class="glass-card p-8 rounded-3xl bg-white shadow-sm border border-slate-200">
+            <div class="text-center max-w-2xl mx-auto space-y-3 mb-10">
+                <div class="inline-block p-3 bg-indigo-50 text-indigo-600 rounded-full text-2xl shadow-sm">
+                    <i class="fa-solid fa-flag-checkered"></i>
+                </div>
+                <h2 class="text-3xl font-black text-slate-900">데이터 기반 성찰 마무리</h2>
+                <p class="text-slate-500 text-sm">
+                    오늘 우리는 10인의 가상 학생 데이터를 들여다보았습니다. 
+                    이제 연수 과정의 마무리를 지으며, 아래 성찰 기준을 통해 우리가 직관의 한계를 뛰어넘었는지 진단해 봅니다.
+                </p>
+            </div>
+
+            <!-- Self Evaluation Checklists -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="space-y-4">
+                    <h3 class="text-lg font-bold text-slate-800 border-b border-slate-100 pb-2 flex items-center gap-2">
+                        <i class="fa-solid fa-circle-check text-indigo-500"></i> 자가 진단 및 동료 코칭 체크리스트
+                    </h3>
+                    
+                    <div class="space-y-3">
+                        <div class="flex items-start gap-3 p-3.5 bg-slate-50 rounded-xl">
+                            <input type="checkbox" class="mt-1 w-4.5 h-4.5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500">
+                            <div>
+                                <h4 class="font-bold text-sm text-slate-800">증거-Problem 정합성 충족</h4>
+                                <p class="text-xs text-slate-500 mt-0.5">선택한 학생의 약점이나 가설이 주관적 인상이 아닌 실제 수치 지표에 기반합니까?</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-3 p-3.5 bg-slate-50 rounded-xl">
+                            <input type="checkbox" class="mt-1 w-4.5 h-4.5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500">
+                            <div>
+                                <h4 class="font-bold text-sm text-slate-800">Try의 실천 구체성 확보</h4>
+                                <p class="text-xs text-slate-500 mt-0.5">단순히 "열심히 설명한다"를 넘어 개념 발판 배치, AI 힌트 투입 시점 조정 등 실제 11과정 설계에 적용 가능한 Try를 수립했습니까?</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-3 p-3.5 bg-slate-50 rounded-xl">
+                            <input type="checkbox" class="mt-1 w-4.5 h-4.5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500">
+                            <div>
+                                <h4 class="font-bold text-sm text-slate-800">다면적 교차 분석 성취</h4>
+                                <p class="text-xs text-slate-500 mt-0.5">한 학생에 대한 LMS 로그와 정성적 성찰 일지, 그리고 정기시험 문항 정답률을 모두 입체적으로 연동해 종합적으로 진단했습니까?</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <h3 class="text-lg font-bold text-slate-800 border-b border-slate-100 pb-2 flex items-center gap-2">
+                        <i class="fa-solid fa-graduation-cap text-indigo-500"></i> Kolb의 경험학습 모델 순환
+                    </h3>
+                    <div class="relative pl-6 border-l-2 border-indigo-200 space-y-6">
+                        <div class="relative">
+                            <div class="absolute -left-8.5 top-0 w-5 h-5 bg-indigo-600 text-white rounded-full flex items-center justify-center text-[10px] font-bold">1</div>
+                            <h4 class="font-bold text-slate-800 text-sm">구체적 경험 (Concrete Experience)</h4>
+                            <p class="text-xs text-slate-500 mt-0.5">10과정 마이크로티칭 진행을 통해 실제 수업 활동 실행</p>
+                        </div>
+                        <div class="relative">
+                            <div class="absolute -left-8.5 top-0 w-5 h-5 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center text-[10px] font-bold">2</div>
+                            <h4 class="font-bold text-slate-800 text-sm">반성적 관찰 (Reflective Observation)</h4>
+                            <p class="text-xs text-slate-500 mt-0.5">11과정 실습용 툴킷 대시보드 데이터를 통해 우리 수업 되감기 분석</p>
+                        </div>
+                        <div class="relative">
+                            <div class="absolute -left-8.5 top-0 w-5 h-5 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center text-[10px] font-bold">3</div>
+                            <h4 class="font-bold text-slate-800 text-sm">추상적 개념화 (Abstract Conceptualization)</h4>
+                            <p class="text-xs text-slate-500 mt-0.5">KPT 프레임워크를 기반으로 학생의 학습 병목(Problem) 정의</p>
+                        </div>
+                        <div class="relative">
+                            <div class="absolute -left-8.5 top-0 w-5 h-5 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center text-[10px] font-bold">4</div>
+                            <h4 class="font-bold text-slate-800 text-sm">능동적 실험 (Active Experimentation)</h4>
+                            <p class="text-xs text-slate-500 mt-0.5">11과정 교수학습설계안 고도화를 위한 새로운 처방(Try) 도출</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<!-- 4) INSTRUCTOR PAGE MODAL/VIEW (EBP Interactive Answer Key & Diagnosis) -->
+<div id="instructor-modal" class="no-print hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <!-- Password Prompt View -->
+    <div id="inst-auth-container" class="bg-white w-full max-w-md rounded-2xl p-6 shadow-2xl border border-slate-200 text-center space-y-4 animate-in zoom-in-95 duration-200">
+        <div class="text-indigo-600 text-3xl"><i class="fa-solid fa-lock"></i></div>
+        <h3 class="font-extrabold text-slate-900 text-lg">강사 관찰 전용 페이지 잠금</h3>
+        <p class="text-xs text-slate-500">연수 모범 예시 및 종합 성찰 대시보드가 수록된 강사 지원 시스템입니다. 비밀번호를 입력해 주세요.</p>
+        <div class="space-y-2">
+            <input type="password" id="inst-password-input" placeholder="비밀번호(2026)" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-center font-bold tracking-widest focus:outline-none focus:border-indigo-500 text-sm">
+            <div id="auth-error-msg" class="text-xs text-rose-500 font-bold hidden">비밀번호가 일치하지 않습니다. 다시 입력해 주세요.</div>
+        </div>
+        <div class="flex gap-2">
+            <button onclick="closeInstructorModal()" class="w-1/2 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-xs font-bold transition duration-150">취소</button>
+            <button onclick="validateInstructorPassword()" class="w-1/2 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition duration-150 shadow-sm shadow-indigo-100">입장하기</button>
+        </div>
+    </div>
+
+    <!-- Instructor Panel View (Validated state) -->
+    <div id="inst-panel-container" class="hidden bg-[#fdfbf7] w-full max-w-5xl rounded-3xl shadow-2xl border border-indigo-200 flex flex-col max-h-[92vh] animate-in zoom-in-95 duration-200">
+        <!-- Panel Header -->
+        <div class="px-8 py-5 border-b border-indigo-100 flex justify-between items-center bg-indigo-900 text-white rounded-t-3xl shadow-md">
+            <div class="flex items-center gap-2">
+                <i class="fa-solid fa-chart-pie text-xl text-indigo-300"></i>
+                <div>
+                    <h3 class="font-extrabold text-white text-lg leading-none">강사 지원 분석 포털</h3>
+                    <p class="text-[10px] text-indigo-300 mt-1">이상치 가이던스 해설서 & 인터랙티브 진단 피드백 뷰어</p>
+                </div>
+            </div>
+            <button onclick="closeInstructorModal()" class="w-8 h-8 flex items-center justify-center hover:bg-indigo-800 rounded-full text-indigo-200 transition duration-150">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <!-- Panel Body -->
+        <div class="p-6 overflow-y-auto flex-grow space-y-8">
+            <!-- Part 1: Interactive Dashboard Explorer -->
+            <div class="space-y-4">
+                <div class="border-l-4 border-indigo-600 pl-3">
+                    <h4 class="text-base font-bold text-slate-800">1. 학급 다차원 진단 대시보드 (Class Dashboard)</h4>
+                    <p class="text-[11px] text-slate-500">형성평가 및 클릭수 정합성 시각화 분포도와 문항 정답률 통계 지표입니다.</p>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-white p-4 rounded-2xl border border-slate-200">
+                        <h5 class="text-xs font-bold text-slate-400 mb-3 uppercase tracking-wider">학업 성취도 vs 참여 상호작용 클릭 분포</h5>
+                        <div style="height: 240px; position: relative;">
+                            <canvas id="instClassOverviewChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="bg-white p-4 rounded-2xl border border-slate-200">
+                        <h5 class="text-xs font-bold text-slate-400 mb-3 uppercase tracking-wider">정기시험 문항별 정답률 통계 (Q2 특이폭락)</h5>
+                        <div style="height: 240px; position: relative;">
+                            <canvas id="instItemAnalysisChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Part 2: Individual Diagnosis with Radar Chart -->
+            <div class="space-y-4">
+                <div class="border-l-4 border-indigo-600 pl-3">
+                    <h4 class="text-base font-bold text-slate-800">2. 다차원 개별 학습자 진단기 (Student Profiler)</h4>
+                    <p class="text-[11px] text-slate-500">학생 ID를 클릭하면 해당 학생의 인지, 참여, 사회정서 지표 밸런스 지도가 다이내믹하게 렌더링됩니다.</p>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+                    <!-- Left List selector -->
+                    <div class="md:col-span-3 space-y-1.5 max-h-[300px] overflow-y-auto pr-1 border-r border-slate-100">
+                        <!-- Populated by JS -->
+                        <div id="inst-student-picker" class="space-y-1"></div>
+                    </div>
+                    
+                    <!-- Right Detailed Viewer -->
+                    <div class="md:col-span-9 bg-white p-5 rounded-2xl border border-slate-200">
+                        <div id="inst-detail-content" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Left: Radar chart -->
+                            <div class="flex flex-col items-center">
+                                <h5 class="text-xs font-bold text-slate-400 mb-3 uppercase tracking-wider text-center">오지성형 역량 밸런스 맵</h5>
+                                <div style="height: 220px; width: 100%; position: relative;">
+                                    <canvas id="instStudentRadarChart"></canvas>
+                                </div>
+                            </div>
+                            <!-- Right: Qualitative reflections & custom try guide -->
+                            <div class="space-y-4 flex flex-col justify-between">
+                                <div>
+                                    <h5 class="text-xs font-black text-slate-900 uppercase" id="inst-detail-id-header">S01 상세</h5>
+                                    <div class="p-3 bg-slate-50 rounded-xl italic text-xs text-slate-600 border border-slate-100 mt-2 relative">
+                                        <p id="inst-detail-reflection"></p>
+                                    </div>
+                                    <div class="p-3 bg-amber-50 border border-amber-100 text-[11px] text-amber-900 rounded-xl mt-3">
+                                        <p class="font-bold text-amber-700">교사 정서 관찰</p>
+                                        <p id="inst-detail-emotion-signal"></p>
+                                    </div>
+                                </div>
+                                <div class="p-3 bg-indigo-50 border border-indigo-100 text-[11px] text-indigo-900 rounded-xl">
+                                    <p class="font-bold text-indigo-700">모범 추천 처방 가이드</p>
+                                    <p id="inst-detail-exemplar-try" class="mt-0.5 leading-relaxed"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Part 3: Exemplar key answers for reference -->
+            <div class="space-y-4">
+                <div class="border-l-4 border-indigo-600 pl-3">
+                    <h4 class="text-base font-bold text-slate-800">3. 이상치 가이드 핵심 요약 해설본</h4>
+                    <p class="text-[11px] text-slate-500">각 모둠이 발견해야 하는 이상치 및 원인 성찰 가이드 요약 예시입니다.</p>
+                </div>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                    <div class="bg-white p-4 rounded-xl border border-slate-200">
+                        <div class="text-xs font-bold text-indigo-600 mb-1">S03 <span class="text-[10px] text-slate-400">(선행학습형)</span></div>
+                        <p class="text-[10px] text-slate-500 leading-relaxed mt-1">LMS 1분 체류 성취 만점. 지루함 정서. 멘토 역할 부여 등으로 인지적 흥미 자극 필수.</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl border border-slate-200">
+                        <div class="text-xs font-bold text-indigo-600 mb-1">S05 <span class="text-[10px] text-slate-400">(무기력찍기형)</span></div>
+                        <p class="text-[10px] text-slate-500 leading-relaxed mt-1">평가 소요시간 단 25초. 무지성 찍기. 단계별 쉬운 비계 및 정서적 회복이 성취감의 입구.</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl border border-slate-200">
+                        <div class="text-xs font-bold text-indigo-600 mb-1">S06 <span class="text-[10px] text-slate-400">(형식적참여형)</span></div>
+                        <p class="text-[10px] text-slate-500 leading-relaxed mt-1">성찰 일지 자음 남발로 시스템 필터 우회. 성찰 뼈대(Sentence Starter) 제공 등으로 규격화된 참여 유도.</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl border border-slate-200">
+                        <div class="text-xs font-bold text-indigo-600 mb-1">S08 <span class="text-[10px] text-slate-400">(화면방치형)</span></div>
+                        <p class="text-[10px] text-slate-500 leading-relaxed mt-1">LMS 체류 95분 전체 1위, 동영상 10%, 정기시험 0점. 주의를 환기할 중간 팝업 퀴즈 등 활성 장치 필요.</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl border border-slate-200">
+                        <div class="text-xs font-bold text-indigo-600 mb-1">S10 <span class="text-[10px] text-slate-400">(완벽주의형)</span></div>
+                        <p class="text-[10px] text-slate-500 leading-relaxed mt-1">5번 문항 하나에 9분 교착. 실패 두려움 완화할 성장 지향적 피드백 제공 및 실시간 힌트 보조 긴급 수혈.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Footer (no-print) -->
+<footer class="no-print mt-auto py-8 bg-slate-50 border-t border-slate-200 text-center text-xs text-slate-400">
+    <div class="max-w-7xl mx-auto px-6 space-y-1">
+        <p>본 실습용 대시보드는 중등 11과정 실습 전용 가상의 10인 통제 데이터셋을 반영하고 있습니다.</p>
+        <p class="font-semibold text-slate-500">© 2026 AI 기반 교수·학습 설계 및 성찰 데이터 연수 지원 시스템</p>
+    </div>
+</footer>
+
+<!-- JavaScript UI Core Controller -->
+<script>
+    let currentTab = 'main';
+    let currentGroupId = 1;
+
+    // View Switching Controller
+    function switchTab(tabId) {
+        // Toggle view
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+        document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+
+        if (tabId.startsWith('group')) {
+            currentGroupId = parseInt(tabId.replace('group', ''));
+            const workspace = document.getElementById('page-group-workspace');
+            workspace.classList.remove('hidden');
+            document.getElementById(`tab-group${currentGroupId}`).classList.add('active');
+            renderGroupWorkspace();
+        } else {
+            document.getElementById(`page-${tabId}`).classList.remove('hidden');
+            document.getElementById(`tab-${tabId}`).classList.add('active');
+        }
+        currentTab = tabId;
+        window.scrollTo(0, 0);
+    }
+
+    // Set active tab default
+    window.addEventListener('DOMContentLoaded', () => {
+        switchTab('main');
+        initInstructorPanelPicker();
+    });
+
+    // Handle single input states inside group workspace
+    function handleStateChange(field, value) {
+        appState[`group${currentGroupId}`][field] = value;
+        saveState();
+        updateGroupLiveMirror();
+    }
+
+    // Dynamic data rendering based on Group Selection and Data type selected
+    function setGroupDataType(dataType) {
+        appState[`group${currentGroupId}`].currentDataType = dataType;
+        saveState();
+        
+        // Update Buttons Styling
+        document.querySelectorAll('.dt-btn').forEach(btn => {
+            btn.classList.remove('bg-white', 'text-indigo-600', 'shadow-sm', 'border', 'border-slate-200');
+            btn.classList.add('text-slate-600', 'hover:bg-slate-200/50');
+        });
+        const activeBtn = document.getElementById(`dt-${dataType}`);
+        if (activeBtn) {
+            activeBtn.classList.add('bg-white', 'text-indigo-600', 'shadow-sm', 'border', 'border-slate-200');
+            activeBtn.classList.remove('text-slate-600', 'hover:bg-slate-200/50');
+        }
+
+        renderGroupDataTable(dataType);
+    }
+
+    // Render Group Workbook values onto DOM
+    function renderGroupWorkspace() {
+        const group = appState[`group${currentGroupId}`];
+        
+        // Group Header title
+        document.getElementById('group-title-num').innerText = currentGroupId;
+        document.getElementById('group-title-text').innerText = `모둠 ${currentGroupId} 분석 작업소`;
+        
+        // Pull values
+        document.getElementById('input-perspective').value = group.perspective;
+        document.getElementById('input-try').value = group.overallTry;
+        
+        // Sync active data tab
+        setGroupDataType(group.currentDataType);
+        updateGroupLiveMirror();
+    }
+
+    // Render data source tables dynamically with standard dataset and highlighted outliers
+    function renderGroupDataTable(dataType) {
+        const source = dataset[dataType];
+        document.getElementById('selected-data-title').innerText = source.title;
+        document.getElementById('selected-data-desc').innerText = source.desc;
+
+        const table = document.getElementById('dynamic-data-table');
+        table.innerHTML = '';
+
+        // Build Header row
+        const thead = document.createElement('thead');
+        thead.className = "bg-slate-50 border-b border-slate-200 text-slate-700 text-xs font-bold";
+        let headerRowHtml = '<tr>';
+        source.headers.forEach(h => {
+            headerRowHtml += `<th class="px-4 py-3">${h}</th>`;
+        });
+        headerRowHtml += '</tr>';
+        thead.innerHTML = headerRowHtml;
+        table.appendChild(thead);
+
+        // Build Rows
+        const tbody = document.createElement('tbody');
+        tbody.className = "text-slate-600 text-xs divide-y divide-slate-100 font-medium";
+        
+        source.rows.forEach(row => {
+            let rowHtml = `<tr class="hover:bg-slate-50 transition duration-150">`;
+            
+            // Render columns mapping depending on type
+            if (dataType === 'lms') {
+                rowHtml += `
+                    <td class="px-4 py-3.5 font-bold text-slate-800">${row.id}</td>
+                    <td class="px-4 py-3.5">${row.access}</td>
+                    <td class="px-4 py-3.5">${row.time}</td>
+                    <td class="px-4 py-3.5">${row.clicks}</td>
+                    <td class="px-4 py-3.5">${row.video}%</td>
+                    <td class="px-4 py-3.5 font-bold text-indigo-600">${row.score}점</td>
+                `;
+            } else if (dataType === 'observation') {
+                rowHtml += `
+                    <td class="px-4 py-3.5 font-bold text-slate-800">${row.id}</td>
+                    <td class="px-4 py-3.5">${row.totalTime}초</td>
+                    <td class="px-4 py-3.5">${row.q5Time}초</td>
+                    <td class="px-4 py-3.5 font-bold ${row.q5Ok === 'O' ? 'text-emerald-600':'text-rose-500'}">${row.q5Ok}</td>
+                    <td class="px-4 py-3.5">${row.chars}자</td>
+                    <td class="px-4 py-3.5 italic text-slate-500">${row.text}</td>
+                `;
+            } else if (dataType === 'exam') {
+                rowHtml += `
+                    <td class="px-4 py-3.5 font-bold text-slate-800">${row.id}</td>
+                    <td class="px-4 py-3.5">${row.q1}</td>
+                    <td class="px-4 py-3.5 ${row.q2 === '⑤' ? 'bg-rose-50 text-rose-600 font-extrabold':''}">${row.q2}</td>
+                    <td class="px-4 py-3.5">${row.q3}</td>
+                    <td class="px-4 py-3.5">${row.q4}</td>
+                    <td class="px-4 py-3.5">${row.q5}</td>
+                    <td class="px-4 py-3.5 font-bold text-slate-800">${row.correct}/5</td>
+                `;
+            } else if (dataType === 'social') {
+                rowHtml += `
+                    <td class="px-4 py-3.5 font-bold text-slate-800">${row.id}</td>
+                    <td class="px-4 py-3.5">${row.interest.toFixed(1)}</td>
+                    <td class="px-4 py-3.5">${row.contribution.toFixed(1)}</td>
+                    <td class="px-4 py-3.5 ${row.stress >= 4 ? 'bg-amber-50 text-amber-600 font-extrabold':''}">${row.stress.toFixed(1)}</td>
+                    <td class="px-4 py-3.5 font-semibold text-slate-700">${row.signal}</td>
+                `;
+            }
+            rowHtml += `</tr>`;
+            tbody.innerHTML += rowHtml;
+        });
+
+        // If 'exam', add custom average/achievement footer
+        if (dataType === 'exam') {
+            tbody.innerHTML += `
+                <tr class="bg-indigo-50/50 text-indigo-900 font-bold">
+                    <td class="px-4 py-3.5 text-indigo-900">문항 정답률</td>
+                    <td class="px-4 py-3.5">90%</td>
+                    <td class="px-4 py-3.5 text-rose-600 underline font-extrabold">50% (매력오답 속출)</td>
+                    <td class="px-4 py-3.5">85%</td>
+                    <td class="px-4 py-3.5">60%</td>
+                    <td class="px-4 py-3.5">30%</td>
+                    <td class="px-4 py-3.5 text-indigo-950">학급평균: 2.7개</td>
+                </tr>
+            `;
+        }
+        
+        table.appendChild(tbody);
+    }
+
+    // Add or Edit diagnosed student in current group workbook
+    function addOrUpdateStudent() {
+        const idSelect = document.getElementById('input-student-id');
+        const reasonInput = document.getElementById('input-student-reason');
+
+        const studentId = idSelect.value;
+        const reason = reasonInput.value.trim();
+
+        if (!reason) {
+            showToast("진단 사유를 구체적으로 작성해 주세요.", "warning");
+            return;
+        }
+
+        const group = appState[`group${currentGroupId}`];
+        const existingIdx = group.students.findIndex(s => s.id === studentId);
+
+        if (existingIdx > -1) {
+            group.students[existingIdx].reason = reason;
+            showToast(`학생 ${studentId}번의 진단 기록이 수정되었습니다.`, "success");
+        } else {
+            group.students.push({ id: studentId, reason: reason });
+            showToast(`학생 ${studentId}번을 이상치 목록에 추가했습니다.`, "success");
+        }
+
+        reasonInput.value = ''; // Reset reason
+        saveState();
+        updateGroupLiveMirror();
+    }
+
+    function deleteStudent(studentId) {
+        const group = appState[`group${currentGroupId}`];
+        group.students = group.students.filter(s => s.id !== studentId);
+        saveState();
+        updateGroupLiveMirror();
+        showToast(`학생 ${studentId}번을 진단 목록에서 지웠습니다.`, "info");
+    }
+
+    function editStudent(studentId, reason) {
+        document.getElementById('input-student-id').value = studentId;
+        document.getElementById('input-student-reason').value = reason;
+        document.getElementById('input-student-reason').focus();
+    }
+
+    // Live Accumulator View Updater
+    function updateGroupLiveMirror() {
+        const group = appState[`group${currentGroupId}`];
+
+        // Perspective
+        const perspectiveEl = document.getElementById('live-perspective');
+        if (group.perspective.trim()) {
+            perspectiveEl.innerText = group.perspective;
+            perspectiveEl.className = "text-sm font-semibold text-slate-800 border-l-2 border-indigo-600 pl-3 py-1";
+        } else {
+            perspectiveEl.innerText = "- 현재 분석 관점이 입력되지 않았습니다.";
+            perspectiveEl.className = "text-sm font-semibold text-slate-400 italic border-l-2 border-slate-300 pl-3 py-1";
+        }
+
+        // Student diagnoses
+        const listEl = document.getElementById('live-student-list');
+        listEl.innerHTML = '';
+        if (group.students.length > 0) {
+            group.students.forEach(s => {
+                const card = document.createElement('div');
+                card.className = "flex items-start justify-between p-3 bg-slate-50 border border-slate-100 rounded-xl hover:border-slate-200 transition duration-150";
+                
+                // If it belongs to one of the 5 predefined outliers, add label for nice UX
+                const helper = instructorExemplars[s.id];
+                const badgeHtml = helper ? `<span class="px-1.5 py-0.5 bg-rose-100 text-rose-600 rounded text-[9px] font-bold">${helper.type}</span>` : '';
+
+                card.innerHTML = `
+                    <div class="space-y-1 max-w-[85%]">
+                        <div class="flex items-center gap-1.5">
+                            <span class="text-xs font-black text-indigo-600">학생 ${s.id}</span>
+                            ${badgeHtml}
+                        </div>
+                        <p class="text-xs text-slate-600 leading-relaxed">${s.reason}</p>
+                    </div>
+                    <div class="flex gap-1">
+                        <button onclick="editStudent('${s.id}', '${s.reason}')" class="text-indigo-600 hover:text-indigo-800 p-1 text-[11px]"><i class="fa-solid fa-pen"></i></button>
+                        <button onclick="deleteStudent('${s.id}')" class="text-rose-500 hover:text-rose-700 p-1 text-[11px]"><i class="fa-solid fa-trash-can"></i></button>
+                    </div>
+                `;
+                listEl.appendChild(card);
+            });
+        } else {
+            listEl.innerHTML = `
+                <div class="text-center py-6 text-xs text-slate-400 italic">
+                    <i class="fa-solid fa-circle-exclamation mb-1.5 text-base block text-slate-300"></i>
+                    아직 진단된 학생이 없습니다.
+                </div>
+            `;
+        }
+
+        // Try / Alternatives
+        const tryEl = document.getElementById('live-try');
+        if (group.overallTry.trim()) {
+            tryEl.innerText = group.overallTry;
+            tryEl.classList.remove('text-slate-400', 'italic');
+            tryEl.classList.add('text-slate-700');
+        } else {
+            tryEl.innerText = "- 차기 설계안에 적용할 구체적인 Try를 대안 제시 입력창에 작성하세요.";
+            tryEl.classList.remove('text-slate-700');
+            tryEl.classList.add('text-slate-400', 'italic');
+        }
+    }
+</script>
+
+<!-- Report Generation & Modal Controller -->
+<script>
+    function buildReportDocument() {
+        const group = appState[`group${currentGroupId}`];
+        
+        let studentsHtml = '';
+        if (group.students.length > 0) {
+            group.students.forEach(s => {
+                const isDefined = instructorExemplars[s.id];
+                studentsHtml += `
+                    <div class="p-4 bg-slate-50 border border-slate-100 rounded-xl space-y-1">
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs font-black text-slate-900 bg-slate-200 px-2 py-0.5 rounded">학생 ${s.id}</span>
+                            ${isDefined ? `<span class="text-[10px] text-rose-600 font-extrabold bg-rose-50 px-2 py-0.5 rounded border border-rose-100">${isDefined.type}</span>` : ''}
+                        </div>
+                        <p class="text-xs text-slate-700 leading-relaxed">${s.reason}</p>
+                    </div>
+                `;
+            });
+        } else {
+            studentsHtml = `<p class="text-xs text-slate-400 italic">모둠에서 개별 분석한 특이 학생 데이터가 누락되었습니다.</p>`;
+        }
+
+        return `
+            <div class="print-layout space-y-8 font-sans">
+                <!-- Report Header -->
+                <div class="border-b-4 border-slate-900 pb-5 text-center relative">
+                    <div class="absolute top-0 left-0 text-[10px] text-slate-400 font-bold uppercase">선도교사 연수 11과정 실습 산출물</div>
+                    <h1 class="text-2xl font-black text-slate-900 tracking-tight mt-3">교수·학습 설계 및 성찰을 위한 수업 데이터 분석 보고서</h1>
+                    <div class="flex justify-center gap-6 mt-3 text-xs text-slate-600">
+                        <span><strong>소속 모둠:</strong> 모둠 ${currentGroupId}</span>
+                        <span><strong>분석 실행 일자:</strong> ${new Date().toLocaleDateString('ko-KR')}</span>
+                        <span><strong>진단 분석 대상:</strong> 가상 10인 학습 데이터셋</span>
+                    </div>
+                </div>
+
+                <!-- Part 1: Perspectives -->
+                <div class="space-y-2">
+                    <h4 class="text-sm font-extrabold text-slate-900 border-b border-slate-200 pb-1 flex items-center gap-1.5">
+                        <span class="w-1.5 h-3.5 bg-indigo-600 rounded"></span> 1. 우리 모둠의 수업 분석 렌즈 및 가설
+                    </h4>
+                    <p class="text-xs text-slate-700 leading-relaxed bg-slate-50/50 p-4 rounded-xl border border-slate-100 italic">
+                        ${group.perspective.trim() ? group.perspective : '<span class="text-slate-400 italic">미기입 상태</span>'}
+                    </p>
+                </div>
+
+                <!-- Part 2: Diagnoses -->
+                <div class="space-y-3">
+                    <h4 class="text-sm font-extrabold text-slate-900 border-b border-slate-200 pb-1 flex items-center gap-1.5">
+                        <span class="w-1.5 h-3.5 bg-indigo-600 rounded"></span> 2. 발굴 특이 학습자 정밀 대조 진단
+                    </h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        ${studentsHtml}
+                    </div>
+                </div>
+
+                <!-- Part 3: Try Alternatives -->
+                <div class="space-y-2">
+                    <h4 class="text-sm font-extrabold text-slate-900 border-b border-slate-200 pb-1 flex items-center gap-1.5">
+                        <span class="w-1.5 h-3.5 bg-indigo-600 rounded"></span> 3. 11과정 마이크로티칭 연계 교수설계 수정안 (Try)
+                    </h4>
+                    <div class="p-5 bg-indigo-50/20 border border-indigo-100 rounded-2xl text-xs text-slate-800 leading-relaxed">
+                        ${group.overallTry.trim() ? group.overallTry : '<span class="text-slate-400 italic">미기입 상태</span>'}
+                    </div>
+                </div>
+
+                <!-- Footnotes & Signature -->
+                <div class="border-t border-slate-100 pt-8 flex justify-between items-center text-[10px] text-slate-400">
+                    <span>본 보고서는 AI 활용 선도교사 연수 실습 플랫폼을 통해 작성되었습니다.</span>
+                    <span class="font-bold text-slate-600">모둠원 전원 서명: ____________________</span>
+                </div>
+            </div>
+        `;
+    }
+
+    function generateReportModal() {
+        const body = document.getElementById('report-modal-body');
+        body.innerHTML = buildReportDocument();
+        document.getElementById('report-modal').classList.remove('hidden');
+    }
+
+    function closeReportModal() {
+        document.getElementById('report-modal').classList.add('hidden');
+    }
+
+    function printReport() {
+        window.print();
+    }
+
+    function copyReportToClipboard() {
+        const group = appState[`group${currentGroupId}`];
+        let copyText = `[모둠 ${currentGroupId} 데이터 분석 보고서]\n\n`;
+        copyText += `■ 분석 관점:\n${group.perspective}\n\n`;
+        copyText += `■ 특이 학생 진단:\n`;
+        group.students.forEach(s => {
+            copyText += `- S${s.id}: ${s.reason}\n`;
+        });
+        copyText += `\n■ 수업설계 대안(Try):\n${group.overallTry}`;
+
+        const tempTextarea = document.createElement('textarea');
+        tempTextarea.value = copyText;
+        document.body.appendChild(tempTextarea);
+        tempTextarea.select();
+        
+        try {
+            document.execCommand('copy');
+            showToast("클립보드에 보고서 데이터가 정상적으로 복사되었습니다.", "success");
+        } catch (e) {
+            showToast("복사에 실패했습니다.", "error");
+        } finally {
+            document.body.removeChild(tempTextarea);
+        }
+    }
+</script>
+
+<!-- Helper Function: Custom Premium Toast UI (to avoid native alert) -->
+<script>
+    function showToast(message, type = 'info') {
+        // Remove existing if any
+        const oldToast = document.getElementById('app-toast');
+        if (oldToast) oldToast.remove();
+
+        const toast = document.createElement('div');
+        toast.id = 'app-toast';
+        
+        let bg = 'bg-slate-900';
+        let icon = 'fa-circle-info';
+        
+        if (type === 'success') {
+            bg = 'bg-emerald-600';
+            icon = 'fa-circle-check';
+        } else if (type === 'warning') {
+            bg = 'bg-amber-600';
+            icon = 'fa-triangle-exclamation';
+        } else if (type === 'error') {
+            bg = 'bg-rose-600';
+            icon = 'fa-circle-xmark';
+        }
+
+        toast.className = `no-print fixed top-6 left-1/2 -translate-x-1/2 z-50 px-5 py-3 rounded-2xl ${bg} text-white text-xs font-bold shadow-2xl flex items-center gap-2 animate-in fade-in slide-in-from-top-4 duration-200`;
+        toast.innerHTML = `<i class="fa-solid ${icon}"></i> <span>${message}</span>`;
+        
+        document.body.appendChild(toast);
+        
+        setTimeout(() => {
+            toast.classList.add('animate-out', 'fade-out', 'slide-out-to-top-4', 'duration-200');
+            setTimeout(() => toast.remove(), 200);
+        }, 3000);
+    }
+</script>
+
+<!-- Instructor Page Authentication and Interaction -->
+<script>
+    let isInstructorUnlocked = false;
+    let instructorRadarChartObj = null;
+
+    function openInstructorModal() {
+        if (isInstructorUnlocked) {
+            document.getElementById('instructor-modal').classList.remove('hidden');
+            document.getElementById('inst-auth-container').classList.add('hidden');
+            document.getElementById('inst-panel-container').classList.remove('hidden');
+            // Trigger charts load
+            setTimeout(() => {
+                initInstructorCharts();
+                selectInstructorDetailStudent('S10'); // Default focus完벽주의
+            }, 100);
+        } else {
+            document.getElementById('instructor-modal').classList.remove('hidden');
+            document.getElementById('inst-auth-container').classList.remove('hidden');
+            document.getElementById('inst-panel-container').classList.add('hidden');
+            document.getElementById('inst-password-input').value = '';
+            document.getElementById('auth-error-msg').classList.add('hidden');
+            document.getElementById('inst-password-input').focus();
+        }
+    }
+
+    function closeInstructorModal() {
+        document.getElementById('instructor-modal').classList.add('hidden');
+    }
+
+    function validateInstructorPassword() {
+        const pw = document.getElementById('inst-password-input').value;
+        if (pw === '2026') {
+            isInstructorUnlocked = true;
+            document.getElementById('inst-auth-container').classList.add('hidden');
+            document.getElementById('inst-panel-container').classList.remove('hidden');
+            showToast("강사 페이지 인증에 성공했습니다.", "success");
+            setTimeout(() => {
+                initInstructorCharts();
+                selectInstructorDetailStudent('S10');
+            }, 100);
+        } else {
+            document.getElementById('auth-error-msg').classList.remove('hidden');
+        }
+    }
+
+    // Trigger validation with Enter key
+    document.getElementById('inst-password-input')?.addEventListener('keyup', (e) => {
+        if (e.key === 'Enter') validateInstructorPassword();
+    });
+</script>
+
+<!-- Instructor Page Chart.js Visualizations -->
+<script>
+    let instClassOverviewChartObj = null;
+    let instItemAnalysisChartObj = null;
+
+    function initInstructorCharts() {
+        // 1. Class Overview Bar Chart
+        const ctxOverview = document.getElementById('instClassOverviewChart').getContext('2d');
+        if (instClassOverviewChartObj) instClassOverviewChartObj.destroy();
+        
+        instClassOverviewChartObj = new Chart(ctxOverview, {
+            type: 'bar',
+            data: {
+                labels: dataset.lms.rows.map(r => r.id),
+                datasets: [
+                    {
+                        label: '형성평가 점수 (점)',
+                        data: dataset.lms.rows.map(r => r.score),
+                        backgroundColor: '#6366f1',
+                        borderRadius: 6,
+                        yAxisID: 'y'
+                    },
+                    {
+                        label: '클릭 수 (회)',
+                        data: dataset.lms.rows.map(r => r.clicks),
+                        backgroundColor: '#cbd5e1',
+                        borderRadius: 6,
+                        yAxisID: 'y1'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'top', labels: { boxWidth: 10, font: { size: 10 } } }
+                },
+                scales: {
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        max: 110,
+                        grid: { display: false }
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        max: 80,
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
+
+        // 2. Item Analysis Chart
+        const ctxItem = document.getElementById('instItemAnalysisChart').getContext('2d');
+        if (instItemAnalysisChartObj) instItemAnalysisChartObj.destroy();
+
+        instItemAnalysisChartObj = new Chart(ctxItem, {
+            type: 'bar',
+            data: {
+                labels: ['Q1(최하)', 'Q2(하)', 'Q3(중)', 'Q4(상)', 'Q5(최상)'],
+                datasets: [{
+                    label: '문항 정답률 (%)',
+                    data: [90, 50, 85, 60, 30],
+                    backgroundColor: (ctx) => {
+                        return ctx.dataIndex === 1 ? '#f43f5e' : '#94a3b8';
+                    },
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: { max: 100 }
+                }
+            }
+        });
+    }
+
+    // Populate Student Picker buttons
+    function initInstructorPanelPicker() {
+        const picker = document.getElementById('inst-student-picker');
+        picker.innerHTML = '';
+        dataset.lms.rows.forEach(r => {
+            const btn = document.createElement('button');
+            btn.className = `inst-pick-btn w-full text-left px-3 py-2 text-xs font-bold rounded-lg border border-slate-200 transition hover:bg-indigo-50 hover:border-indigo-200 flex justify-between items-center bg-white`;
+            btn.id = `inst-picker-${r.id}`;
+            btn.onclick = () => selectInstructorDetailStudent(r.id);
+            
+            const isOutlier = instructorExemplars[r.id];
+            btn.innerHTML = `
+                <span>학생 ${r.id}</span>
+                ${isOutlier ? `<span class="px-1 py-0.5 bg-rose-50 text-rose-500 rounded text-[9px] font-black">집중진단</span>` : `<span class="text-[9px] text-slate-400">일반</span>`}
+            `;
+            picker.appendChild(btn);
+        });
+    }
+
+    // Interactive radar chart builder for selected student
+    function selectInstructorDetailStudent(id) {
+        // Toggle selected styling
+        document.querySelectorAll('.inst-pick-btn').forEach(btn => {
+            btn.classList.remove('bg-indigo-600', 'text-white', 'hover:bg-indigo-700', 'border-indigo-600');
+            btn.classList.add('bg-white', 'text-slate-700', 'hover:bg-indigo-50', 'border-slate-200');
+        });
+        const selectedBtn = document.getElementById(`inst-picker-${id}`);
+        if (selectedBtn) {
+            selectedBtn.classList.remove('bg-white', 'text-slate-700', 'hover:bg-indigo-50', 'border-slate-200');
+            selectedBtn.classList.add('bg-indigo-600', 'text-white', 'hover:bg-indigo-700', 'border-indigo-600');
+        }
+
+        // Search matching student stats across dataset
+        const lmsRow = dataset.lms.rows.find(r => r.id === id);
+        const obsRow = dataset.observation.rows.find(r => r.id === id);
+        const socRow = dataset.social.rows.find(r => r.id === id);
+
+        // Render fields
+        document.getElementById('inst-detail-id-header').innerText = `학습자 S${id}번 종합 진단 프로필`;
+        document.getElementById('inst-detail-reflection').innerHTML = `“ ${obsRow.text} ”`;
+        document.getElementById('inst-detail-emotion-signal').innerText = socRow.signal;
+
+        const exemplar = instructorExemplars[id];
+        const exemplarBox = document.getElementById('inst-detail-exemplar-try');
+        if (exemplar) {
+            exemplarBox.innerHTML = `<strong>진단명: ${exemplar.type}</strong><br>${exemplar.try}`;
+        } else {
+            exemplarBox.innerHTML = `<strong>진단명: 일반 학습 정상군</strong><br>LMS 상호작용 및 정서 상태가 균형적입니다. 협업 모둠 학습 시 또래 리더로서 기여할 기회를 제공해 주십시오.`;
+        }
+
+        // Radar chart update
+        const radarCtx = document.getElementById('instStudentRadarChart').getContext('2d');
+        
+        // standard metrics normalized to 5 scale
+        const dataArr = [
+            (lmsRow.score / 100) * 5,       // 인지성취
+            socRow.interest,               // 학습흥미
+            socRow.contribution,           // 모둠협업
+            (5 - socRow.stress),           // 심리안정(스트레스 역산)
+            (lmsRow.clicks / 60) * 5       // LMS활성 (클릭수 60 만점 기준)
+        ];
+
+        if (instructorRadarChartObj) instructorRadarChartObj.destroy();
+
+        instructorRadarChartObj = new Chart(radarCtx, {
+            type: 'radar',
+            data: {
+                labels: ['인지 성취', '학습 흥미', '모둠 협업', '심리 안정', 'LMS 활성'],
+                datasets: [{
+                    label: `S${id} 진단 밸런스 맵`,
+                    data: dataArr,
+                    fill: true,
+                    backgroundColor: 'rgba(99, 102, 241, 0.2)',
+                    borderColor: '#6366f1',
+                    pointBackgroundColor: '#6366f1',
+                    pointBorderColor: '#fff',
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    r: {
+                        suggestedMin: 0,
+                        suggestedMax: 5,
+                        ticks: { display: false }
+                    }
+                },
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+    }
+</script>
+</body>
+</html>
