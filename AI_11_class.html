@@ -16,6 +16,40 @@
             font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
             background-color: #fdfbf7;
         }
+        /* 프린트 스타일 정교화 */
+        @media print {
+            body {
+                background-color: #ffffff !important;
+                color: #000000 !important;
+            }
+            #main-view, #gateway-view, header, .no-print {
+                display: none !important;
+            }
+            #report-modal {
+                position: absolute !important;
+                left: 0 !important;
+                top: 0 !important;
+                width: 100% !important;
+                height: auto !important;
+                overflow: visible !important;
+                background-color: transparent !important;
+                backdrop-filter: none !important;
+                z-index: auto !important;
+            }
+            #report-modal > div {
+                box-shadow: none !important;
+                border: none !important;
+                max-height: none !important;
+                overflow: visible !important;
+                width: 100% !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+            .print-color-adjust {
+                print-color-adjust: exact;
+                -webkit-print-color-adjust: exact;
+            }
+        }
     </style>
 </head>
 <body class="min-h-screen text-slate-800 flex flex-col">
@@ -53,11 +87,7 @@
                         <i class="fa-solid fa-users text-amber-500"></i> 배정된 모둠 선택
                     </label>
                     <select id="gateway-group-select" class="w-full p-3 border border-slate-200 rounded-xl bg-slate-50/50 text-sm focus:outline-none focus:border-indigo-500 focus:bg-white transition">
-                        <option value="1">모둠 1</option>
-                        <option value="2">모둠 2</option>
-                        <option value="3">모둠 3</option>
-                        <option value="4">모둠 4</option>
-                        <option value="5">모둠 5</option>
+                        <!-- 동적으로 로드되는 모둠 옵션 -->
                     </select>
                 </div>
 
@@ -68,7 +98,7 @@
             </div>
 
             <div class="text-center pt-2 relative border-t border-slate-100">
-                <a href="AI_11_admin.html" class="text-[11px] text-slate-400 hover:text-indigo-600 transition underline decoration-dotted">
+                <a href="admin.html" class="text-[11px] text-slate-400 hover:text-indigo-600 transition underline decoration-dotted">
                     <i class="fa-solid fa-user-gear"></i> 관리자(강사) 콘솔 바로가기
                 </a>
             </div>
@@ -111,7 +141,7 @@
                 <button onclick="exitToGateway()" class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1 bg-slate-100 hover:bg-rose-50 hover:text-rose-600 text-slate-500">
                     <i class="fa-solid fa-arrow-right-from-bracket"></i> 정보 변경
                 </button>
-                <a href="admin.html" class="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-900 text-white font-bold text-xs rounded-xl transition flex items-center gap-1 shadow-sm">
+                <a href="AI_11_admin.html" class="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-900 text-white font-bold text-xs rounded-xl transition flex items-center gap-1 shadow-sm">
                     <i class="fa-solid fa-user-gear"></i> 관리자모드
                 </a>
             </div>
@@ -120,78 +150,127 @@
         <!-- Main Content Body -->
         <main class="flex-1 max-w-7xl w-full mx-auto p-6 space-y-6">
 
-            <!-- TAB 1: MAIN PAGE -->
-            <section id="tab-main" class="space-y-6">
+            <!-- TAB 1: MAIN PAGE (수정 1: 이론 및 연수 흐름 전면 고도화) -->
+            <section id="tab-main" class="space-y-8">
                 <!-- Welcome Card -->
-                <div class="bg-gradient-to-br from-indigo-900 via-indigo-950 to-slate-900 rounded-3xl p-8 text-white relative overflow-hidden shadow-lg">
-                    <div class="absolute -right-20 -bottom-20 w-80 h-80 bg-indigo-500/10 rounded-full blur-3xl"></div>
-                    <div class="relative space-y-4 max-w-2xl">
-                        <span class="px-3 py-1 bg-white/10 text-white text-[10px] font-bold tracking-wider rounded-full uppercase backdrop-blur-sm">2차시 연수 안내</span>
-                        <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight leading-tight">
-                            "직관(Feeling)이 아닌 증거(Evidence)로"
+                <div class="bg-gradient-to-br from-indigo-950 via-slate-900 to-indigo-900 rounded-3xl p-8 text-white relative overflow-hidden shadow-xl border border-indigo-800/50">
+                    <div class="absolute -right-20 -bottom-20 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl animate-pulse"></div>
+                    <div class="relative space-y-4 max-w-4xl">
+                        <span class="px-3 py-1 bg-indigo-500/20 text-indigo-300 text-xs font-black tracking-widest rounded-full uppercase border border-indigo-500/30">2차시 연수 설계 가이드</span>
+                        <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight leading-tight">
+                            "직관(Feeling)의 단계를 넘어<br>명확한 증거(Evidence)로 성장을 확인하다"
                         </h2>
-                        <p class="text-sm text-indigo-200/90 leading-relaxed">
-                            수업 데이터 속 무수한 정보 흐름에서 학생 성장의 비밀을 마주하는 실습 페이지입니다. 모둠원들과 함께 다차원 데이터를 다각도로 진단하며 강점(Keep), 약점(Problem)을 발견하고, 차기 마이크로티칭 설계에 환류할 수 있는 성찰(Try)을 가꾸어보세요.
+                        <p class="text-sm md:text-base text-slate-300 leading-relaxed max-w-3xl">
+                            학생들의 다차원적인 가상 행동 데이터(LMS 수치 로그, 정성적 성찰 일지, 정기고사 함정 문항 매트릭스, 사회정서 스트레스 렌즈)를 다각적으로 교차 탐독합니다. 동료 교사들과 함께 모둠 협업을 수행하며 발견한 문제점(Problem)에 대한 정교한 교수학습 설계 대안(Try)을 가꾸어보세요.
                         </p>
                     </div>
                 </div>
 
-                <!-- Theory Grid -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-3">
-                        <div class="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600">
-                            <i class="fa-solid fa-brain"></i>
-                        </div>
-                        <h3 class="font-bold text-slate-800 text-sm">스웰러의 인지부하</h3>
-                        <p class="text-xs text-slate-500 leading-relaxed">
-                            복잡하게 조각난 원본 데이터는 교사에게 피로를 줍니다. 시각화 데이터 렌즈를 투입해 인지적 장벽을 무너뜨리고 학생들의 이해 저하 구간을 명쾌하게 읽어내야 합니다.
-                        </p>
-                    </div>
-                    <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-3">
-                        <div class="w-10 h-10 bg-amber-50 rounded-xl flex items-center justify-center text-amber-600">
-                            <i class="fa-solid fa-magnifying-glass-chart"></i>
-                        </div>
-                        <h3 class="font-bold text-slate-800 text-sm">증거기반 실천 (EBP)</h3>
-                        <p class="text-xs text-slate-500 leading-relaxed">
-                            "애들이 좋아했다"는 교사의 직관적 감상에서 탈피해, LMS 로그와 문항 반응 데이터라는 강력한 실증적 증거를 기반으로 삼는 성찰 태도를 정립합니다.
-                        </p>
-                    </div>
-                    <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-3">
-                        <div class="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-600">
-                            <i class="fa-solid fa-arrows-spin"></i>
-                        </div>
-                        <h3 class="font-bold text-slate-800 text-sm">쇤 & 콜브의 성찰</h3>
-                        <p class="text-xs text-slate-500 leading-relaxed">
-                            설계와 실행을 거친 수업은 데이터 기반의 되감기(Rewind)를 통해 반성적으로 분석되고, 궁극적으로 더 강건한 다음 설계(Try)로 되먹임(환류)됩니다.
-                        </p>
-                    </div>
-                </div>
-
-                <!-- Training Flow Chart -->
-                <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-4">
-                    <h3 class="text-sm font-bold text-slate-800 flex items-center gap-1.5">
-                        <i class="fa-solid fa-circle-play text-indigo-500"></i> 실습 진행 순서
+                <!-- Theory Section: 3대 핵심 렌즈 -->
+                <div class="space-y-4">
+                    <h3 class="text-lg font-black text-slate-800 flex items-center gap-2">
+                        <i class="fa-solid fa-graduation-cap text-indigo-600"></i> 데이터 분석을 관통하는 3대 교수·학습 이론
                     </h3>
-                    <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 text-center">
-                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 space-y-1">
-                            <div class="text-xs font-black text-indigo-600">STEP 1</div>
-                            <div class="text-xs font-bold text-slate-800">모둠원 등록</div>
-                            <p class="text-[10px] text-slate-400">모둠원 명단 기입 및 전송</p>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-3 hover:shadow-md transition duration-200">
+                            <div class="w-12 h-12 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600 text-lg">
+                                <i class="fa-solid fa-layer-group"></i>
+                            </div>
+                            <h4 class="font-extrabold text-slate-900 text-base">스웰러(Sweller)의 인지부하 이론</h4>
+                            <p class="text-xs text-slate-500 leading-relaxed">
+                                정제되지 않은 단순 수치 표는 교사에게 강한 **'인지적 장벽(외재적 인지부하)'**을 유발합니다. 입체화된 대시보드를 통해 핵심적인 데이터 이상치와 학습자의 실제 병목 구간을 신속하게 찾아내야만 수업 중 교사의 유한한 인지 자원을 최적의 개인별 피드백 비계 설계에 투입할 수 있습니다.
+                            </p>
                         </div>
-                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 space-y-1">
-                            <div class="text-xs font-black text-indigo-600">STEP 2</div>
-                            <div class="text-xs font-bold text-slate-800">데이터 탐독</div>
-                            <p class="text-[10px] text-slate-400">4가지 다차원 데이터 확인</p>
+                        <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-3 hover:shadow-md transition duration-200">
+                            <div class="w-12 h-12 bg-amber-50 rounded-xl flex items-center justify-center text-amber-600 text-lg">
+                                <i class="fa-solid fa-magnifying-glass-chart"></i>
+                            </div>
+                            <h4 class="font-extrabold text-slate-900 text-base">증거기반 실천 (EBP, Evidence-Based)</h4>
+                            <p class="text-xs text-slate-500 leading-relaxed">
+                                "교실 분위기가 좋았다", "애들이 재미있어했다"는 주관적 감상과 관행적 확증 편향에서 온전히 벗어납니다. 로그 분석과 오응답 선택지 비율이라는 정량/정성의 입증된 **실증 데이터**를 수업 성찰과 다차원 처방의 유일한 근거로 채택하여 수업 정합성을 구축합니다.
+                            </p>
                         </div>
-                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 space-y-1">
-                            <div class="text-xs font-black text-indigo-600">STEP 3</div>
-                            <div class="text-xs font-bold text-slate-800">성찰 작성 (KPT)</div>
-                            <p class="text-[10px] text-slate-400">가설 관점, 이상치, 대안 입력</p>
+                        <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-3 hover:shadow-md transition duration-200">
+                            <div class="w-12 h-12 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-600 text-lg">
+                                <i class="fa-solid fa-rotate-left"></i>
+                            </div>
+                            <h4 class="font-extrabold text-slate-900 text-base">쇤(Schön) & 콜브(Kolb)의 성찰 사이클</h4>
+                            <p class="text-xs text-slate-500 leading-relaxed">
+                                수업 설계와 실제 실행은 데이터 기반 되감기(Rewind)를 통하여 반성적으로 관찰됩니다. 교사는 **구체적 경험 → 반성적 성찰 → 추상적 개념화 → 적극적 실험(Try)** 루프를 돎으로써 정밀 피드백과 동적 비계를 즉시 다음 차시 실천 수업(Micro-teaching)에 환류합니다.
+                            </p>
                         </div>
-                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 space-y-1">
-                            <div class="text-xs font-black text-indigo-600">STEP 4</div>
-                            <div class="text-xs font-bold text-slate-800">보고서 도출</div>
-                            <p class="text-[10px] text-slate-400">최종 분석 보고서 PDF 인쇄</p>
+                    </div>
+                </div>
+
+                <!-- 2차시 연수 타임라인 체크리스트 -->
+                <div class="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm space-y-4">
+                    <h3 class="text-lg font-black text-slate-800 flex items-center gap-2">
+                        <i class="fa-solid fa-clock text-indigo-500"></i> [2차시 100분] 데이터 분석 및 수업 환류 세부 타임라인
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <!-- Step 1 -->
+                        <div class="relative bg-slate-50 p-5 rounded-2xl border border-slate-100 flex flex-col justify-between">
+                            <div class="space-y-2">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-[10px] font-black text-indigo-600 uppercase">Step 1 (20분)</span>
+                                    <span class="text-slate-300 font-mono text-xs">Ch.1</span>
+                                </div>
+                                <h4 class="font-extrabold text-slate-800 text-sm">직관에서 증거로</h4>
+                                <p class="text-xs text-slate-500 leading-normal">
+                                    동일한 마이크로티칭 수업을 직관과 데이터 렌즈로 대조하며, 다차원 연계 진단 프레임워크 학습.
+                                </p>
+                            </div>
+                            <div class="mt-4 pt-2 border-t border-slate-200/60 text-[10px] text-slate-400 font-semibold flex items-center gap-1">
+                                <i class="fa-solid fa-circle-check text-emerald-500"></i> 데이터 분석 3대 렌즈 장착
+                            </div>
+                        </div>
+                        <!-- Step 2 -->
+                        <div class="relative bg-slate-50 p-5 rounded-2xl border border-slate-100 flex flex-col justify-between">
+                            <div class="space-y-2">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-[10px] font-black text-indigo-600 uppercase">Step 2 (35분)</span>
+                                    <span class="text-slate-300 font-mono text-xs">Ch.2</span>
+                                </div>
+                                <h4 class="font-extrabold text-slate-800 text-sm">데이터 진단 대시보드</h4>
+                                <p class="text-xs text-slate-500 leading-normal">
+                                    노트북LM에 실습용 가상 데이터셋($10\text{인}$)을 투입하고 프롬프트를 통해 주요 이상치 학생 $5\text{인}$ 상세 정성 추출.
+                                </p>
+                            </div>
+                            <div class="mt-4 pt-2 border-t border-slate-200/60 text-[10px] text-slate-400 font-semibold flex items-center gap-1">
+                                <i class="fa-solid fa-circle-check text-emerald-500"></i> 이상치 S03, S05, S06, S08, S10 추출
+                            </div>
+                        </div>
+                        <!-- Step 3 -->
+                        <div class="relative bg-slate-50 p-5 rounded-2xl border border-slate-100 flex flex-col justify-between">
+                            <div class="space-y-2">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-[10px] font-black text-indigo-600 uppercase">Step 3 (35분)</span>
+                                    <span class="text-slate-300 font-mono text-xs">Ch.3</span>
+                                </div>
+                                <h4 class="font-extrabold text-slate-800 text-sm">KPT 실시간 모둠 코칭</h4>
+                                <p class="text-xs text-slate-500 leading-normal">
+                                    KPT 프레임워크에 기반하여 동적 모둠실에 접속. 실시간 의견 교환 및 맞춤형 3대 비계(개념, 시간, AI도구) 설계.
+                                </p>
+                            </div>
+                            <div class="mt-4 pt-2 border-t border-slate-200/60 text-[10px] text-slate-400 font-semibold flex items-center gap-1">
+                                <i class="fa-solid fa-circle-check text-emerald-500"></i> 설계안 내 Try 성찰 수정 반영
+                            </div>
+                        </div>
+                        <!-- Step 4 -->
+                        <div class="relative bg-slate-50 p-5 rounded-2xl border border-slate-100 flex flex-col justify-between">
+                            <div class="space-y-2">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-[10px] font-black text-indigo-600 uppercase">Step 4 (10분)</span>
+                                    <span class="text-slate-300 font-mono text-xs">Ch.4</span>
+                                </div>
+                                <h4 class="font-extrabold text-slate-800 text-sm">보고서 출력 및 성찰</h4>
+                                <p class="text-xs text-slate-500 leading-normal">
+                                    각 모둠별 분석 결과 및 10인 통계 원본을 포함하는 성찰 보고서를 인쇄하여 연수 갤러리 워크 진행.
+                                </p>
+                            </div>
+                            <div class="mt-4 pt-2 border-t border-slate-200/60 text-[10px] text-slate-400 font-semibold flex items-center gap-1">
+                                <i class="fa-solid fa-circle-check text-emerald-500"></i> 최종 보고서 PDF 다운로드 및 아카이빙
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -199,6 +278,21 @@
 
             <!-- TAB 2: MY GROUP WORKSPACE -->
             <section id="tab-workspace" class="hidden space-y-6">
+                <!-- 동적 모둠 선택 탭 바 (실시간 갤러리 워크용 동적 탭) -->
+                <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm space-y-3">
+                    <div class="text-xs font-black text-slate-400 uppercase tracking-wider flex items-center gap-1">
+                        <i class="fa-solid fa-users-rectangle text-indigo-500"></i> 실시간 모둠 실습 동향 대조 (탭 클릭 시 해당 모둠 실습실 구경)
+                    </div>
+                    <div id="dynamic-group-tabs" class="flex flex-wrap gap-1.5">
+                        <!-- 동적으로 탭 버튼들이 추가됩니다. -->
+                    </div>
+                </div>
+
+                <!-- 권한 배너 (읽기/쓰기 분리 시각 표출) -->
+                <div id="tab-role-banner" class="p-4 rounded-xl text-xs font-bold flex items-center justify-between shadow-sm transition">
+                    <!-- 권한 정보 동적 주입 -->
+                </div>
+
                 <!-- Group Members Admin Banner -->
                 <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-4">
                     <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
@@ -210,7 +304,7 @@
                         </div>
                         <div class="flex items-center gap-2">
                             <input id="input-member-name" type="text" placeholder="교사 이름 입력" class="p-2 border border-slate-200 rounded-xl text-xs bg-slate-50 focus:outline-none focus:bg-white w-32">
-                            <button onclick="addMember()" class="px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl transition flex items-center gap-1 shadow-sm">
+                            <button id="btn-add-member" onclick="addMember()" class="px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl transition flex items-center gap-1 shadow-sm">
                                 <i class="fa-solid fa-plus"></i> 추가
                             </button>
                         </div>
@@ -238,8 +332,8 @@
                         </button>
                     </div>
 
-                    <!-- Data Rendering Area -->
-                    <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+                    <!-- Data Rendering Area (수정 2: 폰트 크기 대폭 증대 적용) -->
+                    <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden">
                         <!-- Data Card Header -->
                         <div class="px-6 py-4 bg-slate-50 border-b border-slate-100 flex justify-between items-center">
                             <h4 id="data-type-title" class="text-xs font-bold text-slate-800">데이터 1: LMS 로그 데이터</h4>
@@ -262,7 +356,7 @@
                             <p class="text-xs text-slate-400 leading-relaxed">데이터를 읽고 해석할 때 기준 삼은 가설이나 중심 안경을 적어보세요.</p>
                             <textarea id="input-perspective" rows="3" placeholder="예: 무기력 및 형식적 참여 상태로 의심되는 학생들을 추출하고, 과제 집착력이 높은 완벽주의 학생에게 투입할 즉각 피드백 발판 정비에 초점..." class="w-full p-3.5 bg-slate-50 border border-slate-200 focus:border-indigo-500 focus:bg-white rounded-xl text-xs transition duration-150 focus:outline-none"></textarea>
                             <div class="flex justify-end">
-                                <button onclick="submitPerspective()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl transition shadow-sm flex items-center gap-1">
+                                <button id="btn-submit-perspective" onclick="submitPerspective()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl transition shadow-sm flex items-center gap-1">
                                     <i class="fa-solid fa-paper-plane"></i> 관점 전송 및 저장
                                 </button>
                             </div>
@@ -296,7 +390,7 @@
                             </div>
 
                             <div class="flex justify-end">
-                                <button onclick="addOutlierStudent()" class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-xl transition shadow-sm flex items-center gap-1">
+                                <button id="btn-add-outlier" onclick="addOutlierStudent()" class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-xl transition shadow-sm flex items-center gap-1">
                                     <i class="fa-solid fa-circle-plus"></i> 학생 진단 추가
                                 </button>
                             </div>
@@ -317,7 +411,7 @@
                             <p class="text-xs text-slate-400 leading-relaxed">이상치 원인을 해결하기 위해 차기 수업 시 즉시 기획할 비계·과제 구상을 정리하세요.</p>
                             <textarea id="input-try" rows="3" placeholder="예: 함정 문항 Q2 오개념 교정 대조 비계 도입, S10번 과도한 스트레스 완화를 위한 힌트 분할 인출 보조 도구 세팅 등..." class="w-full p-3.5 bg-slate-50 border border-slate-200 focus:border-indigo-500 focus:bg-white rounded-xl text-xs transition duration-150 focus:outline-none"></textarea>
                             <div class="flex justify-end">
-                                <button onclick="submitTry()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl transition shadow-sm flex items-center gap-1">
+                                <button id="btn-submit-try" onclick="submitTry()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl transition shadow-sm flex items-center gap-1">
                                     <i class="fa-solid fa-paper-plane"></i> 대안 전송 및 저장
                                 </button>
                             </div>
@@ -331,12 +425,12 @@
                                 <span class="text-xs font-bold text-indigo-400 flex items-center gap-1">
                                     <i class="fa-solid fa-arrows-spin animate-spin text-[10px]"></i> Live Mirroring
                                 </span>
-                                <span class="text-[10px] text-slate-500">동료 교사 기입 상황 실시간 대조</span>
+                                <span class="text-[10px] text-slate-500">실습 데이터 실시간 감지 대조</span>
                             </div>
 
                             <div class="space-y-4">
                                 <div class="space-y-1">
-                                    <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">우리 모둠 관점 (Perspective)</div>
+                                    <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider" id="mirror-header-perspective">우리 모둠 관점 (Perspective)</div>
                                     <p id="mirror-perspective" class="text-xs text-slate-300 leading-relaxed bg-slate-950 p-3 rounded-xl border border-slate-800/50 min-h-[50px] italic">기입 전송 대기 중...</p>
                                 </div>
 
@@ -348,7 +442,7 @@
                                 </div>
 
                                 <div class="space-y-1">
-                                    <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">종합 설계 대안 (Try)</div>
+                                    <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider" id="mirror-header-try">종합 설계 대안 (Try)</div>
                                     <p id="mirror-try" class="text-xs text-slate-300 leading-relaxed bg-slate-950 p-3 rounded-xl border border-slate-800/50 min-h-[50px] italic">기입 전송 대기 중...</p>
                                 </div>
                             </div>
@@ -363,53 +457,78 @@
                 </div>
             </section>
 
-            <!-- TAB 3: ENTIRE REPORT / INSTRUCTOR TAB -->
+            <!-- TAB 3: ENTIRE REPORT / INSTRUCTOR TAB (수정 4: 시각화 및 깨지는 레이아웃 완벽 교정) -->
             <section id="tab-instructor" class="hidden space-y-6">
                 <!-- Instructor Welcome Header -->
                 <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div class="space-y-1">
                         <h2 class="text-lg font-black text-slate-800 flex items-center gap-1.5">
-                            <i class="fa-solid fa-chart-pie text-indigo-500"></i> 학급 학생 성장 진단 인터랙티브 전체보고서
+                            <i class="fa-solid fa-chart-pie text-indigo-500"></i> 학급 다차원 성장 진단 전체 대시보드
                         </h2>
-                        <p class="text-xs text-slate-500">10인 학생의 세밀한 지표와 정오답 패턴을 교차 분석하고 다차원 역량 리포트를 띄웁니다.</p>
+                        <p class="text-xs text-slate-500">10인 학생 전체의 거시·미시 정량지표 정오답 패턴을 교차 분석하고 다차원 역량 분석을 시각화합니다.</p>
                     </div>
-                    <span class="px-3 py-1.5 bg-indigo-50 text-indigo-600 text-[10px] font-bold rounded-lg self-start md:self-auto"><i class="fa-solid fa-graduation-cap"></i> 데이터 드리븐 지도</span>
+                    <span class="px-3 py-1.5 bg-indigo-50 text-indigo-600 text-[10px] font-bold rounded-lg self-start md:self-auto"><i class="fa-solid fa-graduation-cap"></i> 증거기반 분석(EBP)</span>
+                </div>
+
+                <!-- 학급 전체 대표 정량 지표 통계판 (Top statistics) -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200/60 shadow-sm space-y-1 text-center">
+                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">학급 형성평가 평균</span>
+                        <span class="text-xl font-black text-indigo-600">65.0점</span>
+                    </div>
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200/60 shadow-sm space-y-1 text-center">
+                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">학업 스트레스 평균</span>
+                        <span class="text-xl font-black text-rose-500">2.14 / 5.0</span>
+                    </div>
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200/60 shadow-sm space-y-1 text-center">
+                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">요주의 함정 문항</span>
+                        <span class="text-xl font-black text-amber-500">Q2 문항 (50%)</span>
+                    </div>
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200/60 shadow-sm space-y-1 text-center">
+                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">집중 케어 이상치</span>
+                        <span class="text-xl font-black text-indigo-800">5명 탐지</span>
+                    </div>
                 </div>
 
                 <!-- Academic Multi-dimensional Charts Grid -->
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <!-- Left: Interactive List -->
-                    <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-4">
-                        <h3 class="text-xs font-bold text-slate-800 tracking-wider uppercase border-b border-slate-100 pb-2 flex items-center gap-1">
-                            <i class="fa-solid fa-address-book text-indigo-500"></i> 학생 목록 선택
-                        </h3>
-                        <div class="grid grid-cols-2 gap-2" id="instructor-student-list"></div>
-                        
-                        <!-- Test Item Level Analysis -->
-                        <div class="pt-4 border-t border-slate-100 space-y-3">
-                            <h3 class="text-xs font-bold text-slate-800 flex items-center gap-1">
-                                <i class="fa-solid fa-circle-exclamation text-amber-500"></i> 문항 정오답 통계
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                    <!-- Left Column (lg:col-span-4): Student list & Item Correct rate -->
+                    <div class="lg:col-span-4 space-y-6">
+                        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm space-y-4">
+                            <h3 class="text-xs font-bold text-slate-800 tracking-wider uppercase border-b border-slate-100 pb-2 flex items-center gap-1">
+                                <i class="fa-solid fa-address-book text-indigo-500"></i> 개별 학생 데이터 프로필 선택
                             </h3>
-                            <canvas id="testItemsChart" height="150"></canvas>
+                            <!-- Student Buttons Grid -->
+                            <div class="grid grid-cols-2 gap-2" id="instructor-student-list"></div>
+                        </div>
+
+                        <!-- Bar chart container with fixed, robust wrapper to avoid broken rendering -->
+                        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm space-y-4">
+                            <h3 class="text-xs font-bold text-slate-800 flex items-center gap-1">
+                                <i class="fa-solid fa-circle-exclamation text-amber-500"></i> 문항 전체 정오답 통계
+                            </h3>
+                            <div class="relative w-full h-44">
+                                <canvas id="testItemsChart"></canvas>
+                            </div>
                             <p class="text-[10px] text-slate-400 leading-normal">
-                                * Q2번 문항은 쉬운 난이도로 출제되었으나 학생들의 정답률이 $50\%$로 대폭 주저앉은 매력적 오답 함정 문항입니다.
+                                * Q2번 문항은 쉬운 난이도(하)이나 매력적인 함정 배치로 인해 학급 정답률이 $50\%$로 대폭 저하된 요주의 문항입니다.
                             </p>
                         </div>
                     </div>
 
-                    <!-- Right: Multi-radar & Profile Detail Card -->
-                    <div class="lg:col-span-2 bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm grid grid-cols-1 md:grid-cols-2 gap-6 relative">
-                        <!-- Profile Card -->
+                    <!-- Right Column (lg:col-span-8): Dynamic Match Profile & Radar analysis -->
+                    <div class="lg:col-span-8 bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm grid grid-cols-1 md:grid-cols-2 gap-6 min-h-[500px]">
+                        <!-- Student Detail Profile Card -->
                         <div class="space-y-4 flex flex-col justify-between">
                             <div class="space-y-3">
                                 <div class="flex items-center gap-3">
-                                    <div class="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 font-extrabold text-lg flex items-center justify-center border border-indigo-100" id="card-student-id">
+                                    <div class="w-14 h-14 rounded-2xl bg-indigo-50 text-indigo-600 font-extrabold text-xl flex items-center justify-center border border-indigo-100 shadow-sm" id="card-student-id">
                                         S01
                                     </div>
                                     <div>
-                                        <h4 class="text-sm font-black text-slate-800 flex items-center gap-1.5">
+                                        <h4 class="text-base font-black text-slate-800 flex items-center gap-1.5">
                                             가상 학생 <span id="card-student-name">S01</span>
-                                            <span id="card-student-outlier-badge" class="hidden px-2 py-0.5 text-[9px] font-bold rounded bg-rose-50 border border-rose-200 text-rose-600">이상치 감지</span>
+                                            <span id="card-student-outlier-badge" class="hidden px-2 py-0.5 text-[9px] font-bold rounded bg-rose-50 border border-rose-200 text-rose-600 animate-pulse">이상치 감지</span>
                                         </h4>
                                         <p class="text-[10px] text-slate-400">다차원 데이터 교차 마스터 프로필</p>
                                     </div>
@@ -418,45 +537,45 @@
                                 <div class="grid grid-cols-2 gap-2 text-xs pt-2">
                                     <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100">
                                         <div class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">LMS 접속수 / 체류</div>
-                                        <span class="font-extrabold text-slate-800" id="card-lms-stat">2회 / 35분</span>
+                                        <span class="font-extrabold text-slate-800 text-xs" id="card-lms-stat">2회 / 35분</span>
                                     </div>
                                     <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100">
                                         <div class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">형성평가 결과</div>
-                                        <span class="font-extrabold text-slate-800" id="card-form-stat">80점 (80초)</span>
+                                        <span class="font-extrabold text-slate-800 text-xs" id="card-form-stat">80점 (80초)</span>
                                     </div>
                                     <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100">
                                         <div class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">정기시험 개수</div>
-                                        <span class="font-extrabold text-slate-800" id="card-test-stat">4개 정답 (4/5)</span>
+                                        <span class="font-extrabold text-slate-800 text-xs" id="card-test-stat">4개 정답 (4/5)</span>
                                     </div>
                                     <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100">
                                         <div class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">학업 스트레스</div>
-                                        <span class="font-extrabold text-slate-800" id="card-stress-stat">2.0 / 5.0</span>
+                                        <span class="font-extrabold text-slate-800 text-xs" id="card-stress-stat">2.0 / 5.0</span>
                                     </div>
                                 </div>
 
                                 <div class="space-y-1 pt-2">
                                     <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">정성 성찰 응답 내역</div>
-                                    <p class="text-xs text-slate-600 bg-slate-50 p-3 rounded-xl border border-slate-100 italic min-h-[50px]" id="card-essay-content">
+                                    <p class="text-xs text-slate-600 bg-slate-50 p-3 rounded-xl border border-slate-100 italic min-h-[70px] leading-relaxed" id="card-essay-content">
                                         오늘 배운 내용을 시각 자료와 함께 확인해서 쉽게 이해되었습니다.
                                     </p>
                                 </div>
                             </div>
 
                             <!-- Diagnosis Guideline -->
-                            <div id="card-diagnosis-container" class="hidden bg-rose-50/50 p-3.5 rounded-xl border border-rose-100 space-y-1.5">
-                                <div class="text-[10px] font-black text-rose-700 flex items-center gap-1">
-                                    <i class="fa-solid fa-triangle-exclamation"></i> 강사 지도 가이드라인 (Try 처방)
+                            <div id="card-diagnosis-container" class="hidden bg-rose-50/70 p-4 rounded-xl border border-rose-100 space-y-1.5">
+                                <div class="text-[11px] font-black text-rose-700 flex items-center gap-1">
+                                    <i class="fa-solid fa-triangle-exclamation"></i> 교사 처방 가이드라인 (Try 피드백 비계)
                                 </div>
-                                <p class="text-[11px] text-rose-800 leading-relaxed font-medium" id="card-diagnosis-text">
+                                <p class="text-xs text-rose-800 leading-relaxed font-semibold" id="card-diagnosis-text">
                                     이 학생은 전형적인 학습 지연형 상태로, 개별 처방이 필요합니다.
                                 </p>
                             </div>
                         </div>
 
-                        <!-- Radar Chart -->
-                        <div class="flex flex-col justify-center items-center">
-                            <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">학습 성취·태도 균형도 차트</span>
-                            <div class="w-full h-64 flex justify-center">
+                        <!-- Radar Chart container with robust style -->
+                        <div class="flex flex-col justify-center items-center space-y-2">
+                            <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">학습 성취·태도 다차원 균형 차트</span>
+                            <div class="w-full h-72 relative">
                                 <canvas id="radarChart"></canvas>
                             </div>
                         </div>
@@ -467,14 +586,14 @@
     </div>
 
     <!-- ========================================== -->
-    <!-- 3. REPORT PRINT MODAL (기본 숨김) -->
+    <!-- 3. REPORT PRINT MODAL (수정 3: 가상 표 출력 기능 탑재) -->
     <!-- ========================================== -->
     <div id="report-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-white rounded-3xl max-w-4xl w-full max-h-[90vh] overflow-y-auto border border-slate-200/80 shadow-2xl flex flex-col">
             <!-- Modal Header -->
-            <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+            <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50 no-print">
                 <h3 class="text-sm font-bold text-slate-800 flex items-center gap-1.5">
-                    <i class="fa-solid fa-print text-indigo-500"></i> 인쇄 및 저장 준비 완료
+                    <i class="fa-solid fa-print text-indigo-500"></i> 인쇄 및 성찰 보고서 저장
                 </h3>
                 <div class="flex items-center gap-2">
                     <button onclick="window.print()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl transition flex items-center gap-1 shadow-sm">
@@ -487,7 +606,7 @@
             </div>
 
             <!-- Print Area -->
-            <div class="p-8 space-y-6 flex-1 text-slate-800" id="print-area">
+            <div class="p-8 space-y-6 flex-1 text-slate-800 print-color-adjust" id="print-area">
                 <!-- Document Header -->
                 <div class="text-center space-y-2 border-b-2 border-indigo-600 pb-4">
                     <span class="text-xs font-bold text-indigo-600 tracking-widest uppercase">인공지능 선도교사 11과정 실습 산출물</span>
@@ -497,7 +616,7 @@
                     <p class="text-xs text-slate-500 flex justify-center gap-4">
                         <span id="print-class">클래스: 1기 선도교사</span>
                         <span id="print-group">모둠: 모둠 1</span>
-                        <span id="print-date">일시: 2026. 07. 16</span>
+                        <span id="print-date">일시: 2026. 07. 17</span>
                     </p>
                 </div>
 
@@ -539,6 +658,41 @@
                     <p id="print-try" class="text-xs text-slate-700 bg-slate-50 p-4 rounded-xl border border-slate-100 leading-relaxed min-h-[60px] whitespace-pre-wrap">
                         아직 기록이 전송되지 않았습니다.
                     </p>
+                </div>
+
+                <!-- (수정 3: 학생데이터 표도 보고서 출력 시 포함되도록 테이블 삽입) -->
+                <div class="space-y-3 pt-4 border-t border-slate-200">
+                    <h4 class="text-sm font-bold text-slate-900 flex items-center gap-1.5">
+                        <i class="fa-solid fa-database text-indigo-600"></i> 부록 : 다차원 가상 학생 데이터 분석표 ($10\text{인}$ 원본 데이터셋)
+                    </h4>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse text-[10px] bg-white border border-slate-200">
+                            <thead>
+                                <tr class="bg-slate-100 text-slate-700 font-bold border-b border-slate-200">
+                                    <th class="p-2 border-r">ID</th>
+                                    <th class="p-2 border-r">성명</th>
+                                    <th class="p-2 border-r">LMS접속/체류</th>
+                                    <th class="p-2 border-r">클릭수</th>
+                                    <th class="p-2 border-r">평가점수/시간</th>
+                                    <th class="p-2 border-r">Q2오답</th>
+                                    <th class="p-2 border-r">흥미/기여/스트레스</th>
+                                    <th class="p-2">주요 관찰 정서 신호</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100 text-slate-600">
+                                <tr><td class="p-2 border-r font-bold">S01</td><td class="p-2 border-r">김민준</td><td class="p-2 border-r">2회 / 35분</td><td class="p-2 border-r">45회</td><td class="p-2 border-r">80점 (320초)</td><td class="p-2 border-r text-emerald-600 font-bold">③ (정)</td><td class="p-2 border-r">4.0 / 4.0 / 2.0</td><td class="p-2">안정적이고 차분함</td></tr>
+                                <tr><td class="p-2 border-r font-bold">S02</td><td class="p-2 border-r">이서연</td><td class="p-2 border-r">3회 / 42분</td><td class="p-2 border-r">58회</td><td class="p-2 border-r">90점 (280초)</td><td class="p-2 border-r text-emerald-600 font-bold">③ (정)</td><td class="p-2 border-r">5.0 / 5.0 / 2.0</td><td class="p-2">배움에 대한 성취감</td></tr>
+                                <tr><td class="p-2 border-r font-bold text-rose-600">S03</td><td class="p-2 border-r">박예준</td><td class="p-2 border-r font-bold text-rose-600">1회 / 1분</td><td class="p-2 border-r">2회</td><td class="p-2 border-r font-bold text-emerald-600">100점 (90초)</td><td class="p-2 border-r text-emerald-600 font-bold">③ (정)</td><td class="p-2 border-r">2.0 / 2.0 / 1.0</td><td class="p-2 text-rose-600 font-bold">지루함 및 자극 부족</td></tr>
+                                <tr><td class="p-2 border-r font-bold">S04</td><td class="p-2 border-r">최아윤</td><td class="p-2 border-r">2회 / 31분</td><td class="p-2 border-r">38회</td><td class="p-2 border-r">70점 (350초)</td><td class="p-2 border-r text-rose-500 font-bold">⑤ (오)</td><td class="p-2 border-r">4.0 / 3.0 / 2.0</td><td class="p-2">평온하고 무난함</td></tr>
+                                <tr><td class="p-2 border-r font-bold text-rose-600">S05</td><td class="p-2 border-r">정지우</td><td class="p-2 border-r">2회 / 15분</td><td class="p-2 border-r">12회</td><td class="p-2 border-r font-bold text-rose-600">20점 (25초)</td><td class="p-2 border-r text-rose-500 font-bold">⑤ (오)</td><td class="p-2 border-r">1.0 / 1.2 / 1.5</td><td class="p-2 text-rose-600 font-bold">무기력 및 과제 회피 경향성</td></tr>
+                                <tr><td class="p-2 border-r font-bold text-rose-600">S06</td><td class="p-2 border-r">한도윤</td><td class="p-2 border-r">2회 / 28분</td><td class="p-2 border-r">32회</td><td class="p-2 border-r">60점 (310초)</td><td class="p-2 border-r text-emerald-600 font-bold">③ (정)</td><td class="p-2 border-r">4.0 / 2.0 / 1.0</td><td class="p-2 text-rose-600 font-bold">과도한 들뜸 및 인지적 태만</td></tr>
+                                <tr><td class="p-2 border-r font-bold">S07</td><td class="p-2 border-r">강서윤</td><td class="p-2 border-r">2회 / 27분</td><td class="p-2 border-r">31회</td><td class="p-2 border-r">60점 (380초)</td><td class="p-2 border-r text-rose-500 font-bold">⑤ (오)</td><td class="p-2 border-r">3.0 / 3.0 / 3.0</td><td class="p-2">개념 적용에 대한 걱정 신호</td></tr>
+                                <tr><td class="p-2 border-r font-bold text-rose-600">S08</td><td class="p-2 border-r">조민서</td><td class="p-2 border-r font-bold text-rose-600">1회 / 95분</td><td class="p-2 border-r">1회</td><td class="p-2 border-r font-bold text-rose-600">20점 (450초)</td><td class="p-2 border-r text-rose-500 font-bold">② (오)</td><td class="p-2 border-r">1.0 / 1.0 / 1.2</td><td class="p-2 text-rose-600 font-bold">배움에 대한 무관심 및 심리이탈</td></tr>
+                                <tr><td class="p-2 border-r font-bold">S09</td><td class="p-2 border-r">윤지호</td><td class="p-2 border-r">2회 / 30분</td><td class="p-2 border-r">40회</td><td class="p-2 border-r">70점 (340초)</td><td class="p-2 border-r text-rose-500 font-bold">⑤ (오)</td><td class="p-2 border-r">4.0 / 4.0 / 2.0</td><td class="p-2">긍정적이고 모범적인 태도</td></tr>
+                                <tr><td class="p-2 border-r font-bold text-rose-600">S10</td><td class="p-2 border-r">장하은</td><td class="p-2 border-r">3회 / 40분</td><td class="p-2 border-r">45회</td><td class="p-2 border-r">70점 (720초)</td><td class="p-2 border-r text-emerald-600 font-bold">③ (정)</td><td class="p-2 border-r font-bold text-rose-600">5.0 / 4.0 / 5.0</td><td class="p-2 text-rose-600 font-bold">과불안 및 강박적 완벽주의</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
 
                 <!-- PDF Footer -->
@@ -585,8 +739,10 @@
         let currentClassId = "local_class";
         let currentClassName = "기본 오프라인 학급";
         let currentGroupId = "1";
+        let viewingGroupId = "1"; // 현재 탭에서 구경하고 있는 모둠 ID
         let activeStudentId = "S01";
         let currentDataType = 1;
+        
         let radarChartInstance = null;
         let barChartInstance = null;
 
@@ -603,7 +759,7 @@
             { id: "S07", name: "강서윤", lms_cnt: 2, lms_time: 27, lms_click: 31, video: 90, form_score: 60, form_time: 380, item5_time: 125, item5_ok: false, essay: "5번 빼고는 다 괜찮았는데, 5번이 제일 어렵네요.", test_q1: "①", test_q2: "⑤", test_q3: "④", test_q4: "③", test_q5: "①", test_total: 2, interest: 3.0, coop: 3.0, stress: 3.0, signal: "개념 적용에 대한 걱정 신호 관찰" },
             { id: "S08", name: "조민서", lms_cnt: 1, lms_time: 95, lms_click: 1, video: 10, form_score: 20, form_time: 450, item5_time: 120, item5_ok: false, essay: "모르겠음", test_q1: "④", test_q2: "②", test_q3: "①", test_q4: "③", test_q5: "④", test_total: 0, interest: 1.0, coop: 1.0, stress: 1.2, signal: "배움에 대한 무관심 및 심리적 철수" },
             { id: "S09", name: "윤지호", lms_cnt: 2, lms_time: 30, lms_click: 40, video: 90, form_score: 70, form_time: 340, item5_time: 105, item5_ok: true, essay: "전체적으로 무난했고 실습 활동이 조금 더 길었으면 좋겠습니다.", test_q1: "①", test_q2: "⑤", test_q3: "④", test_q4: "②", test_q5: "③", test_total: 3, interest: 4.0, coop: 4.0, stress: 2.0, signal: "긍정적이고 모범적인 태도" },
-            { id: "S10", name: "장하은", lms_cnt: 3, lms_time: 40, lms_click: 45, video: 100, form_score: 70, form_time: 720, item5_time: 540, item5_ok: false, essay: "5번 문제 표에서 변인 통제 조건이 너무 헷갈렸어요. 9분 넘게 붙잡고 고민했는데 결국 틀렸네요. 자존심 상해요.", test_q1: "①", test_q2: "③", test_q3: "④", test_q4: "①", test_q5: "①", test_total: 3, interest: 5.0, coop: 4.0, stress: 5.0, signal: "과도한 불안감 및 완벽주의 성향 (실패에 과민)" }
+            { id: "S10", name: "장하은", lms_cnt: 3, lms_time: 40, lms_click: 45, video: 100, form_score: 70, form_time: 720, item5_time: 540, item5_ok: false, essay: "5번 문제 표에서 변인 통제 조건이 너무 헷갈렸어요. 9분 넘게 붙잡고 고민했는데 결국 틀렸네요. 자존심 상해요.", test_q1: "①", test_q2: "③", test_q3: "④", test_q4: "①", test_q5: "①", test_total: 3, interest: 5.0, coop: 4.0, stress: 5.0, signal: "과도한 불안감 및 완벽주의 성향 (실패에 과민 반응)" }
         ];
 
         const diagnosisGuide = {
@@ -629,9 +785,6 @@
 
         // RULE 3 준수: 익명 인증 완료 대기 후 쿼리 시작 및 하이브리드 자동 우회
         async function initFirebase() {
-            // [★ 버그 수정 완료 ★]
-            // 실제 구글 파이어베이스 API Key는 언제나 "AIzaSyB"로 시작합니다.
-            // 기존의 startsWith("AIzaSyB") 조건문이 올바른 설정값까지 가짜 데이터로 감지하여 차단하던 오류를 완벽히 제거했습니다.
             if (!firebaseConfig.apiKey || firebaseConfig.apiKey === "") {
                 console.warn("Firebase config is empty. Operating in local mode.");
                 setLocalFallback();
@@ -754,6 +907,7 @@
             currentClassId = classSelect.value;
             currentClassName = classSelect.options[classSelect.selectedIndex].text;
             currentGroupId = groupSelect.value;
+            viewingGroupId = groupSelect.value; // 처음 진입 시에는 내 모둠 조회로 고정
 
             document.getElementById('class-display').innerText = `클래스: ${currentClassName}`;
             document.getElementById('group-display').innerText = `모둠: 모둠 ${currentGroupId}`;
@@ -761,6 +915,7 @@
             document.getElementById('gateway-view').classList.add('hidden');
             document.getElementById('main-view').classList.remove('hidden');
 
+            renderDynamicGroupTabs();
             startWorkspaceSynchronization();
             showToast(`${currentClassName} - 모둠 ${currentGroupId} 실습실 입장!`, "success");
         }
@@ -774,9 +929,110 @@
             document.getElementById('main-view').classList.add('hidden');
         }
 
+        // 동적 탭 바 렌더링 기능 (수정 핵심 기능: 실시간 갤러리 워크 연계)
+        function renderDynamicGroupTabs() {
+            const container = document.getElementById('dynamic-group-tabs');
+            container.innerHTML = "";
+            
+            const cls = appState.classesList.find(c => c.id === currentClassId);
+            const groupCount = (cls && cls.groupCount) ? cls.groupCount : 5;
+
+            for (let i = 1; i <= groupCount; i++) {
+                const btn = document.createElement('button');
+                btn.id = `group-tab-${i}`;
+                btn.onclick = () => switchViewingGroup(String(i));
+                
+                // 내 배정 모둠 표시를 위한 아이콘 삽입
+                const homeIcon = (String(i) === currentGroupId) ? '<i class="fa-solid fa-house-user mr-1 text-[10px]"></i>' : '';
+                btn.innerHTML = `${homeIcon}모둠 ${i}`;
+                container.appendChild(btn);
+            }
+            updateGroupTabHighlight();
+        }
+
+        // 탭 하이라이트 및 권한 상태 업데이트
+        function updateGroupTabHighlight() {
+            const cls = appState.classesList.find(c => c.id === currentClassId);
+            const groupCount = (cls && cls.groupCount) ? cls.groupCount : 5;
+
+            for (let i = 1; i <= groupCount; i++) {
+                const btn = document.getElementById(`group-tab-${i}`);
+                if (!btn) continue;
+                
+                if (String(i) === viewingGroupId) {
+                    // 현재 선택 조회중인 탭
+                    btn.className = "px-4 py-2 bg-indigo-600 text-white text-xs font-black rounded-xl shadow-md border-2 border-indigo-700 transition";
+                } else if (String(i) === currentGroupId) {
+                    // 내 진짜 소속 모둠 탭 (클릭 안한 상태)
+                    btn.className = "px-4 py-2 bg-emerald-50 text-emerald-700 border border-emerald-300 text-xs font-bold rounded-xl hover:bg-emerald-100 transition";
+                } else {
+                    // 일반 다른 모둠 탭
+                    btn.className = "px-4 py-2 bg-slate-100 text-slate-600 text-xs font-bold rounded-xl border border-slate-200/50 hover:bg-slate-200 transition";
+                }
+            }
+
+            // 권한 가이드라인 안내 배너 전면 갱신
+            const banner = document.getElementById('tab-role-banner');
+            const isReadOnly = (viewingGroupId !== currentGroupId);
+            
+            if (isReadOnly) {
+                banner.className = "p-4 rounded-xl text-xs font-bold flex items-center justify-between shadow-sm bg-amber-50 border border-amber-200 text-amber-800 animate-fade";
+                banner.innerHTML = `
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-eye text-base animate-pulse"></i>
+                        <span>다른 모둠 [모둠 ${viewingGroupId}]의 실습 일지를 실시간 공유·열람 중입니다. (읽기 전용 모드)</span>
+                    </div>
+                    <button onclick="switchViewingGroup('${currentGroupId}')" class="px-3 py-1 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-[10px] font-extrabold transition">
+                        내 모둠실로 돌아가기
+                    </button>
+                `;
+            } else {
+                banner.className = "p-4 rounded-xl text-xs font-bold flex items-center justify-between shadow-sm bg-emerald-50 border border-emerald-200 text-emerald-800";
+                banner.innerHTML = `
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-pen-to-square text-base"></i>
+                        <span>우리 모둠 [모둠 ${currentGroupId}]의 실시간 협업 공간입니다. 자유롭게 작성하고 전송하세요!</span>
+                    </div>
+                    <span class="text-[10px] bg-emerald-600 text-white px-2 py-0.5 rounded-full font-mono animate-pulse">원격 편집 활성</span>
+                `;
+            }
+
+            // 읽기전용일 때 입력 제어
+            document.getElementById('input-member-name').disabled = isReadOnly;
+            document.getElementById('input-perspective').disabled = isReadOnly;
+            document.getElementById('input-try').disabled = isReadOnly;
+            document.getElementById('select-outlier-student').disabled = isReadOnly;
+            document.getElementById('input-outlier-reason').disabled = isReadOnly;
+
+            // 버튼 비활성화 스타일 처리
+            document.getElementById('btn-add-member').disabled = isReadOnly;
+            document.getElementById('btn-submit-perspective').disabled = isReadOnly;
+            document.getElementById('btn-add-outlier').disabled = isReadOnly;
+            document.getElementById('btn-submit-try').disabled = isReadOnly;
+
+            const bStyle = isReadOnly ? "opacity-40 cursor-not-allowed" : "opacity-100";
+            document.getElementById('btn-add-member').className = `px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl transition flex items-center gap-1 shadow-sm ${bStyle}`;
+            document.getElementById('btn-submit-perspective').className = `px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl transition shadow-sm flex items-center gap-1 ${bStyle}`;
+            document.getElementById('btn-add-outlier').className = `px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-xl transition shadow-sm flex items-center gap-1 ${bStyle}`;
+            document.getElementById('btn-submit-try').className = `px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl transition shadow-sm flex items-center gap-1 ${bStyle}`;
+
+            // Live Mirroring 타이틀 명칭 동적 보정
+            document.getElementById('mirror-header-perspective').innerText = (isReadOnly) ? `[모둠 ${viewingGroupId}]의 가설 관점` : "우리 모둠 관점 (Perspective)";
+            document.getElementById('mirror-header-try').innerText = (isReadOnly) ? `[모둠 ${viewingGroupId}]의 설계 대안` : "종합 설계 대안 (Try)";
+        }
+
+        // 보고 탭 변경
+        function switchViewingGroup(groupId) {
+            if (viewingGroupId === groupId) return;
+            viewingGroupId = String(groupId);
+            updateGroupTabHighlight();
+            startWorkspaceSynchronization();
+            showToast(`[모둠 ${viewingGroupId}] 실습실 화면으로 전환되었습니다.`, "info");
+        }
+
         // 로컬스토리지 백업 및 원격 Firestore 리스너 동기화 (RULE 1 완벽 하위 주소 준수)
         function startWorkspaceSynchronization() {
-            const storageKey = `cache_${currentClassId}_group${currentGroupId}`;
+            const storageKey = `cache_${currentClassId}_group${viewingGroupId}`;
             
             if (!isFirebaseConnected) {
                 const cache = localStorage.getItem(storageKey);
@@ -793,25 +1049,33 @@
             
             unsubscribeGroup = db.collection('artifacts').doc(appId).collection('public').doc('data')
                 .collection('classes').doc(currentClassId)
-                .collection('groups').doc(`group${currentGroupId}`)
+                .collection('groups').doc(`group${viewingGroupId}`)
                 .onSnapshot((doc) => {
                     if (doc.exists) {
                         groupWorkState = doc.data();
                         localStorage.setItem(storageKey, JSON.stringify(groupWorkState));
                     } else {
                         groupWorkState = { members: [], perspective: "", outliers: [], overallTry: "" };
-                        db.collection('artifacts').doc(appId).collection('public').doc('data')
-                            .collection('classes').doc(currentClassId)
-                            .collection('groups').doc(`group${currentGroupId}`).set(groupWorkState);
+                        if (viewingGroupId === currentGroupId) {
+                            // 내 소속 모둠인 경우에만 초기 도큐먼트 생성 허용
+                            db.collection('artifacts').doc(appId).collection('public').doc('data')
+                                .collection('classes').doc(currentClassId)
+                                .collection('groups').doc(`group${viewingGroupId}`).set(groupWorkState);
+                        }
                     }
                     updateUIWithSyncedData();
                 }, (err) => {
-                    console.error("동기화 도중 오류 발생 - 로컬 백업 모드로 전환합니다.", err);
-                    showToast("동기화 권한 오류가 발생해 로컬 임시 모드로 전환합니다.", "error");
+                    console.error("동기화 오류 발생 - 로컬 우회 모드 전환", err);
                 });
         }
 
         function pushStateUpdate() {
+            // 다른 모둠 데이터 수정 시도 차단 안전판
+            if (viewingGroupId !== currentGroupId) {
+                showToast("권한이 없습니다. 본인 모둠 탭에서만 편집이 가능합니다.", "error");
+                return;
+            }
+
             const storageKey = `cache_${currentClassId}_group${currentGroupId}`;
             localStorage.setItem(storageKey, JSON.stringify(groupWorkState));
 
@@ -839,14 +1103,16 @@
 
             const listContainer = document.getElementById('members-list-container');
             listContainer.innerHTML = "";
+            const isReadOnly = (viewingGroupId !== currentGroupId);
+
             if (!groupWorkState.members || groupWorkState.members.length === 0) {
                 listContainer.innerHTML = `<span class="text-xs text-slate-400 italic">등록된 모둠원이 없습니다.</span>`;
             } else {
                 groupWorkState.members.forEach((m, idx) => {
+                    const removeBtn = isReadOnly ? "" : `<button onclick="removeMember(${idx})" class="text-slate-400 hover:text-rose-500 font-bold ml-1 font-sans">×</button>`;
                     listContainer.innerHTML += `
                         <span class="inline-flex items-center gap-1 px-3 py-1 bg-slate-100 border text-xs font-bold rounded-full">
-                            ${m} 
-                            <button onclick="removeMember(${idx})" class="text-slate-400 hover:text-rose-500 font-bold ml-1 font-sans">×</button>
+                            ${m} ${removeBtn}
                         </span>
                     `;
                 });
@@ -862,15 +1128,18 @@
                 mirrorOutliers.innerHTML = `<p class="text-xs text-slate-500 italic">등록된 이상치가 없습니다.</p>`;
             } else {
                 groupWorkState.outliers.forEach((outlier, index) => {
+                    const deleteBtn = isReadOnly ? "" : `
+                        <button onclick="removeOutlierStudent(${index})" class="text-slate-400 hover:text-rose-500 transition">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    `;
                     outliersList.innerHTML += `
                         <div class="flex items-center justify-between p-2.5 bg-slate-50 border border-slate-150 rounded-xl text-xs">
                             <div class="flex items-center gap-2">
                                 <span class="font-extrabold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-lg border border-indigo-100">${outlier.studentId}</span>
                                 <span class="text-slate-600 truncate max-w-[200px] sm:max-w-xs">${outlier.reason}</span>
                             </div>
-                            <button onclick="removeOutlierStudent(${index})" class="text-slate-400 hover:text-rose-500 transition">
-                                <i class="fa-solid fa-trash-can"></i>
-                            </button>
+                            ${deleteBtn}
                         </div>
                     `;
                     mirrorOutliers.innerHTML += `
@@ -945,6 +1214,7 @@
             renderDataTypeTable();
         }
 
+        // (수정 2: 폰트 크기 대폭 증대 적용 - text-sm, text-base 배치 및 셀 패딩 증대)
         function renderDataTypeTable() {
             const container = document.getElementById('data-table-container');
             const title = document.getElementById('data-type-title');
@@ -952,26 +1222,26 @@
             if (currentDataType === 1) {
                 title.innerText = "데이터 1: LMS 로그 데이터 (정량 지표)";
                 container.innerHTML = `
-                    <table class="w-full text-left border-collapse text-xs">
+                    <table class="w-full text-left border-collapse text-sm">
                         <thead>
-                            <tr class="border-b border-slate-150 bg-slate-50/50 text-slate-500 font-bold">
-                                <th class="p-4">학생 ID</th>
-                                <th class="p-4">접속 횟수 (회)</th>
-                                <th class="p-4">총 체류 시간 (분)</th>
-                                <th class="p-4">상호작용 클릭수</th>
-                                <th class="p-4">동영상 완료율 (%)</th>
-                                <th class="p-4 text-indigo-600 font-black">형성평가 점수 (100점 만점)</th>
+                            <tr class="border-b-2 border-indigo-150 bg-indigo-50/20 text-slate-500 font-bold">
+                                <th class="p-5 text-base text-slate-900 font-black">학생 ID</th>
+                                <th class="p-5 text-sm">접속 횟수 (회)</th>
+                                <th class="p-5 text-sm">총 체류 시간 (분)</th>
+                                <th class="p-5 text-sm">상호작용 클릭수</th>
+                                <th class="p-5 text-sm">동영상 완료율 (%)</th>
+                                <th class="p-5 text-base text-indigo-600 font-black">형성평가 점수 (100점 만점)</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-slate-100">
+                        <tbody class="divide-y divide-slate-100 text-sm">
                             ${studentsData.map(s => `
                                 <tr class="hover:bg-slate-50/50 transition">
-                                    <td class="p-4 font-bold text-slate-700">${s.id}</td>
-                                    <td class="p-4 text-slate-600">${s.lms_cnt}회</td>
-                                    <td class="p-4 font-semibold text-slate-800">${s.lms_time}분</td>
-                                    <td class="p-4 text-slate-600">${s.lms_click}회</td>
-                                    <td class="p-4 text-slate-600">${s.video}%</td>
-                                    <td class="p-4 font-black text-indigo-600 text-xs">${s.form_score}점</td>
+                                    <td class="p-5 font-black text-slate-900 text-base">${s.id}</td>
+                                    <td class="p-5 text-slate-700 font-medium">${s.lms_cnt}회</td>
+                                    <td class="p-5 font-bold text-slate-800">${s.lms_time}분</td>
+                                    <td class="p-5 text-slate-700">${s.lms_click}회</td>
+                                    <td class="p-5 text-slate-700">${s.video}%</td>
+                                    <td class="p-5 font-black text-indigo-600 text-base">${s.form_score}점</td>
                                 </tr>
                             `).join('')}
                         </tbody>
@@ -980,30 +1250,30 @@
             } else if (currentDataType === 2) {
                 title.innerText = "데이터 2: 활동 관찰 및 형성평가 정성 데이터";
                 container.innerHTML = `
-                    <table class="w-full text-left border-collapse text-xs">
+                    <table class="w-full text-left border-collapse text-sm">
                         <thead>
-                            <tr class="border-b border-slate-150 bg-slate-50/50 text-slate-500 font-bold">
-                                <th class="p-4">학생 ID</th>
-                                <th class="p-4">평가 총 소요시간 (초)</th>
-                                <th class="p-4">5번 문항 풀이시간 (초)</th>
-                                <th class="p-4">5번 정답 여부</th>
-                                <th class="p-4">서술형 성찰 글자수</th>
-                                <th class="p-4">서술형 성찰 실제 내용</th>
+                            <tr class="border-b-2 border-indigo-150 bg-indigo-50/20 text-slate-500 font-bold">
+                                <th class="p-5 text-base text-slate-900 font-black">학생 ID</th>
+                                <th class="p-5 text-sm">평가 총 소요시간 (초)</th>
+                                <th class="p-5 text-sm">5번 문항 풀이시간 (초)</th>
+                                <th class="p-5 text-sm">5번 정답 여부</th>
+                                <th class="p-5 text-sm">서술형 성찰 글자수</th>
+                                <th class="p-5 text-sm">서술형 성찰 실제 내용</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-slate-100">
+                        <tbody class="divide-y divide-slate-100 text-sm">
                             ${studentsData.map(s => `
                                 <tr class="hover:bg-slate-50/50 transition">
-                                    <td class="p-4 font-bold text-slate-700">${s.id}</td>
-                                    <td class="p-4 text-slate-600">${s.form_time}초</td>
-                                    <td class="p-4 font-bold text-slate-800">${s.item5_time}초</td>
-                                    <td class="p-4">
-                                        <span class="px-2 py-0.5 rounded-md text-[10px] font-bold ${s.item5_ok ? 'bg-emerald-50 text-emerald-600 border border-emerald-200' : 'bg-rose-50 text-rose-600 border border-rose-200'}">
+                                    <td class="p-5 font-black text-slate-900 text-base">${s.id}</td>
+                                    <td class="p-5 text-slate-700">${s.form_time}초</td>
+                                    <td class="p-5 font-black text-slate-800">${s.item5_time}초</td>
+                                    <td class="p-5">
+                                        <span class="px-3 py-1 rounded-lg text-xs font-bold ${s.item5_ok ? 'bg-emerald-50 text-emerald-600 border border-emerald-200' : 'bg-rose-50 text-rose-600 border border-rose-200'}">
                                             ${s.item5_ok ? '정답 (O)' : '오답 (X)'}
                                         </span>
                                     </td>
-                                    <td class="p-4 text-slate-500">${s.essay.length}자</td>
-                                    <td class="p-4 font-medium text-slate-700 max-w-xs truncate" title="${s.essay}">${s.essay}</td>
+                                    <td class="p-5 text-slate-500">${s.essay.length}자</td>
+                                    <td class="p-5 font-semibold text-slate-700 max-w-xs truncate" title="${s.essay}">${s.essay}</td>
                                 </tr>
                             `).join('')}
                         </tbody>
@@ -1012,40 +1282,40 @@
             } else if (currentDataType === 3) {
                 title.innerText = "데이터 3: 정기시험 문항별 세부 반응 선택지";
                 container.innerHTML = `
-                    <table class="w-full text-left border-collapse text-xs">
+                    <table class="w-full text-left border-collapse text-sm">
                         <thead>
-                            <tr class="border-b border-slate-150 bg-slate-50/50 text-slate-500 font-bold">
-                                <th class="p-4">학생 ID</th>
-                                <th class="p-4">Q1 (최하, 정답 ①)</th>
-                                <th class="p-4 text-amber-600 font-black">Q2 (하, 정답 ③) *함정*</th>
-                                <th class="p-4">Q3 (중, 정답 ④)</th>
-                                <th class="p-4">Q4 (상, 정답 ②)</th>
-                                <th class="p-4">Q5 (최상, 정답 ⑤)</th>
-                                <th class="p-4 text-indigo-600 font-extrabold">최종 정답 개수 (5개 만점)</th>
+                            <tr class="border-b-2 border-indigo-150 bg-indigo-50/20 text-slate-500 font-bold">
+                                <th class="p-5 text-base text-slate-900 font-black">학생 ID</th>
+                                <th class="p-5 text-sm">Q1 (최하, ①)</th>
+                                <th class="p-5 text-amber-600 font-black text-sm bg-amber-50/30">Q2 (하, ③) *함정*</th>
+                                <th class="p-5 text-sm">Q3 (중, ④)</th>
+                                <th class="p-5 text-sm">Q4 (상, ②)</th>
+                                <th class="p-5 text-sm">Q5 (최상, ⑤)</th>
+                                <th class="p-5 text-base text-indigo-600 font-black">최종 정답 개수 (5개 만점)</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-slate-100">
+                        <tbody class="divide-y divide-slate-100 text-sm">
                             ${studentsData.map(s => `
                                 <tr class="hover:bg-slate-50/50 transition">
-                                    <td class="p-4 font-bold text-slate-700">${s.id}</td>
-                                    <td class="p-4 ${s.test_q1 === '①' ? 'text-slate-700 font-semibold' : 'text-rose-500 font-bold'}">${s.test_q1}</td>
-                                    <td class="p-4 font-black ${s.test_q2 === '③' ? 'text-slate-800 bg-amber-50/40' : 'text-rose-600 bg-rose-50/30'}">${s.test_q2}</td>
-                                    <td class="p-4 ${s.test_q3 === '④' ? 'text-slate-700 font-semibold' : 'text-rose-500 font-bold'}">${s.test_q3}</td>
-                                    <td class="p-4 ${s.test_q4 === '②' ? 'text-slate-700 font-semibold' : 'text-rose-500 font-bold'}">${s.test_q4}</td>
-                                    <td class="p-4 ${s.test_q5 === '⑤' ? 'text-slate-700 font-semibold' : 'text-rose-500 font-bold'}">${s.test_q5}</td>
-                                    <td class="p-4 font-black text-indigo-600 text-xs">${s.test_total}개 맞춤</td>
+                                    <td class="p-5 font-black text-slate-900 text-base">${s.id}</td>
+                                    <td class="p-5 font-bold ${s.test_q1 === '①' ? 'text-slate-700' : 'text-rose-500 font-bold'}">${s.test_q1}</td>
+                                    <td class="p-5 font-black bg-amber-50/10 ${s.test_q2 === '③' ? 'text-slate-800' : 'text-rose-600'}">${s.test_q2}</td>
+                                    <td class="p-5 font-bold ${s.test_q3 === '④' ? 'text-slate-700' : 'text-rose-500 font-bold'}">${s.test_q3}</td>
+                                    <td class="p-5 font-bold ${s.test_q4 === '②' ? 'text-slate-700' : 'text-rose-500 font-bold'}">${s.test_q4}</td>
+                                    <td class="p-5 font-bold ${s.test_q5 === '⑤' ? 'text-slate-700' : 'text-rose-500 font-bold'}">${s.test_q5}</td>
+                                    <td class="p-5 font-black text-indigo-600 text-base">${s.test_total}개 맞춤</td>
                                 </tr>
                             `).join('')}
                         </tbody>
                         <tfoot>
-                            <tr class="bg-indigo-50/30 border-t-2 border-indigo-100 text-indigo-900 font-black">
-                                <td class="p-4 font-extrabold">문항별 정답률</td>
-                                <td class="p-4">80%</td>
-                                <td class="p-4 text-rose-600 font-extrabold">50% (폭락)</td>
-                                <td class="p-4">80%</td>
-                                <td class="p-4">40%</td>
-                                <td class="p-4">20%</td>
-                                <td class="p-4 text-indigo-600">학급평균: 2.7개</td>
+                            <tr class="bg-indigo-50/30 border-t-2 border-indigo-100 text-indigo-900 font-black text-sm">
+                                <td class="p-5 font-black text-base">문항별 정답률</td>
+                                <td class="p-5 font-black">80%</td>
+                                <td class="p-5 text-rose-600 font-black text-base">50% (폭락)</td>
+                                <td class="p-5 font-black">80%</td>
+                                <td class="p-5 font-black">40%</td>
+                                <td class="p-5 font-black">20%</td>
+                                <td class="p-5 text-indigo-600 font-black text-base">학급평균: 2.7개</td>
                             </tr>
                         </tfoot>
                     </table>
@@ -1053,24 +1323,24 @@
             } else if (currentDataType === 4) {
                 title.innerText = "데이터 4: 사회정서 모둠 협업 및 인격 지표";
                 container.innerHTML = `
-                    <table class="w-full text-left border-collapse text-xs">
+                    <table class="w-full text-left border-collapse text-sm">
                         <thead>
-                            <tr class="border-b border-slate-150 bg-slate-50/50 text-slate-500 font-bold">
-                                <th class="p-4">학생 ID</th>
-                                <th class="p-4">수업 흥미도 (5점)</th>
-                                <th class="p-4">협업 기여도 (동료평가, 5점)</th>
-                                <th class="p-4 text-rose-500">학업 스트레스 (5점)</th>
-                                <th class="p-4">정서 질적 관찰 신호</th>
+                            <tr class="border-b-2 border-indigo-150 bg-indigo-50/20 text-slate-500 font-bold">
+                                <th class="p-5 text-base text-slate-900 font-black">학생 ID</th>
+                                <th class="p-5 text-sm">수업 흥미도 (5점)</th>
+                                <th class="p-5 text-sm">협업 기여도 (동료평가, 5점)</th>
+                                <th class="p-5 text-rose-500 text-sm">학업 스트레스 (5점)</th>
+                                <th class="p-5 text-sm">정서 질적 관찰 신호</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-slate-100">
+                        <tbody class="divide-y divide-slate-100 text-sm">
                             ${studentsData.map(s => `
                                 <tr class="hover:bg-slate-50/50 transition">
-                                    <td class="p-4 font-bold text-slate-700">${s.id}</td>
-                                    <td class="p-4 text-slate-700 font-semibold">${s.interest.toFixed(1)} / 5.0</td>
-                                    <td class="p-4 text-slate-600">${s.coop.toFixed(1)} / 5.0</td>
-                                    <td class="p-4 font-black ${s.stress >= 4.0 ? 'text-rose-600 bg-rose-50/30' : 'text-slate-800'}">${s.stress.toFixed(1)} / 5.0</td>
-                                    <td class="p-4 text-slate-500 italic">${s.signal}</td>
+                                    <td class="p-5 font-black text-slate-900 text-base">${s.id}</td>
+                                    <td class="p-5 text-slate-700 font-bold">${s.interest.toFixed(1)} / 5.0</td>
+                                    <td class="p-5 text-slate-600 font-bold">${s.coop.toFixed(1)} / 5.0</td>
+                                    <td class="p-5 font-black text-base ${s.stress >= 4.0 ? 'text-rose-600 bg-rose-50/20' : 'text-slate-800'}">${s.stress.toFixed(1)} / 5.0</td>
+                                    <td class="p-5 text-slate-700 italic font-semibold">${s.signal}</td>
                                 </tr>
                             `).join('')}
                         </tbody>
@@ -1122,6 +1392,7 @@
                 listBtnContainer.appendChild(btn);
             });
 
+            // 차트 인스턴스 소멸 후 깔끔한 지연 렌더링
             setTimeout(() => {
                 renderInstructorStaticCharts();
                 selectInstructorStudent(activeStudentId);
@@ -1168,6 +1439,7 @@
             updateRadarChart(s);
         }
 
+        // 전체 보고서 깨지는 레이아웃 및 차트 오동작 완전 조치
         function renderInstructorStaticCharts() {
             const barCtx = document.getElementById('testItemsChart').getContext('2d');
             if (barChartInstance) barChartInstance.destroy();
@@ -1181,7 +1453,7 @@
                         data: [80, 50, 80, 40, 20],
                         backgroundColor: [
                             'rgba(99, 102, 241, 0.7)',
-                            'rgba(244, 63, 94, 0.8)', 
+                            'rgba(244, 63, 94, 0.85)', 
                             'rgba(99, 102, 241, 0.7)',
                             'rgba(99, 102, 241, 0.7)',
                             'rgba(99, 102, 241, 0.7)'
@@ -1207,10 +1479,10 @@
                         y: {
                             min: 0,
                             max: 100,
-                            ticks: { font: { size: 9 } }
+                            ticks: { font: { size: 9, weight: 'bold' } }
                         },
                         x: {
-                            ticks: { font: { size: 9 } }
+                            ticks: { font: { size: 9, weight: 'bold' } }
                         }
                     }
                 }
