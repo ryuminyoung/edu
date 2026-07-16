@@ -11,6 +11,10 @@
     <!-- FontAwesome Icons for Beautiful UX -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
+    <!-- Firebase App and Firestore compatibility SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700&display=swap');
         
@@ -157,6 +161,30 @@
         }
     };
 
+    // * ※ 아래 config 객체의 'YOUR_...' 부분을 Firebase Console에서 발급받은 실제 값으로 교체하시면 연수실 실시간 동기화가 활성화됩니다.
+    const firebaseConfig = {
+        apiKey: "YOUR_API_KEY",
+        authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+        projectId: "YOUR_PROJECT_ID",
+        storageBucket: "YOUR_PROJECT_ID.appspot.com",
+        messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+        appId: "YOUR_APP_ID"
+    };
+
+    let db = null;
+    let isFirebaseActive = false;
+
+    if (firebaseConfig.apiKey && firebaseConfig.apiKey !== "YOUR_API_KEY") {
+        try {
+            firebase.initializeApp(firebaseConfig);
+            db = firebase.firestore();
+            isFirebaseActive = true;
+            console.log("Firebase Firestore가 성공적으로 연결되었습니다.");
+        } catch (e) {
+            console.error("Firebase 초기화 에러:", e);
+        }
+    }
+
     // Instructor Exemplar Guides for reference
     const instructorExemplars = {
         "S03": { type: "초고속 선행학습형", analysis: "접속시간 단 1분, 동영상 5% 시청 후 형성평가 100점 만점 및 고난도 5번 10초 컷 정답. 정기시험 전원 만점(5/5)이나 흥미도(2.0), 기여도(2.0)는 최하위며 '지루함' 정서 보임.", try: "반복 지식 주입 지양. 심화 과제 비계(데이터 모델링, 모둠장 임무)를 부여해 수업 참여도를 견인해야 함." },
@@ -176,7 +204,8 @@
                 currentDataType: 'lms',
                 perspective: '',
                 overallTry: '',
-                students: [] // Array of { id, reason }
+                students: [], // Array of { id, reason }
+                members: []   // Array of member names (Max 10)
             };
         }
         
@@ -198,6 +227,17 @@
     function saveState() {
         try {
             localStorage.setItem('data_reflection_state_v1', JSON.stringify(appState));
+            
+            if (isFirebaseActive && db) {
+                db.collection("seminar_groups").doc(`group${currentGroupId}`).set({
+                    currentDataType: appState[`group${currentGroupId}`].currentDataType || 'lms',
+                    perspective: appState[`group${currentGroupId}`].perspective || '',
+                    overallTry: appState[`group${currentGroupId}`].overallTry || '',
+                    students: appState[`group${currentGroupId}`].students || [],
+                    members: appState[`group${currentGroupId}`].members || []
+                }, { merge: true })
+                .catch(err => console.error("Firestore 실시간 백업 실패:", err));
+            }
         } catch (e) {
             console.error("Failed to save state:", e);
         }
@@ -408,6 +448,24 @@
                     <h3 class="text-lg font-bold text-slate-800">모둠 데이터 진단 워크북 (입력부)</h3>
                 </div>
 
+                <!-- Input 0: Group Members list registration (Max 10) -->
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 space-y-3 animate-in fade-in duration-200">
+                    <label class="block text-sm font-bold text-slate-700 flex items-center gap-1.5">
+                        <i class="fa-solid fa-users text-indigo-500"></i> 입력 0) 모둠원 명단 등록 (최대 10명)
+                    </label>
+                    <p class="text-xs text-slate-400">실시간 연수 환경입니다. 우리 모둠원 이름을 입력하여 명단을 작성해 주세요.</p>
+                    <div class="flex gap-2">
+                        <input type="text" id="input-member-name" placeholder="이름 입력 후 엔터 또는 추가" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-indigo-500" onkeydown="if(event.key === 'Enter') addGroupMember()">
+                        <button onclick="addGroupMember()" class="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl transition duration-150 shrink-0 shadow-sm shadow-indigo-100">
+                            추가
+                        </button>
+                    </div>
+                    <!-- Registered Members Tag Container -->
+                    <div id="group-members-tags" class="flex flex-wrap gap-1.5 pt-1">
+                        <!-- Loaded dynamically via JS -->
+                    </div>
+                </div>
+
                 <!-- Input 1: Group Perspective -->
                 <div class="bg-white p-6 rounded-2xl border border-slate-200 space-y-3">
                     <label class="block text-sm font-bold text-slate-700 flex items-center gap-1.5">
@@ -480,6 +538,14 @@
                         <h3 class="text-lg font-bold text-slate-800">모둠 데이터 분석 보고서 (실시간 동기화)</h3>
                     </div>
                     <span class="text-[10px] px-2 py-0.5 bg-emerald-50 text-emerald-600 border border-emerald-200 rounded font-bold">LIVE MIRROR</span>
+                </div>
+
+                <!-- Live Members Segment -->
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 space-y-2">
+                    <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">우리 모둠 구성원</div>
+                    <div id="live-members-list" class="flex flex-wrap gap-1.5 text-xs font-semibold">
+                        <!-- Loaded dynamically -->
+                    </div>
                 </div>
 
                 <!-- Live Perspective Segment -->
@@ -793,12 +859,141 @@
     window.addEventListener('DOMContentLoaded', () => {
         switchTab('main');
         initInstructorPanelPicker();
+
+        if (isFirebaseActive && db) {
+            for (let i = 1; i <= 5; i++) {
+                db.collection("seminar_groups").doc(`group${i}`).onSnapshot((doc) => {
+                    if (doc.exists) {
+                        const data = doc.data();
+                        
+                        // Overwrite localized memory safely
+                        appState[`group${i}`].currentDataType = data.currentDataType || 'lms';
+                        appState[`group${i}`].perspective = data.perspective || '';
+                        appState[`group${i}`].overallTry = data.overallTry || '';
+                        appState[`group${i}`].students = data.students || [];
+                        appState[`group${i}`].members = data.members || [];
+                        
+                        // Back up changes locally
+                        localStorage.setItem('data_reflection_state_v1', JSON.stringify(appState));
+                        
+                        // If current visible tab gets updated remotely, trigger safe workspace re-rendering
+                        if (currentTab === `group${i}`) {
+                            renderGroupWorkspace();
+                        }
+                    }
+                }, (err) => {
+                    console.error("Firestore 실시간 리스너 수신 에러:", err);
+                });
+            }
+        }
     });
+
+    function addGroupMember() {
+        const input = document.getElementById('input-member-name');
+        const name = input.value.trim();
+        if (!name) return;
+
+        const group = appState[`group${currentGroupId}`];
+        if (!group.members) group.members = [];
+
+        if (group.members.length >= 10) {
+            showToast("모둠원 명단은 최대 10명까지만 추가할 수 있습니다.", "warning");
+            return;
+        }
+
+        if (group.members.includes(name)) {
+            showToast("이미 등록되어 있는 모둠원입니다.", "warning");
+            return;
+        }
+
+        group.members.push(name);
+        input.value = '';
+        saveState();
+        renderMembersList();
+        updateGroupLiveMirror();
+        showToast(`${name} 교사가 모둠원 명단에 추가되었습니다.`, "success");
+    }
+
+    function deleteGroupMember(name) {
+        const group = appState[`group${currentGroupId}`];
+        if (!group.members) return;
+
+        group.members = group.members.filter(m => m !== name);
+        saveState();
+        renderMembersList();
+        updateGroupLiveMirror();
+        showToast(`${name} 교사를 모둠원에서 명단에서 삭제했습니다.`, "info");
+    }
+
+    function renderMembersList() {
+        const group = appState[`group${currentGroupId}`];
+        const members = group.members || [];
+        const container = document.getElementById('group-members-tags');
+        if (!container) return;
+
+        container.innerHTML = '';
+        if (members.length === 0) {
+            container.innerHTML = '<span class="text-xs text-slate-400 italic">등록된 모둠원이 없습니다. 이름을 적어주세요.</span>';
+            return;
+        }
+
+        members.forEach(name => {
+            const badge = document.createElement('span');
+            badge.className = 'inline-flex items-center gap-1.5 px-3 py-1 bg-indigo-50 border border-indigo-200 text-indigo-700 text-xs font-bold rounded-lg shadow-sm';
+            badge.innerHTML = `
+                <span>${name}</span>
+                <button onclick="deleteGroupMember('${name}')" class="text-indigo-400 hover:text-indigo-600 transition font-bold text-sm">&times;</button>
+            `;
+            container.appendChild(badge);
+        });
+    }
 
     // Handle single input states inside group workspace
     function handleStateChange(field, value) {
         appState[`group${currentGroupId}`][field] = value;
         saveState();
+        updateGroupLiveMirror();
+    }
+
+    // Dynamic data rendering based on Group Selection and Data type selected
+    function setGroupDataType(dataType) {
+        appState[`group${currentGroupId}`].currentDataType = dataType;
+        saveState();
+        
+        // Update Buttons Styling
+        document.querySelectorAll('.dt-btn').forEach(btn => {
+            btn.classList.remove('bg-white', 'text-indigo-600', 'shadow-sm', 'border', 'border-slate-200');
+            btn.classList.add('text-slate-600', 'hover:bg-slate-200/50');
+        });
+        const activeBtn = document.getElementById(`dt-${dataType}`);
+        if (activeBtn) {
+            activeBtn.classList.add('bg-white', 'text-indigo-600', 'shadow-sm', 'border', 'border-slate-200');
+            activeBtn.classList.remove('text-slate-600', 'hover:bg-slate-200/50');
+        }
+
+        renderGroupDataTable(dataType);
+    }
+
+    // Render Group Workbook values onto DOM
+    function renderGroupWorkspace() {
+        const group = appState[`group${currentGroupId}`];
+        
+        // Group Header title
+        document.getElementById('group-title-num').innerText = currentGroupId;
+        document.getElementById('group-title-text').innerText = `모둠 ${currentGroupId} 분석 작업소`;
+        
+        const activeEl = document.activeElement;
+        if (!activeEl || activeEl.id !== 'input-perspective') {
+            document.getElementById('input-perspective').value = group.perspective || '';
+        }
+        if (!activeEl || activeEl.id !== 'input-try') {
+            document.getElementById('input-try').value = group.overallTry || '';
+        }
+        
+        renderMembersList();
+        
+        // Sync active data tab
+        setGroupDataType(group.currentDataType || 'lms');
         updateGroupLiveMirror();
     }
 
@@ -972,6 +1167,22 @@
     function updateGroupLiveMirror() {
         const group = appState[`group${currentGroupId}`];
 
+        const liveMembersEl = document.getElementById('live-members-list');
+        if (liveMembersEl) {
+            liveMembersEl.innerHTML = '';
+            const members = group.members || [];
+            if (members.length > 0) {
+                members.forEach(m => {
+                    const tag = document.createElement('span');
+                    tag.className = 'px-2 py-1 bg-indigo-50 border border-indigo-100 text-indigo-700 rounded-lg text-[11px] font-bold';
+                    tag.innerText = m;
+                    liveMembersEl.appendChild(tag);
+                });
+            } else {
+                liveMembersEl.innerHTML = '<span class="text-xs text-slate-400 italic">아직 등록된 모둠원이 없습니다.</span>';
+            }
+        }
+
         // Perspective
         const perspectiveEl = document.getElementById('live-perspective');
         if (group.perspective.trim()) {
@@ -1037,6 +1248,10 @@
     function buildReportDocument() {
         const group = appState[`group${currentGroupId}`];
         
+        const membersListText = (group.members && group.members.length > 0) 
+            ? group.members.join(', ') 
+            : '등록된 모둠원 없음';
+
         let studentsHtml = '';
         if (group.students.length > 0) {
             group.students.forEach(s => {
@@ -1063,6 +1278,7 @@
                     <h1 class="text-2xl font-black text-slate-900 tracking-tight mt-3">교수·학습 설계 및 성찰을 위한 수업 데이터 분석 보고서</h1>
                     <div class="flex justify-center gap-6 mt-3 text-xs text-slate-600">
                         <span><strong>소속 모둠:</strong> 모둠 ${currentGroupId}</span>
+                        <span><strong>모둠원 명단:</strong> ${membersListText}</span>
                         <span><strong>분석 실행 일자:</strong> ${new Date().toLocaleDateString('ko-KR')}</span>
                         <span><strong>진단 분석 대상:</strong> 가상 10인 학습 데이터셋</span>
                     </div>
