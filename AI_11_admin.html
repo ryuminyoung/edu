@@ -55,7 +55,7 @@
                 </div>
             </div>
             <div class="flex items-center gap-2">
-                <a href="index.html" class="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold rounded-xl transition flex items-center gap-1.5 shadow-sm">
+                <a href="AI_11_class.html" class="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold rounded-xl transition flex items-center gap-1.5 shadow-sm">
                     <i class="fa-solid fa-right-to-bracket"></i> 실습실로 이동
                 </a>
                 <button onclick="logoutAdmin()" class="px-3.5 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-bold rounded-xl transition flex items-center gap-1">
@@ -135,10 +135,10 @@
     <!-- UI Toast Container -->
     <div id="toast-container" class="fixed top-5 right-5 z-50 space-y-2 pointer-events-none"></div>
 
-    <!-- Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
+    <!-- Firebase Compat SDKs (규칙 준수 필수) -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
     <script>
         const firebaseConfig = {
@@ -172,7 +172,7 @@
             const pwd = document.getElementById('auth-password').value;
             if (pwd === "2026") {
                 if (!isFirebaseActive) {
-                    showToast("오류: 파이어베이스 환경 변수가 설정되지 않았습니다.", "error");
+                    showToast("오류: 파이어베이스 설정이 누락되었습니다.", "error");
                     return;
                 }
                 document.getElementById('auth-view').classList.add('hidden');
@@ -190,6 +190,7 @@
             document.getElementById('admin-view').classList.add('hidden');
         }
 
+        // RULE 3 준수: 익명 인증 완료 대기 후 쿼리 시작
         async function initAdminDataSync() {
             try {
                 let userCredential;
@@ -205,6 +206,9 @@
                     return;
                 }
 
+                console.log("Admin Firestore connected as:", user.uid);
+
+                // 1. 세미나 메타 수신 (RULE 1 준수 하위 경로)
                 db.collection('artifacts').doc(appId).collection('public').doc('data')
                     .collection('config').doc('seminar_meta').onSnapshot((doc) => {
                         if (doc.exists) {
@@ -214,6 +218,7 @@
                         console.error("Seminar meta stream error: ", err);
                     });
 
+                // 2. 클래스 목록 수신 (RULE 1 하위 경로 & RULE 2 복잡한 쿼리 회피)
                 db.collection('artifacts').doc(appId).collection('public').doc('data')
                     .collection('classes').onSnapshot((snapshot) => {
                         let list = [];
@@ -222,31 +227,39 @@
                             list.push({ 
                                 id: doc.id, 
                                 name: d.name, 
-                                groupCount: d.groupCount || 5 
+                                groupCount: d.groupCount || 5,
+                                createdAt: d.createdAt || 0
                             });
                         });
+                        // RULE 2를 위해 메모리 정렬 수행
+                        list.sort((a, b) => b.createdAt - a.createdAt);
                         classesList = list;
                         renderClassesList();
                     }, (err) => {
                         console.error("Classes stream error: ", err);
+                        showToast("클래스를 불러오는 데 권한 실패가 발생했습니다.", "error");
                     });
 
             } catch (err) {
-                console.error("Auth initialization error.", err);
-                showToast("원격 서버 연결 실패", "error");
+                console.error("Auth / Fetch initialization error inside admin panel.", err);
+                let errorMsg = "원격 서버와의 연동 인증에 실패했습니다.";
+                if (err.code === 'auth/operation-not-allowed') {
+                    errorMsg = "파이어베이스 콘솔에서 '익명 로그인'을 활성화해 주셔야 합니다!";
+                }
+                showToast(errorMsg, "error");
             }
         }
 
         function updateSeminarTitle() {
             const titleVal = document.getElementById('config-seminar-title').value.trim();
             if (!titleVal) {
-                showToast("과정명을 입력해 주세요.", "error");
+                showToast("세미나 과정명을 올바르게 입력해 주세요.", "error");
                 return;
             }
             if (isFirebaseActive && auth.currentUser) {
                 db.collection('artifacts').doc(appId).collection('public').doc('data')
                     .collection('config').doc('seminar_meta').set({ title: titleVal })
-                    .then(() => showToast("과정명이 원격 변경되었습니다.", "success"))
+                    .then(() => showToast("전체 실습 페이지 과정 타이틀명이 변경되었습니다.", "success"))
                     .catch(e => showToast("서버 반영 실패", "error"));
             }
         }
@@ -256,11 +269,11 @@
             const groupCountVal = parseInt(document.getElementById('class-input-groups').value) || 5;
 
             if (!nameVal) {
-                showToast("클래스명을 입력해 주세요.", "error");
+                showToast("학급 구별 명칭을 작성해 주세요.", "error");
                 return;
             }
             if (groupCountVal < 1 || groupCountVal > 20) {
-                showToast("모둠 개수는 1~20개 사이만 가능합니다.", "error");
+                showToast("모둠 개수는 최소 1개, 최대 20개까지만 배정 가능합니다.", "error");
                 return;
             }
 
@@ -270,43 +283,59 @@
                 db.collection('artifacts').doc(appId).collection('public').doc('data')
                     .collection('classes').doc(cleanId).set({
                         name: nameVal,
-                        groupCount: groupCountVal
+                        groupCount: groupCountVal,
+                        createdAt: Date.now()
                     })
                     .then(() => {
-                        showToast(`클래스 [${nameVal}] (${groupCountVal}개 모둠)가 개설되었습니다.`, "success");
+                        showToast(`클래스 [${nameVal}] (${groupCountVal}개 모둠)가 원격 개설되었습니다.`, "success");
                         document.getElementById('class-input-name').value = "";
                         document.getElementById('class-input-groups').value = "5";
                     })
-                    .catch(e => showToast("원격 등록 실패", "error"));
+                    .catch(e => showToast("원격 클래스 등록에 실패했습니다.", "error"));
             }
         }
 
         function deleteClass(classId, className) {
-            if (!confirm(`[${className}] 학급을 완전히 삭제하시겠습니까?`)) return;
+            if (!confirm(`[${className}] 학급을 완전히 삭제하시겠습니까?\n모든 데이터가 소멸됩니다.`)) return;
 
             if (isFirebaseActive && auth.currentUser) {
                 db.collection('artifacts').doc(appId).collection('public').doc('data')
                     .collection('classes').doc(classId).delete()
-                    .then(() => showToast("삭제 완료", "info"))
+                    .then(() => showToast("선택한 클래스가 성공적으로 원격 삭제되었습니다.", "info"))
                     .catch(e => showToast("삭제 실패", "error"));
             }
         }
 
+        // 모든 모둠의 자료들을 포맷팅 (Active listeners가 끊어지지 않도록 도큐먼트 리셋)
         function confirmResetAllData() {
-            if (!confirm("🚨 경고!\n모든 모둠의 실습 기록이 초기화됩니다. 계속하시겠습니까?")) return;
+            if (!confirm("🚨 경고!\n현재 데이터베이스에 누적된 전체 모둠의 실습 성찰 보고서 내용(모둠원, 관점, 처방 대안)이 완전히 사라지고 초기화됩니다. 이 동작은 복구할 수 없습니다.\n\n정말로 초기화하시겠습니까?")) return;
 
             if (isFirebaseActive && auth.currentUser) {
                 db.collection('artifacts').doc(appId).collection('public').doc('data')
-                    .collection('groupWork').get()
+                    .collection('classes').get()
                     .then((snapshot) => {
                         let batch = db.batch();
-                        snapshot.forEach((doc) => {
-                            batch.delete(doc.ref);
+                        snapshot.forEach((classDoc) => {
+                            const classId = classDoc.id;
+                            const groupCount = classDoc.data().groupCount || 5;
+                            for (let i = 1; i <= groupCount; i++) {
+                                const groupDocRef = db.collection('artifacts').doc(appId).collection('public').doc('data')
+                                    .collection('classes').doc(classId)
+                                    .collection('groups').doc(`group${i}`);
+                                batch.set(groupDocRef, {
+                                    members: [],
+                                    perspective: "",
+                                    outliers: [],
+                                    overallTry: ""
+                                });
+                            }
                         });
                         return batch.commit();
                     })
-                    .then(() => showToast("모든 실습 데이터가 초기화되었습니다.", "success"))
-                    .catch(e => showToast("리셋 실패", "error"));
+                    .then(() => {
+                        showToast("원격 데이터베이스 내 모든 실습 자료들이 깔끔하게 포맷되었습니다.", "success");
+                    })
+                    .catch(e => showToast("원격 리셋 처리에 실패했습니다.", "error"));
             }
         }
 
@@ -314,7 +343,7 @@
             const container = document.getElementById('classes-list-container');
             container.innerHTML = "";
             if (classesList.length === 0) {
-                container.innerHTML = `<p class="text-xs text-slate-400 italic py-4">등록된 학급 정보가 없습니다.</p>`;
+                container.innerHTML = `<p class="text-xs text-slate-400 italic py-4">개설된 학급 정보가 없습니다. 새로 등록해 주세요.</p>`;
                 return;
             }
             classesList.forEach(c => {
@@ -322,7 +351,7 @@
                     <div class="flex items-center justify-between p-3.5 bg-slate-50 border border-slate-200/60 rounded-xl text-xs hover:bg-slate-100/50 transition">
                         <div class="space-y-0.5">
                             <h4 class="font-bold text-slate-800">${c.name}</h4>
-                            <p class="text-[10px] text-indigo-600 font-bold"><i class="fa-solid fa-users-rectangle"></i> 모둠: ${c.groupCount}개</p>
+                            <p class="text-[10px] text-indigo-600 font-bold"><i class="fa-solid fa-users-rectangle"></i> 모둠 개수: ${c.groupCount}개</p>
                         </div>
                         <button onclick="deleteClass('${c.id}', '${c.name}')" class="text-slate-400 hover:text-rose-600 transition p-1">
                             <i class="fa-solid fa-circle-xmark text-sm"></i>
@@ -335,18 +364,32 @@
         function showToast(message, type = "info") {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
-            let icon = '<i class="fa-solid fa-circle-info text-sky-500"></i>';
-            if (type === "success") icon = '<i class="fa-solid fa-circle-check text-emerald-500"></i>';
-            if (type === "error") icon = '<i class="fa-solid fa-circle-exclamation text-rose-500"></i>';
             
-            toast.className = `p-4 rounded-xl border shadow-lg bg-white border-slate-200 flex items-center gap-2 text-xs font-semibold max-w-sm pointer-events-auto transition duration-300 transform translate-y-2 opacity-0`;
+            let icon = '<i class="fa-solid fa-circle-info text-sky-500"></i>';
+            let bgBorder = 'bg-white border-slate-200';
+            
+            if (type === "success") {
+                icon = '<i class="fa-solid fa-circle-check text-emerald-500"></i>';
+            } else if (type === "error") {
+                icon = '<i class="fa-solid fa-circle-exclamation text-rose-500"></i>';
+            } else if (type === "warning") {
+                icon = '<i class="fa-solid fa-triangle-exclamation text-amber-500"></i>';
+            }
+
+            toast.className = `p-4 rounded-xl border shadow-lg ${bgBorder} flex items-center gap-2 text-xs font-semibold max-w-sm pointer-events-auto transition duration-300 transform translate-y-2 opacity-0`;
             toast.innerHTML = `${icon} <span>${message}</span>`;
+            
             container.appendChild(toast);
             
-            setTimeout(() => { toast.classList.remove('translate-y-2', 'opacity-0'); }, 10);
+            setTimeout(() => {
+                toast.classList.remove('translate-y-2', 'opacity-0');
+            }, 10);
+
             setTimeout(() => {
                 toast.classList.add('translate-y-2', 'opacity-0');
-                setTimeout(() => { toast.remove(); }, 300);
+                setTimeout(() => {
+                    toast.remove();
+                }, 300);
             }, 3000);
         }
     </script>
