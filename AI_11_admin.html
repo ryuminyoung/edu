@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>관리자 콘솔 - 데이터 분석 실습 통합 제어판</title>
+    <title>관리자 콘솔 - 데이터 실습 제어 타워</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
@@ -28,7 +28,7 @@
             </div>
             <div class="space-y-1">
                 <h1 class="text-xl font-extrabold text-slate-800">관리자(강사) 인증</h1>
-                <p class="text-xs text-slate-400">통합 세미나 관리를 위해 비밀번호를 입력해 주세요.</p>
+                <p class="text-xs text-slate-400">실시간 연수 환경 설정을 위해 비밀번호를 입력해 주세요.</p>
             </div>
             <div class="space-y-3">
                 <input type="password" id="auth-password" placeholder="비밀번호 입력" class="w-full p-3 border border-slate-200 rounded-xl bg-slate-50 text-sm text-center focus:outline-none focus:border-indigo-500 focus:bg-white transition" value="2026">
@@ -51,12 +51,12 @@
                 </div>
                 <div>
                     <h1 class="text-sm font-black text-slate-900 tracking-tight">강사용 데이터 제어 타워</h1>
-                    <p class="text-[10px] text-slate-400">연수 세션 관리, 다중 클래스 셋업 및 실시간 모니터링</p>
+                    <p class="text-[10px] text-slate-400">원격 클래스 셋업 및 세미나 제어 콘솔</p>
                 </div>
             </div>
             <div class="flex items-center gap-2">
                 <a href="AI_11_class.html" class="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold rounded-xl transition flex items-center gap-1.5 shadow-sm">
-                    <i class="fa-solid fa-right-to-bracket"></i> 실습실로 가기
+                    <i class="fa-solid fa-right-to-bracket"></i> 실습실로 이동
                 </a>
                 <button onclick="logoutAdmin()" class="px-3.5 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-bold rounded-xl transition flex items-center gap-1">
                     <i class="fa-solid fa-power-off"></i> 로그아웃
@@ -65,10 +65,10 @@
         </header>
 
         <!-- Main Dashboard Workspace -->
-        <main class="flex-1 max-w-7xl w-full mx-auto p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <main class="flex-1 max-w-5xl w-full mx-auto p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
             
-            <!-- LEFT COLUMN: SEMINAR META & CLASS SETUP -->
-            <div class="space-y-6 lg:col-span-1">
+            <!-- LEFT COLUMN: SEMINAR META & CLASS CREATION -->
+            <div class="space-y-6">
                 <!-- Seminar Title Configuration -->
                 <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
                     <h3 class="text-xs font-bold text-slate-800 tracking-wider uppercase border-b border-slate-100 pb-2 flex items-center gap-1.5">
@@ -78,7 +78,7 @@
                         <label class="block text-[10px] font-bold text-slate-400 uppercase">공식 연수 과정명</label>
                         <input type="text" id="config-seminar-title" placeholder="과정 타이틀 입력" class="w-full p-2.5 border border-slate-200 rounded-xl bg-slate-50 text-xs focus:outline-none focus:border-indigo-500 focus:bg-white transition">
                         <button onclick="updateSeminarTitle()" class="w-full py-2 bg-slate-800 hover:bg-slate-900 text-white font-bold text-xs rounded-xl transition flex items-center justify-center gap-1">
-                            <i class="fa-solid fa-circle-check"></i> 과정명 원격 수정 반영
+                            <i class="fa-solid fa-circle-check"></i> 과정명 실시간 수정 및 연동
                         </button>
                     </div>
                 </div>
@@ -102,58 +102,31 @@
                         </button>
                     </div>
                 </div>
-
-                <!-- Existing Classes Listing -->
-                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-                    <h3 class="text-xs font-bold text-slate-800 tracking-wider uppercase border-b border-slate-100 pb-2 flex items-center gap-1.5">
-                        <i class="fa-solid fa-list-check text-indigo-500"></i> 현재 개설된 클래스 목록
-                    </h3>
-                    <div id="classes-list-container" class="space-y-2 max-h-60 overflow-y-auto pr-1">
-                        <!-- Dynamic values populate -->
-                        <p class="text-xs text-slate-400 italic">클래스를 불러오는 중입니다...</p>
-                    </div>
-                </div>
             </div>
 
-            <!-- RIGHT COLUMN: MONITORING & BATCH DISMISS -->
-            <div class="lg:col-span-2 space-y-6">
-                <!-- Live Monitoring Grid -->
-                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4 flex flex-col h-full min-h-[400px]">
-                    <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3 border-b border-slate-100 pb-3">
-                        <div class="space-y-1">
-                            <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
-                                <i class="fa-solid fa-arrows-spin text-indigo-500 animate-spin"></i> 실습 학급 실시간 진행 모니터링
-                            </h3>
-                            <p class="text-[11px] text-slate-400">교사들의 모둠별 입력 현황과 전송 속도를 현장 스크리닝합니다.</p>
-                        </div>
-                        <!-- Monitoring Target Select -->
-                        <div>
-                            <select id="monitor-class-select" onchange="loadRealtimeClassMonitor()" class="p-2 border border-slate-200 rounded-xl bg-slate-50 text-xs font-bold focus:outline-none focus:bg-white focus:border-indigo-500">
-                                <option value="">학급을 선택해 주세요</option>
-                            </select>
-                        </div>
+            <!-- RIGHT COLUMN: EXISTING CLASSES & DATA CLEANUP -->
+            <div class="space-y-6">
+                <!-- Existing Classes Listing -->
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-3 flex flex-col h-[340px]">
+                    <h3 class="text-xs font-bold text-slate-800 tracking-wider uppercase border-b border-slate-100 pb-2 flex items-center gap-1.5 shrink-0">
+                        <i class="fa-solid fa-list-check text-indigo-500"></i> 현재 개설된 클래스 목록
+                    </h3>
+                    <div id="classes-list-container" class="space-y-2 overflow-y-auto flex-1 pr-1">
+                        <p class="text-xs text-slate-400 italic">서버에서 실시간 클래스를 불러오는 중입니다...</p>
                     </div>
+                </div>
 
-                    <!-- Dynamic Monitoring Cards Area -->
-                    <div id="monitor-cards-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-4 flex-1">
-                        <div class="col-span-full flex flex-col justify-center items-center py-16 text-slate-400 space-y-2">
-                            <i class="fa-solid fa-chalkboard-user text-3xl text-slate-200"></i>
-                            <p class="text-xs">상단 드롭다운에서 실시간 모니터링할 클래스를 지정해 주세요.</p>
-                        </div>
-                    </div>
-
-                    <!-- Batch Reset & Data Management -->
-                    <div class="bg-rose-50/40 p-4 border border-rose-100 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 mt-4">
-                        <div class="space-y-0.5">
-                            <h4 class="text-xs font-bold text-rose-800 flex items-center gap-1">
-                                <i class="fa-solid fa-triangle-exclamation"></i> 주의: 전체 데이터 일괄 비우기
-                            </h4>
-                            <p class="text-[10px] text-rose-600/90 leading-relaxed">다음 세션 실습 및 다음 기수 연수 배치를 위해 저장소 데이터를 일괄 클리닝 포맷팅합니다.</p>
-                        </div>
-                        <button onclick="confirmResetAllData()" class="px-3.5 py-2 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-xl transition flex items-center gap-1 shadow-sm shrink-0">
-                            <i class="fa-solid fa-dumpster"></i> 실습 데이터 초기화
-                        </button>
-                    </div>
+                <!-- Batch Reset & Data Management -->
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                    <h3 class="text-xs font-bold text-rose-800 tracking-wider uppercase border-b border-rose-100 pb-2 flex items-center gap-1.5">
+                        <i class="fa-solid fa-triangle-exclamation"></i> 주의: 전체 데이터 일괄 비우기
+                    </h3>
+                    <p class="text-[11px] text-slate-500 leading-relaxed">
+                        다음 기수 연수 또는 새로운 세션 실습 배치를 위해 원격 저장소에 기록된 모둠별 산출물 데이터들을 일괄 클리닝 포맷팅합니다.
+                    </p>
+                    <button onclick="confirmResetAllData()" class="w-full py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-xl transition flex items-center justify-center gap-1 shadow-sm">
+                        <i class="fa-solid fa-dumpster"></i> 원격 실습 데이터 전체 초기화
+                    </button>
                 </div>
             </div>
         </main>
@@ -169,7 +142,7 @@
 
     <script>
         // ==========================================
-        // Firebase Config (환경에 따라 자동 연동 또는 수동 설정 지원)
+        // Firebase Config (환경 자동 감지)
         // ==========================================
         const firebaseConfig = {
         apiKey: "AIzaSyBGAFIDJ90L5i92dfFrrR5UdbpQxtmkzQE",
@@ -190,14 +163,13 @@
                 auth = firebase.auth();
                 db = firebase.firestore();
                 isFirebaseActive = true;
-                console.log("Firebase initialized dynamically in admin console.");
+                console.log("Firebase initialized in admin console.");
             } catch (err) {
-                console.warn("Firebase Initialisation error.", err);
+                console.error("Firebase Initialization error.", err);
             }
         }
 
         let classesList = [];
-        let currentMonitorUnsubscribes = [];
 
         // ==========================================
         // AUTHENTICATION GUARD
@@ -205,16 +177,14 @@
         function checkAdminAuth() {
             const pwd = document.getElementById('auth-password').value;
             if (pwd === "2026") {
+                if (!isFirebaseActive) {
+                    showToast("오류: 파이어베이스 환경 변수가 설정되지 않았습니다. 실시간 관리가 작동하지 않습니다.", "error");
+                    return;
+                }
                 document.getElementById('auth-view').classList.add('hidden');
                 document.getElementById('admin-view').classList.remove('hidden');
-                showToast("인증되었습니다. 실습 관리 콘솔이 활성화됩니다.", "success");
-                
-                if (isFirebaseActive) {
-                    initAdminDataSync();
-                } else {
-                    showToast("오프라인 데모(시뮬레이션) 모드로 제어판이 시작되었습니다.", "warning");
-                    loadSimulationData();
-                }
+                showToast("원격 동기화 관리자 모드가 활성화되었습니다.", "success");
+                initAdminDataSync();
             } else {
                 showToast("비밀번호가 올바르지 않습니다.", "error");
             }
@@ -224,82 +194,77 @@
             document.getElementById('auth-password').value = "";
             document.getElementById('auth-view').classList.remove('hidden');
             document.getElementById('admin-view').classList.add('hidden');
-            cleanupMonitorListeners();
         }
 
         // ==========================================
-        // FIREBASE DATA INITIALIZER (리스너 먼저 등록 후 인증 진행)
+        // FIREBASE DATA INITIALIZER (RULE 3 준수: Auth 완료 후 리스너 트리거)
         // ==========================================
         async function initAdminDataSync() {
             try {
-                // 1. 상태 감지 리스너를 먼저 바인딩하여 동기화 유실 방지
-                auth.onAuthStateChanged((user) => {
-                    if (user) {
-                        console.log("Admin connection established.");
-                        
-                        // 1. Fetch Seminar Meta
-                        db.collection('artifacts').doc(appId).collection('public').doc('data')
-                            .collection('config').doc('seminar_meta').onSnapshot((doc) => {
-                                if (doc.exists) {
-                                    document.getElementById('config-seminar-title').value = doc.data().title || "";
-                                }
-                            });
-
-                        // 2. Fetch Classes List
-                        db.collection('artifacts').doc(appId).collection('public').doc('data')
-                            .collection('classes').onSnapshot((snapshot) => {
-                                let list = [];
-                                snapshot.forEach((doc) => {
-                                    const d = doc.data();
-                                    list.push({ 
-                                        id: doc.id, 
-                                        name: d.name, 
-                                        groupCount: d.groupCount || 5 
-                                    });
-                                });
-                                classesList = list;
-                                renderClassesList();
-                                renderMonitorDropdown();
-                            });
-                    }
-                });
-
-                // 2. 로그인 수행 (우선순위: 원격 커스텀 토큰 -> 익명 로그인)
+                let userCredential;
                 if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    await auth.signInWithCustomToken(__initial_auth_token);
+                    userCredential = await auth.signInWithCustomToken(__initial_auth_token);
                 } else {
-                    await auth.signInAnonymously();
+                    userCredential = await auth.signInAnonymously();
                 }
+
+                const user = userCredential.user;
+                if (!user) {
+                    showToast("인증 획득 실패", "error");
+                    return;
+                }
+
+                console.log("Admin Firestore connected as:", user.uid);
+
+                // 1. Fetch Seminar Meta
+                db.collection('artifacts').doc(appId).collection('public').doc('data')
+                    .collection('config').doc('seminar_meta').onSnapshot((doc) => {
+                        if (doc.exists) {
+                            document.getElementById('config-seminar-title').value = doc.data().title || "";
+                        }
+                    }, (err) => {
+                        console.error("Seminar meta stream error: ", err);
+                    });
+
+                // 2. Fetch Classes List
+                db.collection('artifacts').doc(appId).collection('public').doc('data')
+                    .collection('classes').onSnapshot((snapshot) => {
+                        let list = [];
+                        snapshot.forEach((doc) => {
+                            const d = doc.data();
+                            list.push({ 
+                                id: doc.id, 
+                                name: d.name, 
+                                groupCount: d.groupCount || 5 
+                            });
+                        });
+                        classesList = list;
+                        renderClassesList();
+                    }, (err) => {
+                        console.error("Classes stream error: ", err);
+                        showToast("클래스 연동을 불러오는 중 오류가 발생했습니다.", "error");
+                    });
+
             } catch (err) {
                 console.error("Auth / Fetch initialization error inside admin panel.", err);
+                showToast("원격 서버와의 연동 인증에 실패했습니다.", "error");
             }
         }
 
-        function loadSimulationData() {
-            classesList = [
-                { id: "class_sim1", name: "1기 AI 융합 교사 연수 (시뮬레이션)", groupCount: 5 },
-                { id: "class_sim2", name: "2기 데이터 리터러시 워크숍 (시뮬레이션)", groupCount: 8 }
-            ];
-            renderClassesList();
-            renderMonitorDropdown();
-        }
-
         // ==========================================
-        // SEMINAR CONFIG ACTIONS
+        // SEMINAR CONFIG ACTIONS (원격 저장소에 즉시 반영)
         // ==========================================
         function updateSeminarTitle() {
             const titleVal = document.getElementById('config-seminar-title').value.trim();
             if (!titleVal) {
-                showToast("세미나 대주제 이름을 적어주세요.", "error");
+                showToast("세미나 과정명을 올바르게 입력해 주세요.", "error");
                 return;
             }
             if (isFirebaseActive && auth.currentUser) {
                 db.collection('artifacts').doc(appId).collection('public').doc('data')
                     .collection('config').doc('seminar_meta').set({ title: titleVal })
-                    .then(() => showToast("과정 타이틀명이 실시간 수정 변경되었습니다.", "success"))
-                    .catch(e => showToast("반영 실패", "error"));
-            } else {
-                showToast("시뮬레이션 모드에서는 동적 설정이 원격 서버에 연동되지 않습니다.", "info");
+                    .then(() => showToast("전체 실습 페이지 과정 타이틀명이 변경되었습니다.", "success"))
+                    .catch(e => showToast("서버 반영 실패", "error"));
             }
         }
 
@@ -308,11 +273,11 @@
             const groupCountVal = parseInt(document.getElementById('class-input-groups').value) || 5;
 
             if (!nameVal) {
-                showToast("학급 구별 이름을 지정해 주세요.", "error");
+                showToast("학급 구별 명칭을 작성해 주세요.", "error");
                 return;
             }
             if (groupCountVal < 1 || groupCountVal > 20) {
-                showToast("모둠 개수는 1개부터 20개 사이만 가능합니다.", "error");
+                showToast("모둠 개수는 최소 1개, 최대 20개까지만 배정 가능합니다.", "error");
                 return;
             }
 
@@ -329,127 +294,18 @@
                         document.getElementById('class-input-name').value = "";
                         document.getElementById('class-input-groups').value = "5";
                     })
-                    .catch(e => showToast("원격 추가 실패", "error"));
-            } else {
-                classesList.push({ id: cleanId, name: nameVal, groupCount: groupCountVal });
-                renderClassesList();
-                renderMonitorDropdown();
-                showToast(`[시뮬레이션] 클래스 [${nameVal}]이 추가되었습니다. (새로고침 시 초기화됨)`, "success");
+                    .catch(e => showToast("원격 클래스 등록에 실패했습니다.", "error"));
             }
         }
 
         function deleteClass(classId, className) {
-            if (!confirm(`[${className}] 학급을 완전히 삭제하시겠습니까?\n이 동작은 복구할 수 없습니다.`)) return;
+            if (!confirm(`[${className}] 학급을 완전히 삭제하시겠습니까?\n모든 데이터가 소멸됩니다.`)) return;
 
             if (isFirebaseActive && auth.currentUser) {
                 db.collection('artifacts').doc(appId).collection('public').doc('data')
                     .collection('classes').doc(classId).delete()
-                    .then(() => showToast("클래스가 성공적으로 삭제 처리되었습니다.", "info"))
+                    .then(() => showToast("선택한 클래스가 성공적으로 원격 삭제되었습니다.", "info"))
                     .catch(e => showToast("삭제 실패", "error"));
-            } else {
-                classesList = classesList.filter(c => c.id !== classId);
-                renderClassesList();
-                renderMonitorDropdown();
-                showToast("삭제 완료", "info");
-            }
-        }
-
-        // ==========================================
-        // MONITORING ENGINE (REALTIME LISTENERS)
-        // ==========================================
-        function cleanupMonitorListeners() {
-            currentMonitorUnsubscribes.forEach(unsub => unsub());
-            currentMonitorUnsubscribes = [];
-        }
-
-        function loadRealtimeClassMonitor() {
-            cleanupMonitorListeners();
-            const classId = document.getElementById('monitor-class-select').value;
-            const grid = document.getElementById('monitor-cards-grid');
-
-            if (!classId) {
-                grid.innerHTML = `
-                    <div class="col-span-full flex flex-col justify-center items-center py-16 text-slate-400 space-y-2">
-                        <i class="fa-solid fa-chalkboard-user text-3xl text-slate-200"></i>
-                        <p class="text-xs">상단 드롭다운에서 실시간 모니터링할 클래스를 지정해 주세요.</p>
-                    </div>
-                `;
-                return;
-            }
-
-            const activeClass = classesList.find(c => c.id === classId);
-            if (!activeClass) return;
-
-            grid.innerHTML = "";
-
-            // Render skeleton cards
-            const totalGroups = activeClass.groupCount;
-            for (let i = 1; i <= totalGroups; i++) {
-                grid.innerHTML += `
-                    <div id="monitor-card-g${i}" class="bg-slate-50 border border-slate-200 p-5 rounded-2xl flex flex-col justify-between space-y-4">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <span class="px-2 py-0.5 bg-slate-200 text-slate-700 text-[9px] font-bold rounded-md">CLASS</span>
-                                <h4 class="text-xs font-black text-slate-800 mt-1">모둠 ${i}</h4>
-                            </div>
-                            <span class="text-xs font-bold text-slate-400" id="monitor-count-g${i}"><i class="fa-solid fa-spinner animate-spin"></i> 로딩 중</span>
-                        </div>
-                        <div class="space-y-1 text-[11px] text-slate-500">
-                            <div><span class="font-bold">분석 관점:</span> <span id="monitor-p-g${i}" class="italic">대기 중...</span></div>
-                            <div><span class="font-bold">이상 진단:</span> <span id="monitor-o-g${i}" class="italic">0명</span></div>
-                            <div><span class="font-bold">수업 대안:</span> <span id="monitor-t-g${i}" class="italic">대기 중...</span></div>
-                        </div>
-                    </div>
-                `;
-            }
-
-            if (!isFirebaseActive || !auth.currentUser) {
-                showToast("오프라인 시뮬레이션에서는 실시간 모니터링을 진행할 수 없습니다.", "info");
-                return;
-            }
-
-            // Bind each active group count to separate Firestore listener
-            for (let i = 1; i <= totalGroups; i++) {
-                const docId = `${classId}_group${i}`;
-                const unsub = db.collection('artifacts').doc(appId).collection('public').doc('data')
-                    .collection('groupWork').doc(docId).onSnapshot((doc) => {
-                        const card = document.getElementById(`monitor-card-g${i}`);
-                        const cnt = document.getElementById(`monitor-count-g${i}`);
-                        const pEl = document.getElementById(`monitor-p-g${i}`);
-                        const oEl = document.getElementById(`monitor-o-g${i}`);
-                        const tEl = document.getElementById(`monitor-t-g${i}`);
-
-                        if (!card) return;
-
-                        if (doc.exists) {
-                            const d = doc.data();
-                            const membersCount = d.members ? d.members.length : 0;
-                            const hasP = d.perspective && d.perspective.trim().length > 0;
-                            const hasT = d.overallTry && d.overallTry.trim().length > 0;
-                            const outliersCount = d.outliers ? d.outliers.length : 0;
-
-                            // Update styling for active submissions
-                            if (membersCount > 0 || hasP || hasT) {
-                                card.className = "bg-white border-2 border-indigo-100 p-5 rounded-2xl flex flex-col justify-between space-y-4 shadow-sm transition duration-300";
-                                cnt.innerHTML = `<span class="text-indigo-600 font-extrabold flex items-center gap-1"><i class="fa-solid fa-user-check text-[10px]"></i> ${membersCount}명 활동 중</span>`;
-                            } else {
-                                card.className = "bg-slate-50/50 border border-slate-200/50 p-5 rounded-2xl flex flex-col justify-between space-y-4 transition";
-                                cnt.innerHTML = `<span class="text-slate-400">비활성 모둠</span>`;
-                            }
-
-                            pEl.innerText = hasP ? (d.perspective.substring(0, 45) + '...') : '작성 중...';
-                            oEl.innerHTML = outliersCount > 0 ? `<span class="text-rose-600 font-bold">${outliersCount}명 감지</span>` : '0명';
-                            tEl.innerText = hasT ? (d.overallTry.substring(0, 45) + '...') : '작성 중...';
-                        } else {
-                            cnt.innerHTML = `<span class="text-slate-400">미개설</span>`;
-                            pEl.innerText = "대기 중...";
-                            oEl.innerText = "0명";
-                            tEl.innerText = "대기 중...";
-                        }
-                    }, (err) => {
-                        console.error("Monitor listener failed for", docId, err);
-                    });
-                currentMonitorUnsubscribes.push(unsub);
             }
         }
 
@@ -457,7 +313,7 @@
         // DATA CLEANUP / RESET ALL FUNCTION
         // ==========================================
         function confirmResetAllData() {
-            if (!confirm("🚨 경고!\n현재 데이터베이스에 저장된 모든 모둠들의 실습 산출물(모둠원, 분석 관점, Try 대안 등)이 완전히 삭제되어 초기 상태로 되돌아갑니다. 새로운 반 연수 시작 시에만 수행해 주세요.\n\n정말로 전체 데이터를 포맷팅하시겠습니까?")) return;
+            if (!confirm("🚨 경고!\n현재 데이터베이스에 누적된 전체 모둠의 실습 성찰 보고서 내용(모둠원, 관점, 처방 대안)이 완전히 사라지고 포맷됩니다. 이 동작은 복구할 수 없습니다.\n\n정말로 포맷하시겠습니까?")) return;
 
             if (isFirebaseActive && auth.currentUser) {
                 db.collection('artifacts').doc(appId).collection('public').doc('data')
@@ -470,13 +326,9 @@
                         return batch.commit();
                     })
                     .then(() => {
-                        showToast("서버 측 전체 실습 가상 데이터들이 안전하게 포맷되었습니다.", "success");
-                        loadRealtimeClassMonitor(); 
+                        showToast("원격 데이터베이스 내 모든 실습 자료들이 완전히 청소되었습니다.", "success");
                     })
-                    .catch(e => showToast("서버 리셋 실패", "error"));
-            } else {
-                localStorage.clear();
-                showToast("[시뮬레이션] 브라우저 내 가상 로컬 스토리지가 초기화되었습니다.", "success");
+                    .catch(e => showToast("원격 리셋 처리에 실패했습니다.", "error"));
             }
         }
 
@@ -487,12 +339,12 @@
             const container = document.getElementById('classes-list-container');
             container.innerHTML = "";
             if (classesList.length === 0) {
-                container.innerHTML = `<p class="text-xs text-slate-400 italic py-4">개설된 클래스가 존재하지 않습니다.</p>`;
+                container.innerHTML = `<p class="text-xs text-slate-400 italic py-4">개설된 학급 정보가 없습니다. 새로 등록해 주세요.</p>`;
                 return;
             }
             classesList.forEach(c => {
                 container.innerHTML += `
-                    <div class="flex items-center justify-between p-3 bg-slate-50 border border-slate-200/60 rounded-xl text-xs hover:bg-slate-100/50 transition">
+                    <div class="flex items-center justify-between p-3.5 bg-slate-50 border border-slate-200/60 rounded-xl text-xs hover:bg-slate-100/50 transition">
                         <div class="space-y-0.5">
                             <h4 class="font-bold text-slate-800">${c.name}</h4>
                             <p class="text-[10px] text-indigo-600 font-bold"><i class="fa-solid fa-users-rectangle"></i> 모둠 개수: ${c.groupCount}개</p>
@@ -503,19 +355,6 @@
                     </div>
                 `;
             });
-        }
-
-        function renderMonitorDropdown() {
-            const dropdown = document.getElementById('monitor-class-select');
-            const prevVal = dropdown.value;
-            dropdown.innerHTML = `<option value="">클래스 선택하기</option>`;
-            classesList.forEach(c => {
-                const opt = document.createElement('option');
-                opt.value = c.id;
-                opt.innerText = c.name;
-                dropdown.appendChild(opt);
-            });
-            dropdown.value = prevVal;
         }
 
         function showToast(message, type = "info") {
