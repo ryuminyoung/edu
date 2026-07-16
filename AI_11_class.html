@@ -60,7 +60,6 @@
                         <i class="fa-solid fa-users text-amber-500"></i> 배정된 모둠 선택
                     </label>
                     <select id="gateway-group-select" class="w-full p-3 border border-slate-200 rounded-xl bg-slate-50/50 text-sm focus:outline-none focus:border-indigo-500 focus:bg-white transition">
-                        <!-- ClassesList 내 groupCount에 따라 동적으로 빌드됩니다 -->
                         <option value="">클래스를 먼저 선택해 주세요</option>
                     </select>
                 </div>
@@ -139,7 +138,7 @@
                     </div>
                 </div>
 
-                <!-- Theory Cards Grid -->
+                <!-- Theory Grid -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-3">
                         <div class="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600">
@@ -163,7 +162,7 @@
                         <div class="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-600">
                             <i class="fa-solid fa-arrows-spin"></i>
                         </div>
-                        <h3 class="font-bold text-slate-800 text-sm">쇤 & 콜브의 성찰 순환</h3>
+                        <h3 class="font-bold text-slate-800 text-sm">쇤 & 콜브의 성찰</h3>
                         <p class="text-xs text-slate-500 leading-relaxed">
                             설계와 실행을 거친 수업은 데이터 기반의 되감기(Rewind)를 통해 반성적으로 분석되고, 궁극적으로 더 강건한 다음 설계(Try)로 되먹임(환류)됩니다.
                         </p>
@@ -220,7 +219,6 @@
                     </div>
                     <!-- Registered Members Grid -->
                     <div id="members-list-container" class="flex flex-wrap gap-2 pt-2">
-                        <!-- Dynamic content -->
                         <span class="text-xs text-slate-400 italic">등록된 모둠원이 없습니다. 이름을 추가해 주세요.</span>
                     </div>
                 </div>
@@ -250,9 +248,7 @@
                             <span class="text-[10px] text-slate-400">가상 학습자 10인의 실제 정성/정량 데이터베이스</span>
                         </div>
                         <!-- Scrollable Table -->
-                        <div class="overflow-x-auto max-h-96" id="data-table-container">
-                            <!-- JS will inject table elements dynamically here -->
-                        </div>
+                        <div class="overflow-x-auto max-h-96" id="data-table-container"></div>
                     </div>
                 </div>
 
@@ -310,7 +306,6 @@
                             <div class="pt-2">
                                 <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">현재 추가된 모둠 진단 목록</div>
                                 <div id="outlier-students-list" class="space-y-2">
-                                    <!-- Dynamic elements -->
                                     <p class="text-xs text-slate-400 italic">등록된 진단 내역이 없습니다. 위 목록에서 기입하고 추가를 눌러주세요.</p>
                                 </div>
                             </div>
@@ -390,9 +385,7 @@
                         <h3 class="text-xs font-bold text-slate-800 tracking-wider uppercase border-b border-slate-100 pb-2 flex items-center gap-1">
                             <i class="fa-solid fa-address-book text-indigo-500"></i> 학생 목록 선택
                         </h3>
-                        <div class="grid grid-cols-2 gap-2" id="instructor-student-list">
-                            <!-- JS Injectable Buttons S01 - S10 -->
-                        </div>
+                        <div class="grid grid-cols-2 gap-2" id="instructor-student-list"></div>
                         
                         <!-- Test Item Level Analysis -->
                         <div class="pt-4 border-t border-slate-100 space-y-3">
@@ -451,7 +444,7 @@
                                 </div>
                             </div>
 
-                            <!-- Diagnosis Guideline (Show only on Outlier detection) -->
+                            <!-- Diagnosis Guideline -->
                             <div id="card-diagnosis-container" class="hidden bg-rose-50/50 p-3.5 rounded-xl border border-rose-100 space-y-1.5">
                                 <div class="text-[10px] font-black text-rose-700 flex items-center gap-1">
                                     <i class="fa-solid fa-triangle-exclamation"></i> 강사 지도 가이드라인 (Try 처방)
@@ -480,7 +473,7 @@
     <!-- ========================================== -->
     <div id="report-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-white rounded-3xl max-w-4xl w-full max-h-[90vh] overflow-y-auto border border-slate-200/80 shadow-2xl flex flex-col">
-            <!-- Modal Header (For screen interaction) -->
+            <!-- Modal Header -->
             <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
                 <h3 class="text-sm font-bold text-slate-800 flex items-center gap-1.5">
                     <i class="fa-solid fa-print text-indigo-500"></i> 인쇄 및 저장 준비 완료
@@ -568,7 +561,7 @@
 
     <script>
         // ==========================================
-        // Firebase Config (강사님의 정보로 교체)
+        // Firebase Config (환경에 따라 자동 연동 또는 수동 설정 지원)
         // ==========================================
         const firebaseConfig = {
         apiKey: "AIzaSyBGAFIDJ90L5i92dfFrrR5UdbpQxtmkzQE",
@@ -579,7 +572,7 @@
         appId: "1:386839565220:web:edc887ff7e0a493ce12731"
         };
 
-        const appId = 'default-app-id';
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
         let db, auth;
         let isFirebaseActive = false;
 
@@ -590,7 +583,7 @@
                 auth = firebase.auth();
                 db = firebase.firestore();
                 isFirebaseActive = true;
-                console.log("Firebase initialized successfully.");
+                console.log("Firebase initialized dynamically in student workspace.");
             } catch (err) {
                 console.warn("Firebase initialization failed. Running in Local Simulation Mode.", err);
             }
@@ -685,8 +678,7 @@
         // ==========================================
         async function initFirebase() {
             try {
-                // Anonymous Sign in
-                await auth.signInAnonymously();
+                // 1. 상태 감지 리스너를 먼저 등록하여 세션 연결 유실을 차단
                 auth.onAuthStateChanged((user) => {
                     if (user) {
                         console.log("Firebase anonymous auth state established.");
@@ -734,6 +726,13 @@
                             });
                     }
                 });
+
+                // 2. 로그인 프로세스 작동 (커스텀 토큰 최우선 지원)
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await auth.signInWithCustomToken(__initial_auth_token);
+                } else {
+                    await auth.signInAnonymously();
+                }
             } catch (err) {
                 console.error("Firebase auth initiation error.", err);
                 loadLocalSimulationClasses();
@@ -804,13 +803,11 @@
         }
 
         function exitToGateway() {
-            // Unsubscribe existing listener to prevent leaks
             if (firebaseUnsubscribe) {
                 firebaseUnsubscribe();
                 firebaseUnsubscribe = null;
             }
 
-            // Reveal Gateway
             document.getElementById('gateway-view').classList.remove('hidden');
             document.getElementById('main-view').classList.add('hidden');
         }
@@ -821,7 +818,7 @@
         function startGroupSyncListener() {
             const docId = `${appState.currentClassId}_group${appState.currentGroupId}`;
 
-            if (isFirebaseActive) {
+            if (isFirebaseActive && auth.currentUser) {
                 firebaseUnsubscribe = db.collection('artifacts').doc(appId).collection('public').doc('data')
                     .collection('groupWork').doc(docId).onSnapshot((doc) => {
                         if (doc.exists) {
@@ -833,7 +830,6 @@
                                 overallTry: data.overallTry || ""
                             };
                         } else {
-                            // Document does not exist yet (First entry initialized)
                             appState.groupWork = { members: [], perspective: "", outliers: [], overallTry: "" };
                             db.collection('artifacts').doc(appId).collection('public').doc('data')
                                 .collection('groupWork').doc(docId).set(appState.groupWork);
@@ -860,7 +856,7 @@
 
         function pushGroupStateUpdate() {
             const docId = `${appState.currentClassId}_group${appState.currentGroupId}`;
-            if (isFirebaseActive) {
+            if (isFirebaseActive && auth.currentUser) {
                 db.collection('artifacts').doc(appId).collection('public').doc('data')
                     .collection('groupWork').doc(docId).set(appState.groupWork)
                     .catch((err) => {
@@ -868,13 +864,11 @@
                         showToast("네트워크 불안정으로 인해 로컬 가상 스토리지에 임시 저장되었습니다.", "warning");
                     });
             }
-            // Always save to localStorage as backup
             localStorage.setItem(`local_work_${docId}`, JSON.stringify(appState.groupWork));
             updateUIWithSyncedData();
         }
 
         function updateUIWithSyncedData() {
-            // Update Textareas (Only if NOT currently focused to protect user typing)
             if (document.activeElement !== document.getElementById('input-perspective')) {
                 document.getElementById('input-perspective').value = appState.groupWork.perspective;
             }
@@ -916,7 +910,6 @@
                 mirrorOutliersContainer.innerHTML = `<p class="text-xs text-slate-500 italic">등록된 이상치 학생이 없습니다.</p>`;
             } else {
                 appState.groupWork.outliers.forEach((outlier, index) => {
-                    // Local list
                     localOutliersList.innerHTML += `
                         <div class="flex items-center justify-between p-2.5 bg-slate-50 border border-slate-150 rounded-xl text-xs">
                             <div class="flex items-center gap-2">
@@ -928,7 +921,6 @@
                             </button>
                         </div>
                     `;
-                    // Mirror List
                     mirrorOutliersContainer.innerHTML += `
                         <div class="flex items-center gap-2 text-xs text-slate-300 py-1 border-b border-slate-800/20 last:border-0">
                             <span class="font-black text-[10px] text-rose-400 bg-rose-500/10 px-1.5 py-0.5 rounded border border-rose-500/20">${outlier.studentId}</span>
@@ -996,7 +988,6 @@
                 return;
             }
 
-            // Check duplicate
             const existIdx = appState.groupWork.outliers.findIndex(o => o.studentId === studentId);
             if (existIdx !== -1) {
                 appState.groupWork.outliers[existIdx].reason = reason;
@@ -1171,19 +1162,16 @@
         // DYNAMIC TAB CONTROL (Workspace, Report, Main)
         // ==========================================
         function switchTab(tabId) {
-            // Hide all tabs
             document.getElementById('tab-main').classList.add('hidden');
             document.getElementById('tab-workspace').classList.add('hidden');
             document.getElementById('tab-instructor').classList.add('hidden');
 
-            // Deactivate all buttons
             const navs = ['main', 'workspace', 'instructor'];
             navs.forEach(n => {
                 const b = document.getElementById(`nav-btn-${n}`);
                 b.className = "px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1 bg-slate-100 hover:bg-slate-200 text-slate-700";
             });
 
-            // Activate chosen tab
             document.getElementById(`tab-${tabId}`).classList.remove('hidden');
             const activeBtn = document.getElementById(`nav-btn-${tabId}`);
             if (tabId === 'main') {
@@ -1201,7 +1189,6 @@
         // TAB 3: INSTRUCTOR INTERACTIVE DASHBOARD
         // ==========================================
         function initInstructorTab() {
-            // Render students select list
             const listBtnContainer = document.getElementById('instructor-student-list');
             listBtnContainer.innerHTML = "";
             studentsData.forEach(s => {
@@ -1220,7 +1207,6 @@
                 listBtnContainer.appendChild(btn);
             });
 
-            // Run Chart initialization
             setTimeout(() => {
                 renderInstructorStaticCharts();
                 selectInstructorStudent(activeStudentId);
@@ -1228,10 +1214,8 @@
         }
 
         function selectInstructorStudent(studentId) {
-            // Update active state in state tracking
             const prevBtn = document.getElementById(`ins-btn-${activeStudentId}`);
             if (prevBtn) {
-                const isPrevOutlier = diagnosisGuide[activeStudentId] !== undefined;
                 prevBtn.className = `p-3 rounded-xl border text-xs font-bold transition flex items-center justify-between shadow-sm bg-slate-50 border-slate-200 hover:bg-slate-100 text-slate-700`;
                 prevBtn.querySelector('i').className = "fa-solid fa-circle-user text-indigo-400 text-[10px] mr-1";
             }
@@ -1246,7 +1230,6 @@
             const s = studentsData.find(x => x.id === studentId);
             if (!s) return;
 
-            // Fill profile cards
             document.getElementById('card-student-id').innerText = s.id;
             document.getElementById('card-student-name').innerText = s.id;
             document.getElementById('card-lms-stat').innerText = `${s.lms_cnt}회 / ${s.lms_time}분 / ${s.lms_click}클릭`;
@@ -1255,7 +1238,6 @@
             document.getElementById('card-stress-stat').innerText = `${s.stress.toFixed(1)} / 5.0 (${s.signal})`;
             document.getElementById('card-essay-content').innerText = s.essay;
 
-            // Diagnosis Check
             const dText = diagnosisGuide[s.id];
             const badge = document.getElementById('card-student-outlier-badge');
             const dBox = document.getElementById('card-diagnosis-container');
@@ -1268,7 +1250,6 @@
                 dBox.classList.add('hidden');
             }
 
-            // Update Radar Chart data values dynamically
             updateRadarChart(s);
         }
 
@@ -1276,7 +1257,6 @@
         // CHART RENDERING (CHART.JS CDN ENGINE)
         // ==========================================
         function renderInstructorStaticCharts() {
-            // Bar Chart for Test Items Correct Answer Distribution
             const barCtx = document.getElementById('testItemsChart').getContext('2d');
             if (barChartInstance) barChartInstance.destroy();
 
@@ -1289,7 +1269,7 @@
                         data: [80, 50, 80, 40, 20],
                         backgroundColor: [
                             'rgba(99, 102, 241, 0.7)',
-                            'rgba(244, 63, 94, 0.8)', // Stress amber for drop
+                            'rgba(244, 63, 94, 0.8)', 
                             'rgba(99, 102, 241, 0.7)',
                             'rgba(99, 102, 241, 0.7)',
                             'rgba(99, 102, 241, 0.7)'
@@ -1329,7 +1309,6 @@
             const radarCtx = document.getElementById('radarChart').getContext('2d');
             if (radarChartInstance) radarChartInstance.destroy();
 
-            // Values Normalized mapping (Max to 100 scale)
             const lmsNormalized = Math.min((studentObj.lms_time / 45) * 100, 100);
             const clickNormalized = Math.min((studentObj.lms_click / 60) * 100, 100);
             const scoreNormalized = studentObj.form_score;
@@ -1374,16 +1353,13 @@
         // WORKSPACE ACTIONS: PDF REPORT MODAL
         // ==========================================
         function openReportModal() {
-            // Update Document details dynamically
             document.getElementById('print-class').innerText = `클래스: ${appState.currentClassName}`;
             document.getElementById('print-group').innerText = `모둠: 모둠 ${appState.currentGroupId}`;
             
-            // Format today's date
             const today = new Date();
             const formattedDate = today.getFullYear() + '. ' + String(today.getMonth() + 1).padStart(2, '0') + '. ' + String(today.getDate()).padStart(2, '0');
             document.getElementById('print-date').innerText = `일시: ${formattedDate}`;
 
-            // Populate Members list text
             const printMembers = document.getElementById('print-members');
             if (appState.groupWork.members.length === 0) {
                 printMembers.innerText = "등록된 모둠 실습 구성원이 없습니다. 워크스페이스 상단에서 구성원을 추가해 주세요.";
@@ -1393,11 +1369,9 @@
                 printMembers.className = "text-xs text-slate-800 bg-slate-50 p-3 rounded-xl border border-slate-100 font-bold min-h-[40px]";
             }
 
-            // Populate text inputs
             document.getElementById('print-perspective').innerText = appState.groupWork.perspective || "모둠 데이터 가설/관점이 기입되지 않았습니다.";
             document.getElementById('print-try').innerText = appState.groupWork.overallTry || "종합 성찰 대안 및 처방전(Try)이 기입되지 않았습니다.";
 
-            // Render Outlier diagnostic table list
             const pOutliersContainer = document.getElementById('print-outliers-container');
             pOutliersContainer.innerHTML = "";
 
@@ -1425,7 +1399,6 @@
                 pOutliersContainer.innerHTML = tableHtml;
             }
 
-            // Reveal Modal
             document.getElementById('report-modal').classList.remove('hidden');
         }
 
@@ -1437,16 +1410,13 @@
         // MOCKUP UTILITY: CUSTOM ACTIONABLE FEEDBACKS
         // ==========================================
         function initAppUI() {
-            // Check if cached details are present in local
             const cachedClassId = localStorage.getItem('cachedClassId');
             const cachedClassName = localStorage.getItem('cachedClassName');
             const cachedGroupId = localStorage.getItem('cachedGroupId');
 
-            // Set placeholder if cache not empty
             if (cachedClassId && cachedClassName && cachedGroupId) {
                 setTimeout(() => {
                     const dropdown = document.getElementById('gateway-class-select');
-                    // Add safety wait for class dropdown populate
                     if (dropdown.options.length > 0) {
                         dropdown.value = cachedClassId;
                     }
@@ -1475,12 +1445,10 @@
             
             container.appendChild(toast);
             
-            // Trigger animation
             setTimeout(() => {
                 toast.classList.remove('translate-y-2', 'opacity-0');
             }, 10);
 
-            // Auto dismiss
             setTimeout(() => {
                 toast.classList.add('translate-y-2', 'opacity-0');
                 setTimeout(() => {
