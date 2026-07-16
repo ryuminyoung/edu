@@ -43,7 +43,7 @@
                         <i class="fa-solid fa-school text-indigo-500"></i> 참여 클래스(반) 선택
                     </label>
                     <select id="gateway-class-select" class="w-full p-3 border border-slate-200 rounded-xl bg-slate-50/50 text-sm focus:outline-none focus:border-indigo-500 focus:bg-white transition">
-                        <option value="">원격 클래스를 연결하는 중...</option>
+                        <option value="local_class">기본 오프라인 학급</option>
                     </select>
                 </div>
 
@@ -53,7 +53,11 @@
                         <i class="fa-solid fa-users text-amber-500"></i> 배정된 모둠 선택
                     </label>
                     <select id="gateway-group-select" class="w-full p-3 border border-slate-200 rounded-xl bg-slate-50/50 text-sm focus:outline-none focus:border-indigo-500 focus:bg-white transition">
-                        <option value="">클래스를 먼저 선택해 주세요</option>
+                        <option value="1">모둠 1</option>
+                        <option value="2">모둠 2</option>
+                        <option value="3">모둠 3</option>
+                        <option value="4">모둠 4</option>
+                        <option value="5">모둠 5</option>
                     </select>
                 </div>
 
@@ -63,8 +67,8 @@
                 </button>
             </div>
 
-            <div class="text-center pt-2 relative">
-                <a href="admin.html" class="text-[11px] text-slate-400 hover:text-slate-600 transition underline decoration-dotted">
+            <div class="text-center pt-2 relative border-t border-slate-100">
+                <a href="AI_11_admin.html" class="text-[11px] text-slate-400 hover:text-indigo-600 transition underline decoration-dotted">
                     <i class="fa-solid fa-user-gear"></i> 관리자(강사) 콘솔 바로가기
                 </a>
             </div>
@@ -88,6 +92,7 @@
                     <p class="text-[11px] text-slate-500 flex items-center gap-2">
                         <span class="font-semibold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full" id="class-display">클래스 미지정</span>
                         <span class="font-semibold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full" id="group-display">모둠 미지정</span>
+                        <span class="text-[10px] bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full font-bold" id="sync-mode-badge">로컬 모드</span>
                     </p>
                 </div>
             </div>
@@ -97,10 +102,10 @@
                 <button id="nav-btn-main" onclick="switchTab('main')" class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1 bg-indigo-50 text-indigo-700">
                     <i class="fa-solid fa-house"></i> 메인
                 </button>
-                <button id="nav-btn-workspace" onclick="switchTab('workspace')" class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1 bg-slate-100 hover:bg-slate-202">
+                <button id="nav-btn-workspace" onclick="switchTab('workspace')" class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1 bg-slate-100 hover:bg-slate-200 text-slate-700">
                     <i class="fa-solid fa-users-viewfinder"></i> 모둠 실습실
                 </button>
-                <button id="nav-btn-instructor" onclick="switchTab('instructor')" class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1 bg-slate-100 hover:bg-slate-202 text-slate-700">
+                <button id="nav-btn-instructor" onclick="switchTab('instructor')" class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1 bg-slate-100 hover:bg-slate-200 text-slate-700">
                     <i class="fa-solid fa-chart-pie"></i> 전체보고서
                 </button>
                 <button onclick="exitToGateway()" class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1 bg-slate-100 hover:bg-rose-50 hover:text-rose-600 text-slate-500">
@@ -194,6 +199,7 @@
 
             <!-- TAB 2: MY GROUP WORKSPACE -->
             <section id="tab-workspace" class="hidden space-y-6">
+                <!-- Group Members Admin Banner -->
                 <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-4">
                     <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
                         <div class="space-y-1">
@@ -209,8 +215,9 @@
                             </button>
                         </div>
                     </div>
+                    <!-- Registered Members Grid -->
                     <div id="members-list-container" class="flex flex-wrap gap-2 pt-2">
-                        <span class="text-xs text-slate-400 italic">등록된 모둠원이 없습니다.</span>
+                        <span class="text-xs text-slate-400 italic">등록된 모둠원이 없습니다. 이름을 추가해 주세요.</span>
                     </div>
                 </div>
 
@@ -218,77 +225,97 @@
                 <div class="space-y-3">
                     <div class="flex flex-wrap gap-2 border-b border-slate-200 pb-2">
                         <button onclick="switchDataType(1)" id="data-btn-1" class="px-4 py-2 bg-indigo-600 text-white text-xs font-bold rounded-xl shadow-sm transition">
-                            <i class="fa-solid fa-network-wired"></i> 데이터 1: LMS 로그
+                            <i class="fa-solid fa-network-wired"></i> 데이터 1: LMS 로그 데이터
                         </button>
-                        <button onclick="switchDataType(2)" id="data-btn-2" class="px-4 py-2 bg-slate-100 text-slate-600 text-xs font-bold rounded-xl hover:bg-slate-202 transition">
-                            <i class="fa-solid fa-clipboard-question"></i> 데이터 2: 관찰 데이터
+                        <button onclick="switchDataType(2)" id="data-btn-2" class="px-4 py-2 bg-slate-100 text-slate-600 text-xs font-bold rounded-xl hover:bg-slate-200 transition">
+                            <i class="fa-solid fa-clipboard-question"></i> 데이터 2: 활동 관찰 및 정성 데이터
                         </button>
-                        <button onclick="switchDataType(3)" id="data-btn-3" class="px-4 py-2 bg-slate-100 text-slate-600 text-xs font-bold rounded-xl hover:bg-slate-202 transition">
-                            <i class="fa-solid fa-chart-line"></i> 데이터 3: 문항 반응
+                        <button onclick="switchDataType(3)" id="data-btn-3" class="px-4 py-2 bg-slate-100 text-slate-600 text-xs font-bold rounded-xl hover:bg-slate-200 transition">
+                            <i class="fa-solid fa-chart-line"></i> 데이터 3: 정기시험 문항별 반응 데이터
                         </button>
-                        <button onclick="switchDataType(4)" id="data-btn-4" class="px-4 py-2 bg-slate-100 text-slate-600 text-xs font-bold rounded-xl hover:bg-slate-202 transition">
-                            <i class="fa-solid fa-heart-pulse"></i> 데이터 4: 사회정서
+                        <button onclick="switchDataType(4)" id="data-btn-4" class="px-4 py-2 bg-slate-100 text-slate-600 text-xs font-bold rounded-xl hover:bg-slate-200 transition">
+                            <i class="fa-solid fa-heart-pulse"></i> 데이터 4: 사회정서 관찰 데이터
                         </button>
                     </div>
 
+                    <!-- Data Rendering Area -->
                     <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+                        <!-- Data Card Header -->
                         <div class="px-6 py-4 bg-slate-50 border-b border-slate-100 flex justify-between items-center">
                             <h4 id="data-type-title" class="text-xs font-bold text-slate-800">데이터 1: LMS 로그 데이터</h4>
-                            <span class="text-[10px] text-slate-400">가상 학습자 10인의 데이터베이스</span>
+                            <span class="text-[10px] text-slate-400">가상 학습자 10인의 실제 정성/정량 데이터베이스</span>
                         </div>
+                        <!-- Scrollable Table -->
                         <div class="overflow-x-auto max-h-96" id="data-table-container"></div>
                     </div>
                 </div>
 
-                <!-- Input Workspace Panel -->
+                <!-- Dynamic Workspace Workspace Panel -->
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- LEFT COLUMN: INPUTS -->
                     <div class="space-y-6">
-                        <!-- Perspective -->
+                        <!-- Input 1: Analysis Perspective -->
                         <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-3">
                             <label class="block text-sm font-bold text-slate-700 flex items-center gap-1.5">
                                 <i class="fa-solid fa-eye text-indigo-500"></i> 입력 1) 우리 모둠의 데이터 분석 관점
                             </label>
-                            <textarea id="input-perspective" rows="3" placeholder="분석할 가설 기준 기입..." class="w-full p-3.5 bg-slate-50 border border-slate-200 focus:border-indigo-500 focus:bg-white rounded-xl text-xs transition focus:outline-none"></textarea>
+                            <p class="text-xs text-slate-400 leading-relaxed">데이터를 읽고 해석할 때 기준 삼은 가설이나 중심 안경을 적어보세요.</p>
+                            <textarea id="input-perspective" rows="3" placeholder="예: 무기력 및 형식적 참여 상태로 의심되는 학생들을 추출하고, 과제 집착력이 높은 완벽주의 학생에게 투입할 즉각 피드백 발판 정비에 초점..." class="w-full p-3.5 bg-slate-50 border border-slate-200 focus:border-indigo-500 focus:bg-white rounded-xl text-xs transition duration-150 focus:outline-none"></textarea>
                             <div class="flex justify-end">
                                 <button onclick="submitPerspective()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl transition shadow-sm flex items-center gap-1">
-                                    <i class="fa-solid fa-paper-plane"></i> 전송 및 저장
+                                    <i class="fa-solid fa-paper-plane"></i> 관점 전송 및 저장
                                 </button>
                             </div>
                         </div>
 
-                        <!-- Outlier Student -->
+                        <!-- Input 2: Outlier Selection -->
                         <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-3">
                             <label class="block text-sm font-bold text-slate-700 flex items-center gap-1.5">
-                                <i class="fa-solid fa-user-tag text-rose-500"></i> 입력 2) 특이 학생(이상치) 진단 및 분석
+                                <i class="fa-solid fa-user-tag text-rose-500"></i> 입력 2) 발견된 특이 학생(이상치) 진단 및 분석
                             </label>
+                            <p class="text-xs text-slate-400">데이터가 이상 행동을 보이는 학생을 개별 진단하여 모둠 리포트에 실시간 누적 기록합니다.</p>
+                            
                             <div class="grid grid-cols-3 gap-2">
-                                <select id="select-outlier-student" class="p-2.5 border border-slate-200 rounded-xl bg-slate-50 text-xs focus:outline-none focus:bg-white focus:border-indigo-500">
-                                    <option value="S01">S01</option><option value="S02">S02</option>
-                                    <option value="S03">S03</option><option value="S04">S04</option>
-                                    <option value="S05">S05</option><option value="S06">S06</option>
-                                    <option value="S07">S07</option><option value="S08">S08</option>
-                                    <option value="S09">S09</option><option value="S10">S10</option>
-                                </select>
-                                <input id="input-outlier-reason" type="text" placeholder="진단 근거 분석 기입..." class="col-span-2 p-2.5 border border-slate-200 rounded-xl bg-slate-50 text-xs focus:outline-none focus:bg-white focus:border-indigo-500">
+                                <div class="col-span-1">
+                                    <select id="select-outlier-student" class="w-full p-2.5 border border-slate-200 rounded-xl bg-slate-50 text-xs focus:outline-none focus:bg-white focus:border-indigo-500">
+                                        <option value="S01">S01</option>
+                                        <option value="S02">S02</option>
+                                        <option value="S03">S03</option>
+                                        <option value="S04">S04</option>
+                                        <option value="S05">S05</option>
+                                        <option value="S06">S06</option>
+                                        <option value="S07">S07</option>
+                                        <option value="S08">S08</option>
+                                        <option value="S09">S09</option>
+                                        <option value="S10">S10</option>
+                                    </select>
+                                </div>
+                                <div class="col-span-2">
+                                    <input id="input-outlier-reason" type="text" placeholder="예: 체류 1분 만에 형성평가 100점 - 선행 심화 비계 필요" class="w-full p-2.5 border border-slate-200 rounded-xl bg-slate-50 text-xs focus:outline-none focus:bg-white focus:border-indigo-500">
+                                </div>
                             </div>
+
                             <div class="flex justify-end">
                                 <button onclick="addOutlierStudent()" class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-xl transition shadow-sm flex items-center gap-1">
                                     <i class="fa-solid fa-circle-plus"></i> 학생 진단 추가
                                 </button>
                             </div>
+
                             <div class="pt-2">
+                                <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">현재 추가된 모둠 진단 목록</div>
                                 <div id="outlier-students-list" class="space-y-2">
-                                    <p class="text-xs text-slate-400 italic">등록된 진단 내역이 없습니다.</p>
+                                    <p class="text-xs text-slate-400 italic">등록된 진단 내역이 없습니다. 위 목록에서 기입하고 추가를 눌러주세요.</p>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Try Alternatives -->
+                        <!-- Input 3: Try / Alternatives -->
                         <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-3">
                             <label class="block text-sm font-bold text-slate-700 flex items-center gap-1.5">
-                                <i class="fa-solid fa-lightbulb text-amber-500"></i> 입력 3) 수업 설계 대안 (Try)
+                                <i class="fa-solid fa-lightbulb text-amber-500"></i> 입력 3) 종합 평가 및 수업 설계 대안 (Try)
                             </label>
-                            <textarea id="input-try" rows="3" placeholder="수업 중 투입할 비계 아이디어 기입..." class="w-full p-3.5 bg-slate-50 border border-slate-200 focus:border-indigo-500 focus:bg-white rounded-xl text-xs transition focus:outline-none"></textarea>
+                            <p class="text-xs text-slate-400 leading-relaxed">이상치 원인을 해결하기 위해 차기 수업 시 즉시 기획할 비계·과제 구상을 정리하세요.</p>
+                            <textarea id="input-try" rows="3" placeholder="예: 함정 문항 Q2 오개념 교정 대조 비계 도입, S10번 과도한 스트레스 완화를 위한 힌트 분할 인출 보조 도구 세팅 등..." class="w-full p-3.5 bg-slate-50 border border-slate-200 focus:border-indigo-500 focus:bg-white rounded-xl text-xs transition duration-150 focus:outline-none"></textarea>
                             <div class="flex justify-end">
                                 <button onclick="submitTry()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl transition shadow-sm flex items-center gap-1">
                                     <i class="fa-solid fa-paper-plane"></i> 대안 전송 및 저장
@@ -304,26 +331,31 @@
                                 <span class="text-xs font-bold text-indigo-400 flex items-center gap-1">
                                     <i class="fa-solid fa-arrows-spin animate-spin text-[10px]"></i> Live Mirroring
                                 </span>
+                                <span class="text-[10px] text-slate-500">동료 교사 기입 상황 실시간 대조</span>
                             </div>
+
                             <div class="space-y-4">
                                 <div class="space-y-1">
-                                    <div class="text-[10px] font-bold text-slate-400">우리 모둠 관점 (Perspective)</div>
-                                    <p id="mirror-perspective" class="text-xs text-slate-300 bg-slate-950 p-3 rounded-xl border border-slate-800 italic min-h-[50px]">기입 전송 대기 중...</p>
+                                    <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">우리 모둠 관점 (Perspective)</div>
+                                    <p id="mirror-perspective" class="text-xs text-slate-300 leading-relaxed bg-slate-950 p-3 rounded-xl border border-slate-800/50 min-h-[50px] italic">기입 전송 대기 중...</p>
                                 </div>
+
                                 <div class="space-y-1">
-                                    <div class="text-[10px] font-bold text-slate-400">이상치 목록 (Outliers)</div>
-                                    <div id="mirror-outliers-container" class="space-y-1 bg-slate-950 p-3 rounded-xl border border-slate-800 min-h-[60px]">
-                                        <p class="text-xs text-slate-500 italic">등록된 이상치가 없습니다.</p>
+                                    <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">개별 진단 이상치 목록 (Outliers)</div>
+                                    <div id="mirror-outliers-container" class="space-y-1 bg-slate-950 p-3 rounded-xl border border-slate-800/50 min-h-[60px]">
+                                        <p class="text-xs text-slate-500 italic">등록된 이상치 학생이 없습니다.</p>
                                     </div>
                                 </div>
+
                                 <div class="space-y-1">
-                                    <div class="text-[10px] font-bold text-slate-400">종합 설계 대안 (Try)</div>
-                                    <p id="mirror-try" class="text-xs text-slate-300 bg-slate-950 p-3 rounded-xl border border-slate-800 italic min-h-[50px]">기입 전송 대기 중...</p>
+                                    <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">종합 설계 대안 (Try)</div>
+                                    <p id="mirror-try" class="text-xs text-slate-300 leading-relaxed bg-slate-950 p-3 rounded-xl border border-slate-800/50 min-h-[50px] italic">기입 전송 대기 중...</p>
                                 </div>
                             </div>
                         </div>
-                        <div class="pt-4 border-t border-slate-800">
-                            <button onclick="openReportModal()" class="w-full px-5 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-md transition flex items-center justify-center gap-1.5">
+
+                        <div class="pt-4 border-t border-slate-800 flex justify-end">
+                            <button onclick="openReportModal()" class="w-full sm:w-auto px-5 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-md transition flex items-center justify-center gap-1.5">
                                 <i class="fa-solid fa-file-pdf"></i> 모둠 분석 보고서 출력하기
                             </button>
                         </div>
@@ -331,35 +363,103 @@
                 </div>
             </section>
 
-            <!-- TAB 3: INSTRUCTOR TAB -->
+            <!-- TAB 3: ENTIRE REPORT / INSTRUCTOR TAB -->
             <section id="tab-instructor" class="hidden space-y-6">
-                <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm flex justify-between items-center">
-                    <h2 class="text-sm font-black text-slate-800 flex items-center gap-1.5">
-                        <i class="fa-solid fa-chart-pie text-indigo-500"></i> 학급 학생 성장 진단 인터랙티브 전체보고서
-                    </h2>
-                </div>
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-4">
-                        <div class="grid grid-cols-2 gap-2" id="instructor-student-list"></div>
-                        <canvas id="testItemsChart" height="150"></canvas>
+                <!-- Instructor Welcome Header -->
+                <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div class="space-y-1">
+                        <h2 class="text-lg font-black text-slate-800 flex items-center gap-1.5">
+                            <i class="fa-solid fa-chart-pie text-indigo-500"></i> 학급 학생 성장 진단 인터랙티브 전체보고서
+                        </h2>
+                        <p class="text-xs text-slate-500">10인 학생의 세밀한 지표와 정오답 패턴을 교차 분석하고 다차원 역량 리포트를 띄웁니다.</p>
                     </div>
+                    <span class="px-3 py-1.5 bg-indigo-50 text-indigo-600 text-[10px] font-bold rounded-lg self-start md:self-auto"><i class="fa-solid fa-graduation-cap"></i> 데이터 드리븐 지도</span>
+                </div>
+
+                <!-- Academic Multi-dimensional Charts Grid -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Left: Interactive List -->
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-4">
+                        <h3 class="text-xs font-bold text-slate-800 tracking-wider uppercase border-b border-slate-100 pb-2 flex items-center gap-1">
+                            <i class="fa-solid fa-address-book text-indigo-500"></i> 학생 목록 선택
+                        </h3>
+                        <div class="grid grid-cols-2 gap-2" id="instructor-student-list"></div>
+                        
+                        <!-- Test Item Level Analysis -->
+                        <div class="pt-4 border-t border-slate-100 space-y-3">
+                            <h3 class="text-xs font-bold text-slate-800 flex items-center gap-1">
+                                <i class="fa-solid fa-circle-exclamation text-amber-500"></i> 문항 정오답 통계
+                            </h3>
+                            <canvas id="testItemsChart" height="150"></canvas>
+                            <p class="text-[10px] text-slate-400 leading-normal">
+                                * Q2번 문항은 쉬운 난이도로 출제되었으나 학생들의 정답률이 $50\%$로 대폭 주저앉은 매력적 오답 함정 문항입니다.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Right: Multi-radar & Profile Detail Card -->
                     <div class="lg:col-span-2 bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm grid grid-cols-1 md:grid-cols-2 gap-6 relative">
+                        <!-- Profile Card -->
                         <div class="space-y-4 flex flex-col justify-between">
                             <div class="space-y-3">
                                 <div class="flex items-center gap-3">
-                                    <div class="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 font-extrabold text-lg flex items-center justify-center border" id="card-student-id">S01</div>
+                                    <div class="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 font-extrabold text-lg flex items-center justify-center border border-indigo-100" id="card-student-id">
+                                        S01
+                                    </div>
                                     <div>
-                                        <h4 class="text-sm font-black text-slate-800"><span id="card-student-name">S01</span></h4>
+                                        <h4 class="text-sm font-black text-slate-800 flex items-center gap-1.5">
+                                            가상 학생 <span id="card-student-name">S01</span>
+                                            <span id="card-student-outlier-badge" class="hidden px-2 py-0.5 text-[9px] font-bold rounded bg-rose-50 border border-rose-200 text-rose-600">이상치 감지</span>
+                                        </h4>
+                                        <p class="text-[10px] text-slate-400">다차원 데이터 교차 마스터 프로필</p>
                                     </div>
                                 </div>
+
                                 <div class="grid grid-cols-2 gap-2 text-xs pt-2">
-                                    <div class="bg-slate-50 p-2.5 rounded-xl"><span class="font-bold block text-[9px] text-slate-400">LMS 시간</span><span class="font-bold" id="card-lms-stat">-</span></div>
-                                    <div class="bg-slate-50 p-2.5 rounded-xl"><span class="font-bold block text-[9px] text-slate-400">형성평가</span><span class="font-bold" id="card-form-stat">-</span></div>
+                                    <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+                                        <div class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">LMS 접속수 / 체류</div>
+                                        <span class="font-extrabold text-slate-800" id="card-lms-stat">2회 / 35분</span>
+                                    </div>
+                                    <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+                                        <div class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">형성평가 결과</div>
+                                        <span class="font-extrabold text-slate-800" id="card-form-stat">80점 (80초)</span>
+                                    </div>
+                                    <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+                                        <div class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">정기시험 개수</div>
+                                        <span class="font-extrabold text-slate-800" id="card-test-stat">4개 정답 (4/5)</span>
+                                    </div>
+                                    <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+                                        <div class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">학업 스트레스</div>
+                                        <span class="font-extrabold text-slate-800" id="card-stress-stat">2.0 / 5.0</span>
+                                    </div>
                                 </div>
-                                <p class="text-xs text-slate-600 bg-slate-50 p-3 rounded-xl italic" id="card-essay-content">-</p>
+
+                                <div class="space-y-1 pt-2">
+                                    <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">정성 성찰 응답 내역</div>
+                                    <p class="text-xs text-slate-600 bg-slate-50 p-3 rounded-xl border border-slate-100 italic min-h-[50px]" id="card-essay-content">
+                                        오늘 배운 내용을 시각 자료와 함께 확인해서 쉽게 이해되었습니다.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- Diagnosis Guideline -->
+                            <div id="card-diagnosis-container" class="hidden bg-rose-50/50 p-3.5 rounded-xl border border-rose-100 space-y-1.5">
+                                <div class="text-[10px] font-black text-rose-700 flex items-center gap-1">
+                                    <i class="fa-solid fa-triangle-exclamation"></i> 강사 지도 가이드라인 (Try 처방)
+                                </div>
+                                <p class="text-[11px] text-rose-800 leading-relaxed font-medium" id="card-diagnosis-text">
+                                    이 학생은 전형적인 학습 지연형 상태로, 개별 처방이 필요합니다.
+                                </p>
                             </div>
                         </div>
-                        <canvas id="radarChart"></canvas>
+
+                        <!-- Radar Chart -->
+                        <div class="flex flex-col justify-center items-center">
+                            <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">학습 성취·태도 균형도 차트</span>
+                            <div class="w-full h-64 flex justify-center">
+                                <canvas id="radarChart"></canvas>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -370,31 +470,92 @@
     <!-- 3. REPORT PRINT MODAL (기본 숨김) -->
     <!-- ========================================== -->
     <div id="report-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white rounded-3xl max-w-4xl w-full max-h-[90vh] overflow-y-auto border border-slate-200 shadow-2xl p-8 space-y-6 flex flex-col">
-            <div class="flex justify-between items-center border-b pb-4">
-                <h3 class="text-sm font-bold text-slate-800">모둠 실습 분석 보고서</h3>
-                <div class="flex gap-2">
-                    <button onclick="window.print()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl transition">인쇄</button>
-                    <button onclick="closeReportModal()" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-500 font-bold text-xs rounded-xl">닫기</button>
+        <div class="bg-white rounded-3xl max-w-4xl w-full max-h-[90vh] overflow-y-auto border border-slate-200/80 shadow-2xl flex flex-col">
+            <!-- Modal Header -->
+            <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+                <h3 class="text-sm font-bold text-slate-800 flex items-center gap-1.5">
+                    <i class="fa-solid fa-print text-indigo-500"></i> 인쇄 및 저장 준비 완료
+                </h3>
+                <div class="flex items-center gap-2">
+                    <button onclick="window.print()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl transition flex items-center gap-1 shadow-sm">
+                        <i class="fa-solid fa-print"></i> PDF 저장 및 인쇄
+                    </button>
+                    <button onclick="closeReportModal()" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-500 font-bold text-xs rounded-xl transition">
+                        닫기
+                    </button>
                 </div>
             </div>
-            <div id="print-area" class="space-y-4">
-                <h2 id="print-seminar-title" class="text-xl font-black text-center">데이터로 학생 성장을 마주하다</h2>
-                <p class="text-xs text-slate-400 text-center"><span id="print-class">-</span> | <span id="print-group">-</span> | <span id="print-date">-</span></p>
-                <div><strong>참여 멤버:</strong> <span id="print-members">-</span></div>
-                <div><strong>분석 관점:</strong> <p id="print-perspective" class="bg-slate-50 p-3 rounded-xl text-xs"></p></div>
-                <div><strong>학생 진단:</strong> <div id="print-outliers-container"></div></div>
-                <div><strong>종합 대안:</strong> <p id="print-try" class="bg-slate-50 p-3 rounded-xl text-xs"></p></div>
+
+            <!-- Print Area -->
+            <div class="p-8 space-y-6 flex-1 text-slate-800" id="print-area">
+                <!-- Document Header -->
+                <div class="text-center space-y-2 border-b-2 border-indigo-600 pb-4">
+                    <span class="text-xs font-bold text-indigo-600 tracking-widest uppercase">인공지능 선도교사 11과정 실습 산출물</span>
+                    <h2 class="text-2xl font-extrabold text-slate-900 tracking-tight" id="print-seminar-title">
+                        데이터로 학생 성장을 마주하다
+                    </h2>
+                    <p class="text-xs text-slate-500 flex justify-center gap-4">
+                        <span id="print-class">클래스: 1기 선도교사</span>
+                        <span id="print-group">모둠: 모둠 1</span>
+                        <span id="print-date">일시: 2026. 07. 16</span>
+                    </p>
+                </div>
+
+                <!-- Members Section -->
+                <div class="space-y-2">
+                    <h4 class="text-sm font-bold text-slate-900 flex items-center gap-1.5">
+                        <i class="fa-solid fa-users text-indigo-500"></i> 1. 모둠 실습 구성원
+                    </h4>
+                    <p id="print-members" class="text-xs text-slate-700 bg-slate-50 p-3 rounded-xl border border-slate-100 italic leading-relaxed min-h-[40px]">
+                        지정된 모둠원이 없습니다.
+                    </p>
+                </div>
+
+                <!-- Perspective Section -->
+                <div class="space-y-2">
+                    <h4 class="text-sm font-bold text-slate-900 flex items-center gap-1.5">
+                        <i class="fa-solid fa-eye text-indigo-500"></i> 2. 데이터 분석 관점 및 가설 (Perspective)
+                    </h4>
+                    <p id="print-perspective" class="text-xs text-slate-700 bg-slate-50 p-4 rounded-xl border border-slate-100 leading-relaxed min-h-[60px] whitespace-pre-wrap">
+                        아직 기록이 전송되지 않았습니다.
+                    </p>
+                </div>
+
+                <!-- Diagnosis Outliers Section -->
+                <div class="space-y-2">
+                    <h4 class="text-sm font-bold text-slate-900 flex items-center gap-1.5">
+                        <i class="fa-solid fa-user-tag text-rose-500"></i> 3. 발견된 학생 이상치 개별 진단 내역
+                    </h4>
+                    <div id="print-outliers-container" class="space-y-2">
+                        <p class="text-xs text-slate-400 italic">추가된 개별 이상치 진단 내역이 없습니다.</p>
+                    </div>
+                </div>
+
+                <!-- Try Alternatives Section -->
+                <div class="space-y-2">
+                    <h4 class="text-sm font-bold text-slate-900 flex items-center gap-1.5">
+                        <i class="fa-solid fa-lightbulb text-amber-500"></i> 4. 차기 수업 적용 종합 대안 (Try)
+                    </h4>
+                    <p id="print-try" class="text-xs text-slate-700 bg-slate-50 p-4 rounded-xl border border-slate-100 leading-relaxed min-h-[60px] whitespace-pre-wrap">
+                        아직 기록이 전송되지 않았습니다.
+                    </p>
+                </div>
+
+                <!-- PDF Footer -->
+                <div class="text-center text-[10px] text-slate-400 pt-8 border-t border-slate-100">
+                    본 리포트는 2026 인공지능 교수·학습 설계 공통 교안에 부합하는 정합성 분석 툴킷에서 추출되었습니다.
+                </div>
             </div>
         </div>
     </div>
 
+    <!-- UI Feedback Toast Container -->
     <div id="toast-container" class="fixed top-5 right-5 z-50 space-y-2 pointer-events-none"></div>
 
-    <!-- Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
+    <!-- Firebase Compat SDKs (버전 충돌 없고 규칙 준수하는 안정적 라이브러리) -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
     <script>
         const firebaseConfig = {
@@ -407,67 +568,78 @@
         };
 
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        let db, auth;
-        let isFirebaseActive = false;
+        let db = null;
+        let auth = null;
+        let isFirebaseConnected = false;
+        let unsubscribeGroup = null;
 
-        if (firebaseConfig.apiKey) {
-            try {
-                firebase.initializeApp(firebaseConfig);
-                auth = firebase.auth();
-                db = firebase.firestore();
-                isFirebaseActive = true;
-                console.log("Firebase initialized in student workspace.");
-            } catch (err) {
-                console.error("Firebase initialization failed.", err);
-            }
-        }
-
-        const studentsData = [
-            { id: "S01", name: "김민준", lms_cnt: 2, lms_time: 35, lms_click: 45, video: 100, form_score: 80, form_time: 320, item5_time: 85, item5_ok: true, essay: "쉽게 이해되었습니다.", interest: 4.0, coop: 4.0, stress: 2.0, signal: "안정적" },
-            { id: "S10", name: "장하은", lms_cnt: 3, lms_time: 40, lms_click: 45, video: 100, form_score: 70, form_time: 720, item5_time: 540, item5_ok: false, essay: "5번 문제 헷갈렸어요.", interest: 5.0, coop: 4.0, stress: 5.0, signal: "완벽주의" }
-        ];
-
-        let appState = {
-            currentClassId: "",
-            currentClassName: "",
-            currentGroupId: "1",
-            classesList: [],
-            seminarTitle: "데이터로 학생 성장을 마주하다",
-            groupWork: { members: [], perspective: "", outliers: [], overallTry: "" }
+        // 모둠 실습 실시간 로컬/원격 상태 데이터 객체
+        let groupWorkState = {
+            members: [],
+            perspective: "",
+            outliers: [],
+            overallTry: ""
         };
 
+        // 전역 UI 상태 변수
+        let currentClassId = "local_class";
+        let currentClassName = "기본 오프라인 학급";
+        let currentGroupId = "1";
+        let activeStudentId = "S01";
         let currentDataType = 1;
         let radarChartInstance = null;
         let barChartInstance = null;
-        let activeStudentId = "S01";
-        let firebaseUnsubscribe = null;
+
+        // ==========================================
+        // 10 Students Static Database Setup
+        // ==========================================
+        const studentsData = [
+            { id: "S01", name: "김민준", lms_cnt: 2, lms_time: 35, lms_click: 45, video: 100, form_score: 80, form_time: 320, item5_time: 85, item5_ok: true, essay: "오늘 배운 내용을 시각 자료와 함께 확인해서 쉽게 이해되었습니다.", test_q1: "①", test_q2: "③", test_q3: "④", test_q4: "②", test_q5: "④", test_total: 4, interest: 4.0, coop: 4.0, stress: 2.0, signal: "안정적이고 차분함" },
+            { id: "S02", name: "이서연", lms_cnt: 3, lms_time: 42, lms_click: 58, video: 100, form_score: 90, form_time: 280, item5_time: 90, item5_ok: true, essay: "어려웠던 인과 관계 그래프를 직접 분석해보는 과정이 꽤 흥미로웠습니다.", test_q1: "①", test_q2: "③", test_q3: "④", test_q4: "②", test_q5: "③", test_total: 4, interest: 5.0, coop: 5.0, stress: 2.0, signal: "배움에 대한 성취감" },
+            { id: "S03", name: "박예준", lms_cnt: 1, lms_time: 1, lms_click: 2, video: 5, form_score: 100, form_time: 90, item5_time: 10, item5_ok: true, essay: "이미 학원에서 다 배운 아는 내용이라 막힘없이 쉽게 다 풀었습니다.", test_q1: "①", test_q2: "③", test_q3: "④", test_q4: "②", test_q5: "⑤", test_total: 5, interest: 2.0, coop: 2.0, stress: 1.0, signal: "지루함 및 자극 부족" },
+            { id: "S04", name: "최아윤", lms_cnt: 2, lms_time: 31, lms_click: 38, video: 90, form_score: 70, form_time: 350, item5_time: 110, item5_ok: true, essay: "실습할 때 헷갈리는 부분이 있었지만 재미있었어요.", test_q1: "①", test_q2: "⑤", test_q3: "④", test_q4: "①", test_q5: "③", test_total: 2, interest: 4.0, coop: 3.0, stress: 2.0, signal: "평온하고 무난함" },
+            { id: "S05", name: "정지우", lms_cnt: 2, lms_time: 15, lms_click: 12, video: 100, form_score: 20, form_time: 25, item5_time: 2, item5_ok: false, essay: "ㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇ", test_q1: "③", test_q2: "⑤", test_q3: "②", test_q4: "①", test_q5: "⑤", test_total: 1, interest: 1.0, coop: 1.2, stress: 1.5, signal: "무기력 및 과제 회피 경향성 강함" },
+            { id: "S06", name: "한도윤", lms_cnt: 2, lms_time: 28, lms_click: 32, video: 85, form_score: 60, form_time: 310, item5_time: 85, item5_ok: false, essay: "ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ", test_q1: "①", test_q2: "③", test_q3: "④", test_q4: "③", test_q5: "②", test_total: 3, interest: 4.0, coop: 2.0, stress: 1.0, signal: "과도한 들뜸 및 주의 산만" },
+            { id: "S07", name: "강서윤", lms_cnt: 2, lms_time: 27, lms_click: 31, video: 90, form_score: 60, form_time: 380, item5_time: 125, item5_ok: false, essay: "5번 빼고는 다 괜찮았는데, 5번이 제일 어렵네요.", test_q1: "①", test_q2: "⑤", test_q3: "④", test_q4: "③", test_q5: "①", test_total: 2, interest: 3.0, coop: 3.0, stress: 3.0, signal: "개념 적용에 대한 걱정 신호 관찰" },
+            { id: "S08", name: "조민서", lms_cnt: 1, lms_time: 95, lms_click: 1, video: 10, form_score: 20, form_time: 450, item5_time: 120, item5_ok: false, essay: "모르겠음", test_q1: "④", test_q2: "②", test_q3: "①", test_q4: "③", test_q5: "④", test_total: 0, interest: 1.0, coop: 1.0, stress: 1.2, signal: "배움에 대한 무관심 및 심리적 철수" },
+            { id: "S09", name: "윤지호", lms_cnt: 2, lms_time: 30, lms_click: 40, video: 90, form_score: 70, form_time: 340, item5_time: 105, item5_ok: true, essay: "전체적으로 무난했고 실습 활동이 조금 더 길었으면 좋겠습니다.", test_q1: "①", test_q2: "⑤", test_q3: "④", test_q4: "②", test_q5: "③", test_total: 3, interest: 4.0, coop: 4.0, stress: 2.0, signal: "긍정적이고 모범적인 태도" },
+            { id: "S10", name: "장하은", lms_cnt: 3, lms_time: 40, lms_click: 45, video: 100, form_score: 70, form_time: 720, item5_time: 540, item5_ok: false, essay: "5번 문제 표에서 변인 통제 조건이 너무 헷갈렸어요. 9분 넘게 붙잡고 고민했는데 결국 틀렸네요. 자존심 상해요.", test_q1: "①", test_q2: "③", test_q3: "④", test_q4: "①", test_q5: "①", test_total: 3, interest: 5.0, coop: 4.0, stress: 5.0, signal: "과도한 불안감 및 완벽주의 성향 (실패에 과민)" }
+        ];
+
+        const diagnosisGuide = {
+            "S03": "박예준: 초고속 선행학습형. 단순 확인평가를 탈피하고 난이도가 더 정교한 심화 과제나 모둠 리더 비계를 투입해야 합니다.",
+            "S05": "정지우: 학습 포기 및 초단기 무작위 찍기형(기둥세우기). 정서 이탈 및 무기력 확인. 점수 중심 피드백보다는 정서적 지지 기반의 원포인트 비계가 필요합니다.",
+            "S06": "한도윤: 형식 참여형. LMS 참여율은 성실해 보이나 글자 수 세우기 등 인지적 태만 발견. 성찰 작성을 구조화하거나 모둠 활동 기여도 분담 관리가 주효합니다.",
+            "S08": "조민서: 화면 방치 및 유령 참여형. 실시간 대화나 실시간 기습 퀴즈 등의 수업 인게이지먼트 장치 보강이 시급합니다.",
+            "S10": "장하은: 고집착 완벽주의형. 특정 고난도 문항에 극도로 강박적인 9분 체류와 고스트레스 지표 대칭 관찰. 힌트 개방형 보조 챗봇 투입을 처방합니다."
+        };
+
+        // 전역 상태 도우미
+        let appState = {
+            classesList: [],
+            seminarTitle: "데이터로 학생 성장을 마주하다"
+        };
 
         window.onload = function() {
-            if (!isFirebaseActive) {
-                document.getElementById('gateway-class-select').innerHTML = `<option value="">에러: 파이어베이스 설정이 필요합니다.</option>`;
-                return;
-            }
             initFirebase();
             document.getElementById('gateway-class-select').addEventListener('change', function() {
                 updateGroupDropdown(this.value);
             });
         };
 
-        function updateGroupDropdown(classId) {
-            const groupDropdown = document.getElementById('gateway-group-select');
-            groupDropdown.innerHTML = "";
-            const cls = appState.classesList.find(c => c.id === classId);
-            const groupCount = (cls && cls.groupCount) ? cls.groupCount : 5;
-            for (let i = 1; i <= groupCount; i++) {
-                const opt = document.createElement('option');
-                opt.value = i;
-                opt.innerText = `모둠 ${i}`;
-                groupDropdown.appendChild(opt);
-            }
-        }
-
+        // RULE 3 준수: 익명 인증 완료 대기 후 쿼리 시작 및 하이브리드 자동 우회
         async function initFirebase() {
+            if (!firebaseConfig.apiKey || firebaseConfig.apiKey.startsWith("AIzaSyB") || firebaseConfig.apiKey === "") {
+                console.warn("Firebase config is empty. Operating in local mode.");
+                setLocalFallback();
+                return;
+            }
+
             try {
+                const app = firebase.initializeApp(firebaseConfig);
+                auth = firebase.auth(app);
+                db = firebase.firestore(app);
+
                 let userCredential;
                 if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
                     userCredential = await auth.signInWithCustomToken(__initial_auth_token);
@@ -475,6 +647,16 @@
                     userCredential = await auth.signInAnonymously();
                 }
 
+                const user = userCredential.user;
+                if (!user) {
+                    throw new Error("No user returned from authentication.");
+                }
+
+                isFirebaseConnected = true;
+                document.getElementById('sync-mode-badge').innerText = "원격 동기화 중";
+                document.getElementById('sync-mode-badge').className = "text-[10px] bg-emerald-100 text-emerald-600 px-2 py-0.5 rounded-full font-bold animate-pulse";
+
+                // 1. 세미나 타이틀 실시간 리스너 (RULE 1 하위 주소 준수)
                 db.collection('artifacts').doc(appId).collection('public').doc('data')
                     .collection('config').doc('seminar_meta').onSnapshot((doc) => {
                         if (doc.exists) {
@@ -483,21 +665,52 @@
                             document.getElementById('app-title-display').innerText = appState.seminarTitle;
                             document.getElementById('print-seminar-title').innerText = appState.seminarTitle;
                         }
+                    }, (err) => {
+                        console.error("Metadata listener error:", err);
                     });
 
+                // 2. 클래스 목록 실시간 리스너 (RULE 1 & RULE 2 복잡 쿼리 배제)
                 db.collection('artifacts').doc(appId).collection('public').doc('data')
                     .collection('classes').onSnapshot((snapshot) => {
                         let list = [];
                         snapshot.forEach((doc) => {
                             const d = doc.data();
-                            list.push({ id: doc.id, name: d.name, groupCount: d.groupCount || 5 });
+                            list.push({ 
+                                id: doc.id, 
+                                name: d.name, 
+                                groupCount: d.groupCount || 5,
+                                createdAt: d.createdAt || 0
+                            });
                         });
+                        // RULE 2를 위해 메모리 내 정렬 수행
+                        list.sort((a, b) => b.createdAt - a.createdAt);
                         appState.classesList = list;
                         renderClassesDropdown();
+                    }, (err) => {
+                        console.error("Classes listener error:", err);
+                        showToast("학급 데이터를 원격에서 동기화하지 못했습니다.", "error");
                     });
+
             } catch (err) {
-                console.error(err);
+                console.error("Firebase connection/auth failed. Falling back to local mode.", err);
+                let errorMsg = "서버 연결에 실패하여 오프라인 모드로 실행합니다.";
+                if (err.code === 'auth/operation-not-allowed') {
+                    errorMsg = "파이어베이스 콘솔에서 '익명 로그인'을 꼭 활성화해 주셔야 연동이 재개됩니다!";
+                }
+                showToast(errorMsg, "error");
+                setLocalFallback();
             }
+        }
+
+        function setLocalFallback() {
+            isFirebaseConnected = false;
+            document.getElementById('sync-mode-badge').innerText = "로컬 모드";
+            document.getElementById('sync-mode-badge').className = "text-[10px] bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full font-bold";
+            
+            appState.classesList = [
+                { id: "local_class", name: "기본 오프라인 학급", groupCount: 5 }
+            ];
+            renderClassesDropdown();
         }
 
         function renderClassesDropdown() {
@@ -516,140 +729,609 @@
             updateGroupDropdown(dropdown.value);
         }
 
+        function updateGroupDropdown(classId) {
+            const groupDropdown = document.getElementById('gateway-group-select');
+            groupDropdown.innerHTML = "";
+            const cls = appState.classesList.find(c => c.id === classId);
+            const groupCount = (cls && cls.groupCount) ? cls.groupCount : 5;
+            for (let i = 1; i <= groupCount; i++) {
+                const opt = document.createElement('option');
+                opt.value = i;
+                opt.innerText = `모둠 ${i}`;
+                groupDropdown.appendChild(opt);
+            }
+        }
+
         function enterWorkspace() {
             const classSelect = document.getElementById('gateway-class-select');
             const groupSelect = document.getElementById('gateway-group-select');
 
             if (!classSelect.value || !groupSelect.value) return;
 
-            appState.currentClassId = classSelect.value;
-            appState.currentClassName = classSelect.options[classSelect.selectedIndex].text;
-            appState.currentGroupId = groupSelect.value;
+            currentClassId = classSelect.value;
+            currentClassName = classSelect.options[classSelect.selectedIndex].text;
+            currentGroupId = groupSelect.value;
 
-            document.getElementById('class-display').innerText = `클래스: ${appState.currentClassName}`;
-            document.getElementById('group-display').innerText = `모둠: 모둠 ${appState.currentGroupId}`;
+            document.getElementById('class-display').innerText = `클래스: ${currentClassName}`;
+            document.getElementById('group-display').innerText = `모둠: 모둠 ${currentGroupId}`;
 
             document.getElementById('gateway-view').classList.add('hidden');
             document.getElementById('main-view').classList.remove('hidden');
 
-            startGroupSyncListener();
+            startWorkspaceSynchronization();
+            showToast(`${currentClassName} - 모둠 ${currentGroupId} 실습실 입장!`, "success");
         }
 
         function exitToGateway() {
-            if (firebaseUnsubscribe) firebaseUnsubscribe();
+            if (unsubscribeGroup) {
+                unsubscribeGroup();
+                unsubscribeGroup = null;
+            }
             document.getElementById('gateway-view').classList.remove('hidden');
             document.getElementById('main-view').classList.add('hidden');
         }
 
-        function startGroupSyncListener() {
-            const docId = `${appState.currentClassId}_group${appState.currentGroupId}`;
-            firebaseUnsubscribe = db.collection('artifacts').doc(appId).collection('public').doc('data')
-                .collection('groupWork').doc(docId).onSnapshot((doc) => {
+        // 로컬스토리지 백업 및 원격 Firestore 리스너 동기화 (RULE 1 완벽 하위 주소 준수)
+        function startWorkspaceSynchronization() {
+            const storageKey = `cache_${currentClassId}_group${currentGroupId}`;
+            
+            if (!isFirebaseConnected) {
+                const cache = localStorage.getItem(storageKey);
+                if (cache) {
+                    groupWorkState = JSON.parse(cache);
+                } else {
+                    groupWorkState = { members: [], perspective: "", outliers: [], overallTry: "" };
+                }
+                updateUIWithSyncedData();
+                return;
+            }
+
+            if (unsubscribeGroup) unsubscribeGroup();
+            
+            unsubscribeGroup = db.collection('artifacts').doc(appId).collection('public').doc('data')
+                .collection('classes').doc(currentClassId)
+                .collection('groups').doc(`group${currentGroupId}`)
+                .onSnapshot((doc) => {
                     if (doc.exists) {
-                        const data = doc.data();
-                        appState.groupWork = {
-                            members: data.members || [],
-                            perspective: data.perspective || "",
-                            outliers: data.outliers || [],
-                            overallTry: data.overallTry || ""
-                        };
+                        groupWorkState = doc.data();
+                        localStorage.setItem(storageKey, JSON.stringify(groupWorkState));
                     } else {
-                        appState.groupWork = { members: [], perspective: "", outliers: [], overallTry: "" };
+                        groupWorkState = { members: [], perspective: "", outliers: [], overallTry: "" };
                         db.collection('artifacts').doc(appId).collection('public').doc('data')
-                            .collection('groupWork').doc(docId).set(appState.groupWork);
+                            .collection('classes').doc(currentClassId)
+                            .collection('groups').doc(`group${currentGroupId}`).set(groupWorkState);
                     }
                     updateUIWithSyncedData();
+                }, (err) => {
+                    console.error("동기화 도중 오류 발생 - 로컬 백업 모드로 전환합니다.", err);
+                    showToast("동기화 권한 오류가 발생해 로컬 임시 모드로 전환합니다.", "error");
                 });
         }
 
-        function pushGroupStateUpdate() {
-            const docId = `${appState.currentClassId}_group${appState.currentGroupId}`;
-            db.collection('artifacts').doc(appId).collection('public').doc('data')
-                .collection('groupWork').doc(docId).set(appState.groupWork);
+        function pushStateUpdate() {
+            const storageKey = `cache_${currentClassId}_group${currentGroupId}`;
+            localStorage.setItem(storageKey, JSON.stringify(groupWorkState));
+
+            if (isFirebaseConnected && db) {
+                db.collection('artifacts').doc(appId).collection('public').doc('data')
+                    .collection('classes').doc(currentClassId)
+                    .collection('groups').doc(`group${currentGroupId}`).set(groupWorkState)
+                    .catch(e => {
+                        console.error("원격 전송 오류:", e);
+                    });
+            }
+            updateUIWithSyncedData();
         }
 
         function updateUIWithSyncedData() {
             if (document.activeElement !== document.getElementById('input-perspective')) {
-                document.getElementById('input-perspective').value = appState.groupWork.perspective;
+                document.getElementById('input-perspective').value = groupWorkState.perspective || "";
             }
             if (document.activeElement !== document.getElementById('input-try')) {
-                document.getElementById('input-try').value = appState.groupWork.overallTry;
+                document.getElementById('input-try').value = groupWorkState.overallTry || "";
             }
 
-            document.getElementById('mirror-perspective').innerText = appState.groupWork.perspective || "분석 관점을 전송해 주세요.";
-            document.getElementById('mirror-try').innerText = appState.groupWork.overallTry || "수업 대안을 전송해 주세요.";
+            document.getElementById('mirror-perspective').innerText = groupWorkState.perspective || "분석 관점을 전송해 주세요.";
+            document.getElementById('mirror-try').innerText = groupWorkState.overallTry || "수업 대안을 전송해 주세요.";
 
             const listContainer = document.getElementById('members-list-container');
             listContainer.innerHTML = "";
-            if (appState.groupWork.members.length === 0) {
+            if (!groupWorkState.members || groupWorkState.members.length === 0) {
                 listContainer.innerHTML = `<span class="text-xs text-slate-400 italic">등록된 모둠원이 없습니다.</span>`;
             } else {
-                appState.groupWork.members.forEach((m, idx) => {
-                    listContainer.innerHTML += `<span class="inline-flex items-center gap-1 px-3 py-1 bg-slate-100 border text-xs font-bold rounded-full">${m} <button onclick="removeMember(${idx})">x</button></span>`;
+                groupWorkState.members.forEach((m, idx) => {
+                    listContainer.innerHTML += `
+                        <span class="inline-flex items-center gap-1 px-3 py-1 bg-slate-100 border text-xs font-bold rounded-full">
+                            ${m} 
+                            <button onclick="removeMember(${idx})" class="text-slate-400 hover:text-rose-500 font-bold ml-1">x</button>
+                        </span>
+                    `;
+                });
+            }
+
+            const outliersList = document.getElementById('outlier-students-list');
+            const mirrorOutliers = document.getElementById('mirror-outliers-container');
+            outliersList.innerHTML = "";
+            mirrorOutliers.innerHTML = "";
+
+            if (!groupWorkState.outliers || groupWorkState.outliers.length === 0) {
+                outliersList.innerHTML = `<p class="text-xs text-slate-400 italic">등록된 진단 내역이 없습니다.</p>`;
+                mirrorOutliers.innerHTML = `<p class="text-xs text-slate-500 italic">등록된 이상치가 없습니다.</p>`;
+            } else {
+                groupWorkState.outliers.forEach((outlier, index) => {
+                    outliersList.innerHTML += `
+                        <div class="flex items-center justify-between p-2.5 bg-slate-50 border border-slate-150 rounded-xl text-xs">
+                            <div class="flex items-center gap-2">
+                                <span class="font-extrabold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-lg border border-indigo-100">${outlier.studentId}</span>
+                                <span class="text-slate-600 truncate max-w-[200px] sm:max-w-xs">${outlier.reason}</span>
+                            </div>
+                            <button onclick="removeOutlierStudent(${index})" class="text-slate-400 hover:text-rose-500 transition">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </div>
+                    `;
+                    mirrorOutliers.innerHTML += `
+                        <div class="flex items-center gap-2 text-xs text-slate-300 py-1 border-b border-slate-800/20 last:border-0">
+                            <span class="font-black text-[10px] text-rose-400 bg-rose-500/10 px-1.5 py-0.5 rounded border border-rose-500/20">${outlier.studentId}</span>
+                            <span class="truncate">${outlier.reason}</span>
+                        </div>
+                    `;
                 });
             }
         }
 
         function addMember() {
             const inp = document.getElementById('input-member-name');
-            if (!inp.value.trim()) return;
-            appState.groupWork.members.push(inp.value.trim());
+            const name = inp.value.trim();
+            if (!name) return;
+            if (!groupWorkState.members) groupWorkState.members = [];
+            groupWorkState.members.push(name);
             inp.value = "";
-            pushGroupStateUpdate();
+            pushStateUpdate();
         }
 
         function removeMember(index) {
-            appState.groupWork.members.splice(index, 1);
-            pushGroupStateUpdate();
+            groupWorkState.members.splice(index, 1);
+            pushStateUpdate();
         }
 
         function submitPerspective() {
-            appState.groupWork.perspective = document.getElementById('input-perspective').value.trim();
-            pushGroupStateUpdate();
+            groupWorkState.perspective = document.getElementById('input-perspective').value.trim();
+            pushStateUpdate();
+            showToast("분석 관점을 원격 저장소에 전송했습니다.", "success");
         }
 
         function submitTry() {
-            appState.groupWork.overallTry = document.getElementById('input-try').value.trim();
-            pushGroupStateUpdate();
+            groupWorkState.overallTry = document.getElementById('input-try').value.trim();
+            pushStateUpdate();
+            showToast("수업 설계 대안(Try)을 전송 완료했습니다.", "success");
         }
 
         function addOutlierStudent() {
             const id = document.getElementById('select-outlier-student').value;
             const reason = document.getElementById('input-outlier-reason').value.trim();
             if (!reason) return;
-            appState.groupWork.outliers.push({ studentId: id, reason });
+            if (!groupWorkState.outliers) groupWorkState.outliers = [];
+            
+            const existIdx = groupWorkState.outliers.findIndex(o => o.studentId === id);
+            if (existIdx !== -1) {
+                groupWorkState.outliers[existIdx].reason = reason;
+            } else {
+                groupWorkState.outliers.push({ studentId: id, reason });
+            }
             document.getElementById('input-outlier-reason').value = "";
-            pushGroupStateUpdate();
+            pushStateUpdate();
+            showToast(`${id} 학생 이상치 추가 완료!`, "success");
+        }
+
+        function removeOutlierStudent(index) {
+            groupWorkState.outliers.splice(index, 1);
+            pushStateUpdate();
         }
 
         function switchDataType(typeNum) {
             currentDataType = typeNum;
+            for (let i = 1; i <= 4; i++) {
+                const btn = document.getElementById(`data-btn-${i}`);
+                if (i === typeNum) {
+                    btn.className = "px-4 py-2 bg-indigo-600 text-white text-xs font-bold rounded-xl shadow-sm transition";
+                } else {
+                    btn.className = "px-4 py-2 bg-slate-100 text-slate-600 text-xs font-bold rounded-xl hover:bg-slate-200 transition";
+                }
+            }
             renderDataTypeTable();
         }
 
         function renderDataTypeTable() {
             const container = document.getElementById('data-table-container');
-            container.innerHTML = `<table class="w-full text-left text-xs"><thead><tr class="bg-slate-50"><th>ID</th><th>이름</th><th>형성평가</th></tr></thead><tbody>${studentsData.map(s => `<tr><td>${s.id}</td><td>${s.name}</td><td>${s.form_score}점</td></tr>`).join('')}</tbody></table>`;
+            const title = document.getElementById('data-type-title');
+
+            if (currentDataType === 1) {
+                title.innerText = "데이터 1: LMS 로그 데이터 (정량 지표)";
+                container.innerHTML = `
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead>
+                            <tr class="border-b border-slate-150 bg-slate-50/50 text-slate-500 font-bold">
+                                <th class="p-4">학생 ID</th>
+                                <th class="p-4">접속 횟수 (회)</th>
+                                <th class="p-4">총 체류 시간 (분)</th>
+                                <th class="p-4">상호작용 클릭수</th>
+                                <th class="p-4">동영상 완료율 (%)</th>
+                                <th class="p-4 text-indigo-600 font-black">형성평가 점수 (100점 만점)</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            ${studentsData.map(s => `
+                                <tr class="hover:bg-slate-50/50 transition">
+                                    <td class="p-4 font-bold text-slate-700">${s.id}</td>
+                                    <td class="p-4 text-slate-600">${s.lms_cnt}회</td>
+                                    <td class="p-4 font-semibold text-slate-800">${s.lms_time}분</td>
+                                    <td class="p-4 text-slate-600">${s.lms_click}회</td>
+                                    <td class="p-4 text-slate-600">${s.video}%</td>
+                                    <td class="p-4 font-black text-indigo-600 text-xs">${s.form_score}점</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+            } else if (currentDataType === 2) {
+                title.innerText = "데이터 2: 활동 관찰 및 형성평가 정성 데이터";
+                container.innerHTML = `
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead>
+                            <tr class="border-b border-slate-150 bg-slate-50/50 text-slate-500 font-bold">
+                                <th class="p-4">학생 ID</th>
+                                <th class="p-4">평가 총 소요시간 (초)</th>
+                                <th class="p-4">5번 문항 풀이시간 (초)</th>
+                                <th class="p-4">5번 정답 여부</th>
+                                <th class="p-4">서술형 성찰 글자수</th>
+                                <th class="p-4">서술형 성찰 실제 내용</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            ${studentsData.map(s => `
+                                <tr class="hover:bg-slate-50/50 transition">
+                                    <td class="p-4 font-bold text-slate-700">${s.id}</td>
+                                    <td class="p-4 text-slate-600">${s.form_time}초</td>
+                                    <td class="p-4 font-bold text-slate-800">${s.item5_time}초</td>
+                                    <td class="p-4">
+                                        <span class="px-2 py-0.5 rounded-md text-[10px] font-bold ${s.item5_ok ? 'bg-emerald-50 text-emerald-600 border border-emerald-200' : 'bg-rose-50 text-rose-600 border border-rose-200'}">
+                                            ${s.item5_ok ? '정답 (O)' : '오답 (X)'}
+                                        </span>
+                                    </td>
+                                    <td class="p-4 text-slate-500">${s.essay.length}자</td>
+                                    <td class="p-4 font-medium text-slate-700 max-w-xs truncate" title="${s.essay}">${s.essay}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+            } else if (currentDataType === 3) {
+                title.innerText = "데이터 3: 정기시험 문항별 세부 반응 선택지";
+                container.innerHTML = `
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead>
+                            <tr class="border-b border-slate-150 bg-slate-50/50 text-slate-500 font-bold">
+                                <th class="p-4">학생 ID</th>
+                                <th class="p-4">Q1 (최하, 정답 ①)</th>
+                                <th class="p-4 text-amber-600 font-black">Q2 (하, 정답 ③) *함정*</th>
+                                <th class="p-4">Q3 (중, 정답 ④)</th>
+                                <th class="p-4">Q4 (상, 정답 ②)</th>
+                                <th class="p-4">Q5 (최상, 정답 ⑤)</th>
+                                <th class="p-4 text-indigo-600 font-extrabold">최종 정답 개수 (5개 만점)</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            ${studentsData.map(s => `
+                                <tr class="hover:bg-slate-50/50 transition">
+                                    <td class="p-4 font-bold text-slate-700">${s.id}</td>
+                                    <td class="p-4 ${s.test_q1 === '①' ? 'text-slate-700 font-semibold' : 'text-rose-500 font-bold'}">${s.test_q1}</td>
+                                    <td class="p-4 font-black ${s.test_q2 === '③' ? 'text-slate-800 bg-amber-50/40' : 'text-rose-600 bg-rose-50/30'}">${s.test_q2}</td>
+                                    <td class="p-4 ${s.test_q3 === '④' ? 'text-slate-700 font-semibold' : 'text-rose-500 font-bold'}">${s.test_q3}</td>
+                                    <td class="p-4 ${s.test_q4 === '②' ? 'text-slate-700 font-semibold' : 'text-rose-500 font-bold'}">${s.test_q4}</td>
+                                    <td class="p-4 ${s.test_q5 === '⑤' ? 'text-slate-700 font-semibold' : 'text-rose-500 font-bold'}">${s.test_q5}</td>
+                                    <td class="p-4 font-black text-indigo-600 text-xs">${s.test_total}개 맞춤</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                        <tfoot>
+                            <tr class="bg-indigo-50/30 border-t-2 border-indigo-100 text-indigo-900 font-black">
+                                <td class="p-4 font-extrabold">문항별 정답률</td>
+                                <td class="p-4">80%</td>
+                                <td class="p-4 text-rose-600 font-extrabold">50% (폭락)</td>
+                                <td class="p-4">80%</td>
+                                <td class="p-4">40%</td>
+                                <td class="p-4">20%</td>
+                                <td class="p-4 text-indigo-600">학급평균: 2.7개</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                `;
+            } else if (currentDataType === 4) {
+                title.innerText = "데이터 4: 사회정서 모둠 협업 및 인격 지표";
+                container.innerHTML = `
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead>
+                            <tr class="border-b border-slate-150 bg-slate-50/50 text-slate-500 font-bold">
+                                <th class="p-4">학생 ID</th>
+                                <th class="p-4">수업 흥미도 (5점)</th>
+                                <th class="p-4">협업 기여도 (동료평가, 5점)</th>
+                                <th class="p-4 text-rose-500">학업 스트레스 (5점)</th>
+                                <th class="p-4">정서 질적 관찰 신호</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            ${studentsData.map(s => `
+                                <tr class="hover:bg-slate-50/50 transition">
+                                    <td class="p-4 font-bold text-slate-700">${s.id}</td>
+                                    <td class="p-4 text-slate-700 font-semibold">${s.interest.toFixed(1)} / 5.0</td>
+                                    <td class="p-4 text-slate-600">${s.coop.toFixed(1)} / 5.0</td>
+                                    <td class="p-4 font-black ${s.stress >= 4.0 ? 'text-rose-600 bg-rose-50/30' : 'text-slate-800'}">${s.stress.toFixed(1)} / 5.0</td>
+                                    <td class="p-4 text-slate-500 italic">${s.signal}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+            }
         }
 
         function switchTab(tabId) {
             document.getElementById('tab-main').classList.add('hidden');
             document.getElementById('tab-workspace').classList.add('hidden');
             document.getElementById('tab-instructor').classList.add('hidden');
+
+            const navs = ['main', 'workspace', 'instructor'];
+            navs.forEach(n => {
+                const b = document.getElementById(`nav-btn-${n}`);
+                b.className = "px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1 bg-slate-100 hover:bg-slate-200 text-slate-700";
+            });
+
             document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+            const activeBtn = document.getElementById(`nav-btn-${tabId}`);
+            if (tabId === 'main') {
+                activeBtn.className = "px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1 bg-indigo-50 text-indigo-700";
+            } else if (tabId === 'workspace') {
+                activeBtn.className = "px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1 bg-amber-50 text-amber-700";
+                renderDataTypeTable();
+            } else if (tabId === 'instructor') {
+                activeBtn.className = "px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1 bg-emerald-50 text-emerald-700";
+                initInstructorTab();
+            }
+        }
+
+        function initInstructorTab() {
+            const listBtnContainer = document.getElementById('instructor-student-list');
+            listBtnContainer.innerHTML = "";
+            studentsData.forEach(s => {
+                const isOutlier = diagnosisGuide[s.id] !== undefined;
+                const btn = document.createElement('button');
+                btn.id = `ins-btn-${s.id}`;
+                btn.onclick = () => selectInstructorStudent(s.id);
+                btn.className = `p-3 rounded-xl border text-xs font-bold transition flex items-center justify-between shadow-sm ${s.id === activeStudentId ? 'bg-indigo-600 border-indigo-600 text-white' : 'bg-slate-50 border-slate-200 hover:bg-slate-100 text-slate-700'}`;
+                
+                let badgeSpan = "";
+                if (isOutlier) {
+                    badgeSpan = `<span class="px-1.5 py-0.5 text-[8px] bg-rose-100 border border-rose-200 text-rose-600 rounded">이상치</span>`;
+                }
+
+                btn.innerHTML = `<span><i class="fa-solid fa-circle-user ${s.id === activeStudentId ? 'text-white' : 'text-indigo-400'} text-[10px] mr-1"></i> ${s.id}</span> ${badgeSpan}`;
+                listBtnContainer.appendChild(btn);
+            });
+
+            setTimeout(() => {
+                renderInstructorStaticCharts();
+                selectInstructorStudent(activeStudentId);
+            }, 50);
+        }
+
+        function selectInstructorStudent(studentId) {
+            const prevBtn = document.getElementById(`ins-btn-${activeStudentId}`);
+            if (prevBtn) {
+                prevBtn.className = `p-3 rounded-xl border text-xs font-bold transition flex items-center justify-between shadow-sm bg-slate-50 border-slate-200 hover:bg-slate-100 text-slate-700`;
+                prevBtn.querySelector('i').className = "fa-solid fa-circle-user text-indigo-400 text-[10px] mr-1";
+            }
+
+            activeStudentId = studentId;
+            const currentBtn = document.getElementById(`ins-btn-${studentId}`);
+            if (currentBtn) {
+                currentBtn.className = `p-3 rounded-xl border text-xs font-bold transition flex items-center justify-between shadow-sm bg-indigo-600 border-indigo-600 text-white`;
+                currentBtn.querySelector('i').className = "fa-solid fa-circle-user text-white text-[10px] mr-1";
+            }
+
+            const s = studentsData.find(x => x.id === studentId);
+            if (!s) return;
+
+            document.getElementById('card-student-id').innerText = s.id;
+            document.getElementById('card-student-name').innerText = s.id;
+            document.getElementById('card-lms-stat').innerText = `${s.lms_cnt}회 / ${s.lms_time}분 / ${s.lms_click}클릭`;
+            document.getElementById('card-form-stat').innerText = `${s.form_score}점 (${s.form_time}초)`;
+            document.getElementById('card-test-stat').innerText = `${s.test_total}개 정답 (${s.test_q1} ${s.test_q2} ${s.test_q3} ${s.test_q4} ${s.test_q5})`;
+            document.getElementById('card-stress-stat').innerText = `${s.stress.toFixed(1)} / 5.0 (${s.signal})`;
+            document.getElementById('card-essay-content').innerText = s.essay;
+
+            const dText = diagnosisGuide[s.id];
+            const badge = document.getElementById('card-student-outlier-badge');
+            const dBox = document.getElementById('card-diagnosis-container');
+            if (dText) {
+                badge.classList.remove('hidden');
+                dBox.classList.remove('hidden');
+                document.getElementById('card-diagnosis-text').innerText = dText;
+            } else {
+                badge.classList.add('hidden');
+                dBox.classList.add('hidden');
+            }
+
+            updateRadarChart(s);
+        }
+
+        function renderInstructorStaticCharts() {
+            const barCtx = document.getElementById('testItemsChart').getContext('2d');
+            if (barChartInstance) barChartInstance.destroy();
+
+            barChartInstance = new Chart(barCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Q1(최하)', 'Q2(하) *함정*', 'Q3(중)', 'Q4(상)', 'Q5(최상)'],
+                    datasets: [{
+                        label: '문항 정답률 (%)',
+                        data: [80, 50, 80, 40, 20],
+                        backgroundColor: [
+                            'rgba(99, 102, 241, 0.7)',
+                            'rgba(244, 63, 94, 0.8)', 
+                            'rgba(99, 102, 241, 0.7)',
+                            'rgba(99, 102, 241, 0.7)',
+                            'rgba(99, 102, 241, 0.7)'
+                        ],
+                        borderColor: [
+                            '#4f46e5',
+                            '#e11d48',
+                            '#4f46e5',
+                            '#4f46e5',
+                            '#4f46e5'
+                        ],
+                        borderWidth: 1.5,
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            min: 0,
+                            max: 100,
+                            ticks: { font: { size: 9 } }
+                        },
+                        x: {
+                            ticks: { font: { size: 9 } }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateRadarChart(studentObj) {
+            const radarCtx = document.getElementById('radarChart').getContext('2d');
+            if (radarChartInstance) radarChartInstance.destroy();
+
+            const lmsNormalized = Math.min((studentObj.lms_time / 45) * 100, 100);
+            const clickNormalized = Math.min((studentObj.lms_click / 60) * 100, 100);
+            const scoreNormalized = studentObj.form_score;
+            const coopNormalized = (studentObj.coop / 5.0) * 100;
+            const interestNormalized = (studentObj.interest / 5.0) * 100;
+
+            radarChartInstance = new Chart(radarCtx, {
+                type: 'radar',
+                data: {
+                    labels: ['학습 체류시간', '상호작용 클릭', '형성평가 결과', '모둠 협업 기여', '수업 흥미도'],
+                    datasets: [{
+                        label: `${studentObj.id} 지표 분포`,
+                        data: [lmsNormalized, clickNormalized, scoreNormalized, coopNormalized, interestNormalized],
+                        backgroundColor: 'rgba(99, 102, 241, 0.2)',
+                        borderColor: '#4f46e5',
+                        borderWidth: 2,
+                        pointBackgroundColor: '#4f46e5',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: '#4f46e5'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        r: {
+                            angleLines: { display: true },
+                            suggestedMin: 0,
+                            suggestedMax: 100,
+                            ticks: { stepSize: 20, font: { size: 8 } },
+                            pointLabels: { font: { size: 9, weight: 'bold' } }
+                        }
+                    }
+                }
+            });
         }
 
         function openReportModal() {
-            document.getElementById('print-class').innerText = appState.currentClassName;
-            document.getElementById('print-group').innerText = `모둠 ${appState.currentGroupId}`;
-            document.getElementById('print-members').innerText = appState.groupWork.members.join(', ');
-            document.getElementById('print-perspective').innerText = appState.groupWork.perspective;
-            document.getElementById('print-try').innerText = appState.groupWork.overallTry;
+            document.getElementById('print-class').innerText = `클래스: ${currentClassName}`;
+            document.getElementById('print-group').innerText = `모둠: 모둠 ${currentGroupId}`;
+            
+            const today = new Date();
+            const formattedDate = today.getFullYear() + '. ' + String(today.getMonth() + 1).padStart(2, '0') + '. ' + String(today.getDate()).padStart(2, '0');
+            document.getElementById('print-date').innerText = `일시: ${formattedDate}`;
+
+            const printMembers = document.getElementById('print-members');
+            if (!groupWorkState.members || groupWorkState.members.length === 0) {
+                printMembers.innerText = "등록된 모둠 실습 구성원이 없습니다. 워크스페이스 상단에서 구성원을 추가해 주세요.";
+                printMembers.className = "text-xs text-slate-400 bg-slate-50 p-3 rounded-xl border border-slate-100 italic min-h-[40px]";
+            } else {
+                printMembers.innerText = groupWorkState.members.join(', ');
+                printMembers.className = "text-xs text-slate-800 bg-slate-50 p-3 rounded-xl border border-slate-100 font-bold min-h-[40px]";
+            }
+
+            document.getElementById('print-perspective').innerText = groupWorkState.perspective || "모둠 데이터 가설/관점이 기입되지 않았습니다.";
+            document.getElementById('print-try').innerText = groupWorkState.overallTry || "종합 성찰 대안 및 처방전(Try)이 기입되지 않았습니다.";
+
+            const pOutliersContainer = document.getElementById('print-outliers-container');
+            pOutliersContainer.innerHTML = "";
+
+            if (!groupWorkState.outliers || groupWorkState.outliers.length === 0) {
+                pOutliersContainer.innerHTML = `<p class="text-xs text-slate-400 italic bg-slate-50 p-4 rounded-xl border border-slate-100">모둠에서 개별 진단하여 추가한 특이 학생(이상치)이 아직 존재하지 않습니다.</p>`;
+            } else {
+                let tableHtml = `
+                    <table class="w-full text-left border-collapse text-xs bg-slate-50 rounded-xl overflow-hidden border border-slate-100">
+                        <thead>
+                            <tr class="bg-slate-100 text-slate-500 font-bold border-b border-slate-200">
+                                <th class="p-3 w-20">학생 ID</th>
+                                <th class="p-3">모둠의 진단 근거 및 대응 처방 (Keep-Problem-Try 기반)</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-200">
+                            ${groupWorkState.outliers.map(o => `
+                                <tr>
+                                    <td class="p-3 font-extrabold text-indigo-600">${o.studentId}</td>
+                                    <td class="p-3 text-slate-700 font-medium leading-relaxed">${o.reason}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+                pOutliersContainer.innerHTML = tableHtml;
+            }
+
             document.getElementById('report-modal').classList.remove('hidden');
         }
 
         function closeReportModal() {
             document.getElementById('report-modal').classList.add('hidden');
+        }
+
+        function showToast(message, type = "success") {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement("div");
+            toast.className = `p-4 rounded-xl border shadow-lg bg-white flex items-center gap-2 text-xs font-semibold max-w-sm pointer-events-auto transition duration-300 transform translate-y-2 opacity-0`;
+            
+            let icon = `<i class="fa-solid fa-circle-check text-emerald-500"></i>`;
+            if (type === "error") icon = `<i class="fa-solid fa-circle-exclamation text-rose-500"></i>`;
+            if (type === "info") icon = `<i class="fa-solid fa-circle-info text-sky-500"></i>`;
+
+            toast.innerHTML = `${icon} <span>${message}</span>`;
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-2', 'opacity-0');
+            }, 50);
+
+            setTimeout(() => {
+                toast.classList.add('translate-y-2', 'opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
         }
     </script>
 </body>
