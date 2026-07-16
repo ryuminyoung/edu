@@ -1,0 +1,1171 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>다차원 데이터 분석 실습 & 교육학적 솔루션 센터</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700;800&display=swap');
+    body {
+      font-family: 'Pretendard', sans-serif;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 3px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen">
+
+  <!-- 상단 네비게이션 헤더 -->
+  <header class="bg-slate-900 text-white sticky top-0 z-50 shadow-md">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <div class="flex items-center space-x-3">
+          <svg class="w-8 h-8 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+          </svg>
+          <div>
+            <h1 class="text-lg font-bold tracking-tight">EduAnalytics Pro</h1>
+            <p class="text-xs text-slate-400">다차원 학습 데이터 분석 & 솔루션 센터</p>
+          </div>
+        </div>
+        <div class="hidden md:flex space-x-4">
+          <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+            실습 데이터셋: 10인 가상 프로파일
+          </span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <!-- 대시보드 요약 정보 카드 -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+      <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
+        <div>
+          <p class="text-sm text-slate-500 font-medium">분석 대상 학생수</p>
+          <h3 class="text-2xl font-bold text-slate-900 mt-1">10 명</h3>
+          <p class="text-xs text-indigo-600 mt-1">LMS-정성-오답-정서 데이터 연계</p>
+        </div>
+        <div class="p-3 bg-indigo-50 text-indigo-600 rounded-xl">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+        </div>
+      </div>
+      <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
+        <div>
+          <p class="text-sm text-slate-500 font-medium">위험군 감지 (이상치)</p>
+          <h3 class="text-2xl font-bold class text-red-600 mt-1">4 명 <span class="text-sm font-normal text-slate-500">(40%)</span></h3>
+          <p class="text-xs text-red-500 mt-1">고불안, 무기력, 자극부족, 인지방치</p>
+        </div>
+        <div class="p-3 bg-red-50 text-red-600 rounded-xl">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+        </div>
+      </div>
+      <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
+        <div>
+          <p class="text-sm text-slate-500 font-medium">평균 형성평가 성적</p>
+          <h3 class="text-2xl font-bold text-slate-900 mt-1">68.0 점</h3>
+          <p class="text-xs text-slate-500 mt-1">최고 100점 (S03) / 최저 20점</p>
+        </div>
+        <div class="p-3 bg-emerald-50 text-emerald-600 rounded-xl">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        </div>
+      </div>
+      <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
+        <div>
+          <p class="text-sm text-slate-500 font-medium">Q2번 오개념 정답율</p>
+          <h3 class="text-2xl font-bold text-slate-900 mt-1">50.0 %</h3>
+          <p class="text-xs text-amber-600 mt-1">50%의 학생이 특정 오개념 함정에 포획됨</p>
+        </div>
+        <div class="p-3 bg-amber-50 text-amber-600 rounded-xl">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- 메인 탭 선택 -->
+    <div class="flex border-b border-slate-200 mb-6 bg-white p-2 rounded-xl shadow-sm">
+      <button onclick="switchTab('dashboard')" id="tab-dashboard-btn" class="flex-1 py-3 text-center rounded-lg font-medium text-sm transition-all duration-200 bg-slate-900 text-white shadow-sm">
+        📊 종합 입체 대시보드
+      </button>
+      <button onclick="switchTab('individual')" id="tab-individual-btn" class="flex-1 py-3 text-center rounded-lg font-medium text-sm transition-all duration-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50">
+        🎯 다차원 개별 정밀 진단
+      </button>
+      <button onclick="switchTab('outliers')" id="tab-outliers-btn" class="flex-1 py-3 text-center rounded-lg font-medium text-sm transition-all duration-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50">
+        🚨 이상치(Outlier) 집중 클리닉
+      </button>
+      <button onclick="switchTab('simulator')" id="tab-simulator-btn" class="flex-1 py-3 text-center rounded-lg font-medium text-sm transition-all duration-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50">
+        💊 맞춤형 처방 시뮬레이터
+      </button>
+    </div>
+
+    <!-- ==================== TAB 1: 종합 입체 대시보드 ==================== -->
+    <div id="tab-dashboard" class="space-y-6">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <!-- 대화형 다차원 분포 탐색기 (산점도) -->
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 lg:col-span-2">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-3">
+            <div>
+              <h3 class="font-bold text-slate-800 text-lg">다차원 데이터 교차 산점도 (이상치 자동 분류)</h3>
+              <p class="text-xs text-slate-500">원하는 X축과 Y축 변수를 매핑하여, 학업-참여-정서의 상관관계를 탐색하세요.</p>
+            </div>
+            <!-- 변수 선택 셀렉터 -->
+            <div class="flex space-x-2 text-xs">
+              <div>
+                <label class="block text-[10px] text-slate-400 font-bold mb-1">X축 변수</label>
+                <select id="scatter-x" onchange="updateScatterChart()" class="border border-slate-200 rounded-lg px-2 py-1 bg-slate-50 font-medium text-slate-700">
+                  <option value="stay">총 체류 시간 (분)</option>
+                  <option value="clicks" selected>상호작용 빈도 (클릭수)</option>
+                  <option value="visits">LMS 접속 횟수</option>
+                  <option value="video">동영상 완료율 (%)</option>
+                  <option value="interest">수업 흥미도 (5점)</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-[10px] text-slate-400 font-bold mb-1">Y축 변수</label>
+                <select id="scatter-y" onchange="updateScatterChart()" class="border border-slate-200 rounded-lg px-2 py-1 bg-slate-50 font-medium text-slate-700">
+                  <option value="formScore" selected>형성평가 점수 (100점)</option>
+                  <option value="correctCount">정기시험 정답 문항 수 (개)</option>
+                  <option value="stress">학업 스트레스 지수 (5점)</option>
+                  <option value="collab">협업 기여도 (5점)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="relative h-[360px] w-full">
+            <canvas id="scatterChart"></canvas>
+          </div>
+          <div class="mt-4 p-3 bg-indigo-50/50 rounded-xl border border-indigo-100/50 flex items-center space-x-2 text-xs text-indigo-800">
+            <svg class="w-4 h-4 text-indigo-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
+            <p><strong>시각화 가이드:</strong> 차트 상의 각 마커를 클릭하면 해당 학생의 세부 데이터를 확인할 수 있습니다. 특이한 위치의 학생(예: S03, S08)이 이상치입니다.</p>
+          </div>
+        </div>
+
+        <!-- 실시간 정서 및 행동 통계 요약 -->
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col justify-between">
+          <div>
+            <h3 class="font-bold text-slate-800 text-lg mb-1">정서·태도 위험군 분포</h3>
+            <p class="text-xs text-slate-500 mb-4">교사의 집중 개입이 필요한 상위 4개 위기 징후군</p>
+            
+            <div class="space-y-4">
+              <!-- 완벽주의/고불안 -->
+              <div class="p-3 bg-red-50/70 border border-red-100 rounded-xl">
+                <div class="flex items-center justify-between mb-1">
+                  <span class="text-sm font-bold text-red-900">완벽주의 & 과불안 위험군</span>
+                  <span class="text-xs font-semibold bg-red-100 text-red-800 px-2 py-0.5 rounded">S10</span>
+                </div>
+                <div class="w-full bg-slate-200 rounded-full h-1.5 mt-1">
+                  <div class="bg-red-500 h-1.5 rounded-full" style="width: 100%"></div>
+                </div>
+                <p class="text-[11px] text-red-700 mt-1">학업 스트레스 만점(5.0), 장시간(720초) 단일 문제 집착 및 자존감 훼손 징후</p>
+              </div>
+
+              <!-- 회피/무기력 -->
+              <div class="p-3 bg-amber-50/70 border border-amber-100 rounded-xl">
+                <div class="flex items-center justify-between mb-1">
+                  <span class="text-sm font-bold text-amber-900">과제 회피 & 무기력 위험군</span>
+                  <span class="text-xs font-semibold bg-amber-100 text-amber-800 px-2 py-0.5 rounded">S05</span>
+                </div>
+                <div class="w-full bg-slate-200 rounded-full h-1.5 mt-1">
+                  <div class="bg-amber-500 h-1.5 rounded-full" style="width: 100%"></div>
+                </div>
+                <p class="text-[11px] text-amber-700 mt-1">수업 흥미 최저(1.0), 초단시간(25초) 날림 풀이 및 무성의한 응답("ㅇㅇㅇ")</p>
+              </div>
+
+              <!-- 인지적 방치/이탈 -->
+              <div class="p-3 bg-orange-50/70 border border-orange-100 rounded-xl">
+                <div class="flex items-center justify-between mb-1">
+                  <span class="text-sm font-bold text-orange-900">체류중 학습 이탈군 (유령 학습자)</span>
+                  <span class="text-xs font-semibold bg-orange-100 text-orange-800 px-2 py-0.5 rounded">S08</span>
+                </div>
+                <div class="w-full bg-slate-200 rounded-full h-1.5 mt-1">
+                  <div class="bg-orange-500 h-1.5 rounded-full" style="width: 100%"></div>
+                </div>
+                <p class="text-[11px] text-orange-700 mt-1">체류 최장(95분)이나 클릭수 단 1회, 성적 바닥(20점), "모르겠음" 방어 반응</p>
+              </div>
+
+              <!-- 언더스티뮬레이션 -->
+              <div class="p-3 bg-blue-50/70 border border-blue-100 rounded-xl">
+                <div class="flex items-center justify-between mb-1">
+                  <span class="text-sm font-bold text-blue-900">지루함 & 학습 자극 부족군</span>
+                  <span class="text-xs font-semibold bg-blue-100 text-blue-800 px-2 py-0.5 rounded">S03</span>
+                </div>
+                <div class="w-full bg-slate-200 rounded-full h-1.5 mt-1">
+                  <div class="bg-blue-500 h-1.5 rounded-full" style="width: 100%"></div>
+                </div>
+                <p class="text-[11px] text-blue-700 mt-1">LMS 5%만 수행하고도 완벽 정답, 선행학습으로 인한 극심한 지루함 호소</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 정기 시험 반응 정오 패턴 및 문항 분석기 -->
+      <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">
+          <div>
+            <h3 class="font-bold text-slate-800 text-lg">정기시험 문항별 상세 반응 매트릭스</h3>
+            <p class="text-xs text-slate-500">학생들의 오답 유형과 문항 난이도 패턴을 정밀 분석합니다.</p>
+          </div>
+          <!-- 문항 해설 배지 -->
+          <div class="flex flex-wrap gap-2 mt-2 sm:mt-0 text-[11px]">
+            <span class="px-2 py-1 bg-slate-100 rounded text-slate-600">Q1(최하/정답 ①)</span>
+            <span class="px-2 py-1 bg-amber-100 text-amber-800 rounded font-bold">Q2(하/정답 ③ - 오개념 함정)</span>
+            <span class="px-2 py-1 bg-slate-100 rounded text-slate-600">Q3(중/정답 ④)</span>
+            <span class="px-2 py-1 bg-slate-100 rounded text-slate-600">Q4(상/정답 ②)</span>
+            <span class="px-2 py-1 bg-rose-100 text-rose-800 rounded font-bold">Q5(최상/정답 ⑤)</span>
+          </div>
+        </div>
+
+        <div class="overflow-x-auto custom-scrollbar">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="bg-slate-50 text-slate-600 text-xs uppercase font-semibold border-b border-slate-100">
+                <th class="py-3 px-4 text-center">학생 ID</th>
+                <th class="py-3 px-3 text-center">Q1</th>
+                <th class="py-3 px-3 text-center">Q2 <span class="text-[10px] text-amber-600 font-bold">(함정)</span></th>
+                <th class="py-3 px-3 text-center">Q3</th>
+                <th class="py-3 px-3 text-center">Q4</th>
+                <th class="py-3 px-3 text-center">Q5 <span class="text-[10px] text-rose-600 font-bold">(최고난도)</span></th>
+                <th class="py-3 px-4 text-center">총 정답 수</th>
+                <th class="py-3 px-4">오답 패턴 특징 분석</th>
+              </tr>
+            </thead>
+            <tbody id="exam-matrix-body" class="divide-y divide-slate-100 text-xs">
+              <!-- 자바스크립트로 동적 렌더링 -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ==================== TAB 2: 다차원 개별 정밀 진단 ==================== -->
+    <div id="tab-individual" class="space-y-6 hidden">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <!-- 학생 선택 및 프로필 요약 카드 -->
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col justify-between">
+          <div>
+            <h3 class="font-bold text-slate-800 text-lg mb-1">정밀 분석 대상 선정</h3>
+            <p class="text-xs text-slate-500 mb-4">자세히 탐색하고 싶은 학생 ID를 아래 드롭다운에서 선택하세요.</p>
+            
+            <div class="mb-5">
+              <label class="block text-xs text-slate-400 font-bold mb-1.5">대상 학생 선택</label>
+              <select id="student-selector" onchange="renderIndividualAnalysis()" class="w-full border-2 border-indigo-100 rounded-xl px-3 py-2 bg-indigo-50/30 font-semibold text-slate-800 text-sm focus:outline-none focus:border-indigo-500">
+                <!-- S01 ~ S10 동적 생성 -->
+              </select>
+            </div>
+
+            <div class="border-t border-slate-100 pt-4 space-y-3" id="profile-summary">
+              <!-- 학생 기본 통계 동적 렌더링 -->
+            </div>
+          </div>
+
+          <div class="mt-6 pt-4 border-t border-slate-100">
+            <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">실시간 관찰 정서 신호</h4>
+            <div id="emotional-signal-badge" class="p-3 bg-indigo-50 rounded-xl text-xs font-semibold text-indigo-900 border border-indigo-100">
+              <!-- 정서 신호 -->
+            </div>
+          </div>
+        </div>
+
+        <!-- 레이더 차트 시각화 -->
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+          <h3 class="font-bold text-slate-800 text-lg mb-1">다차원 역량 육각형 진단</h3>
+          <p class="text-xs text-slate-500 mb-4">참여도, 성취도, 흥미, 정서(안정성), 협업 성향을 5차원으로 진단한 모델입니다.</p>
+          <div class="relative h-[280px] flex items-center justify-center">
+            <canvas id="radarChart"></canvas>
+          </div>
+        </div>
+
+        <!-- 서술형 주관식 및 미시 행동 정성 데이터 분석 -->
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <h3 class="font-bold text-slate-800 text-lg">미시 행동 및 정성 정답 데이터</h3>
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700" id="qual-q5-badge">Q5: -</span>
+            </div>
+            <p class="text-xs text-slate-500 mb-4">서술형 텍스트 길이, 문항 풀이 소요 시간 등을 매칭하여 질적 행동을 해석합니다.</p>
+            
+            <div class="space-y-3 text-xs">
+              <div class="grid grid-cols-2 gap-2">
+                <div class="p-2 bg-slate-50 rounded-lg">
+                  <span class="block text-[10px] text-slate-400 font-semibold">총 시험 소요시간</span>
+                  <strong class="text-slate-800 text-sm" id="qual-total-time">0초</strong>
+                </div>
+                <div class="p-2 bg-slate-50 rounded-lg">
+                  <span class="block text-[10px] text-slate-400 font-semibold">5번 문항 풀이 시간</span>
+                  <strong class="text-slate-800 text-sm" id="qual-q5-time">0초</strong>
+                </div>
+              </div>
+
+              <div class="p-3 bg-indigo-50/40 rounded-xl border border-indigo-100/50">
+                <div class="flex items-center justify-between mb-1.5">
+                  <span class="text-[10px] text-indigo-700 font-bold">작성한 주관식 답변 (글자 수: <span id="qual-desc-len">0</span>자)</span>
+                </div>
+                <p class="text-slate-800 font-medium leading-relaxed italic bg-white p-2 rounded border border-indigo-100" id="qual-desc-content">
+                  "답변이 여기에 표시됩니다."
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-4 pt-4 border-t border-slate-100">
+            <h4 class="text-xs font-bold text-slate-600 mb-1">🎯 인지 행동 분석 메모:</h4>
+            <p class="text-xs text-slate-500 leading-relaxed" id="cognitive-notes">
+              로딩 중...
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 이 학생에 대한 교육학적 맞춤형 교사 피드백 및 전략 가이드 -->
+      <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+        <div class="flex items-center space-x-2 text-indigo-600 mb-3">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg>
+          <h3 class="font-bold text-slate-800 text-lg">맞춤형 지도 처방 가이드 (Pedagogical Strategy)</h3>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
+          <div class="space-y-3">
+            <h4 class="font-bold text-slate-700 border-b border-slate-100 pb-2">💡 교수적 피드백 전략</h4>
+            <p class="text-xs text-slate-600 leading-relaxed" id="pedagogical-feedback">
+              로딩 중...
+            </p>
+          </div>
+          <div class="space-y-3">
+            <h4 class="font-bold text-slate-700 border-b border-slate-100 pb-2">🛠️ 추천 추천 교재 및 처방 액션</h4>
+            <ul class="text-xs text-slate-600 space-y-2 list-disc pl-4" id="pedagogical-actions">
+              <li>로딩 중...</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ==================== TAB 3: 이상치 집중 클리닉 ==================== -->
+    <div id="tab-outliers" class="space-y-6 hidden">
+      <div class="bg-indigo-900 text-white p-6 rounded-2xl shadow-md">
+        <h2 class="text-xl font-bold mb-2">이상치(Outlier) 분류 기반 집중 학습자 클리닉</h2>
+        <p class="text-xs text-indigo-200 leading-relaxed">
+          이 데이터셋에서 발견되는 4가지 극단적 이상치는 표준 학습 모델에서 벗어나 있어, 단순히 '평균적 수업'을 제공할 경우 반드시 이탈하거나 방치될 대상입니다. 각 특성에 맞는 교육 설계적 혁신 솔루션을 제시합니다.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Outlier 1: S03 선행 지루함군 -->
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-l-4 border-l-blue-500 border-slate-100 flex flex-col justify-between">
+          <div>
+            <div class="flex justify-between items-start mb-3">
+              <div>
+                <span class="text-xs font-bold text-blue-600 tracking-wider uppercase">Type A: 학습 자극 부족 (지루함군)</span>
+                <h3 class="text-lg font-bold text-slate-900 mt-1">S03: 선행형 언더스티뮬레이션 아웃라이어</h3>
+              </div>
+              <span class="bg-blue-100 text-blue-800 text-xs font-bold px-2 py-1 rounded">성적 상 / 참여 극하</span>
+            </div>
+            
+            <div class="bg-slate-50 p-3 rounded-xl mb-4 text-xs">
+              <p class="text-slate-700 leading-relaxed font-medium">
+                "이미 학원에서 배운 내용이라 막힘없이 풀었습니다." (수강 완료율 5%, 총 체류시간 1분, 시험 점수 100점 만점)
+              </p>
+            </div>
+
+            <div class="space-y-2 text-xs text-slate-600 mb-6">
+              <p><strong>진단(Pedagogical Diagnosis):</strong> 지적 수준에 비해 제공되는 학습 자료의 자극 강도가 너무 낮아 학습 몰입감이 극히 저하된 상태입니다. 방치될 경우 무단 이탈이나 교실 내 무력 행사를 유발할 수 있습니다.</p>
+              <p><strong>처방(Intervention Strategy):</strong> 교육과정 압축(Compacting)을 적용하고 심화 개별 탐구과제, 프로젝트 설계 기회, 혹은 급우 튜터링 역할을 부여하여 고차원적 인지적 자극을 공급합니다.</p>
+            </div>
+          </div>
+          <button onclick="goToStudentAnalysis('S03')" class="w-full text-center py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold transition-colors">
+            S03 정밀 프로필 분석 보기 &rarr;
+          </button>
+        </div>
+
+        <!-- Outlier 2: S10 완벽주의 고불안군 -->
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-l-4 border-l-red-500 border-slate-100 flex flex-col justify-between">
+          <div>
+            <div class="flex justify-between items-start mb-3">
+              <div>
+                <span class="text-xs font-bold text-red-600 tracking-wider uppercase">Type B: 고불안 / 완벽주의형 과적합</span>
+                <h3 class="text-lg font-bold text-slate-900 mt-1">S10: 수행 불안 및 극단적 노력 과적합</h3>
+              </div>
+              <span class="bg-red-100 text-red-800 text-xs font-bold px-2 py-1 rounded">스트레스 5.0 / 평가 극단</span>
+            </div>
+            
+            <div class="bg-slate-50 p-3 rounded-xl mb-4 text-xs">
+              <p class="text-slate-700 leading-relaxed font-medium">
+                "9분 넘게 붙잡고 고민했는데 결국 틀렸네요. 자존심 상해요." (총 시험 시간 12분 중 5번에만 9분 사용, 오답)
+              </p>
+            </div>
+
+            <div class="space-y-2 text-xs text-slate-600 mb-6">
+              <p><strong>진단(Pedagogical Diagnosis):</strong> 학업적 흥미도와 참여도(3 visits, 40m)는 우수하지만, 극단적인 완벽주의 성향으로 인해 작은 실패에 격한 정서적 충격(자존감 상실)을 느끼는 초고위험 정서군입니다.</p>
+              <p><strong>처방(Intervention Strategy):</strong> '정답 여부'보다 '시도와 개선 과정'을 칭찬하는 과정 중심 평가를 제공합니다. 또한 '타임박스 기법'을 도입하여 무모한 몰입을 방지하고 실패를 성장의 발판으로 받아들일 수 있는 심리적 안전감을 마련해 줍니다.</p>
+            </div>
+          </div>
+          <button onclick="goToStudentAnalysis('S10')" class="w-full text-center py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold transition-colors">
+            S10 정밀 프로필 분석 보기 &rarr;
+          </button>
+        </div>
+
+        <!-- Outlier 3: S05 능동적 회피/무기력군 -->
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-l-4 border-l-amber-500 border-slate-100 flex flex-col justify-between">
+          <div>
+            <div class="flex justify-between items-start mb-3">
+              <div>
+                <span class="text-xs font-bold text-amber-600 tracking-wider uppercase">Type C: 자포자기형 과제 회피</span>
+                <h3 class="text-lg font-bold text-slate-900 mt-1">S05: 능동적 학업 거부자 (초속 찍기)</h3>
+              </div>
+              <span class="bg-amber-100 text-amber-800 text-xs font-bold px-2 py-1 rounded">흥미 최저 / 성치 극하</span>
+            </div>
+            
+            <div class="bg-slate-50 p-3 rounded-xl mb-4 text-xs">
+              <p class="text-slate-700 leading-relaxed font-medium">
+                "ㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇ" (시험 총 소요 시간 단 25초, 서술형 의미 불명 타이핑, 20점)
+              </p>
+            </div>
+
+            <div class="space-y-2 text-xs text-slate-600 mb-6">
+              <p><strong>진단(Pedagogical Diagnosis):</strong> 자아 효능감이 바닥을 치는 상태에서 문제를 풀지 않고 찍어 넘김으로써 실패에 대한 정서적 충격을 원천 봉쇄하는 '전형적 회피성 무기력' 반응입니다.</p>
+              <p><strong>처방(Intervention Strategy):</strong> 실패할 수 없는 극단적으로 쉬운 한 단계(Micro-step)의 학습 성공 경험을 맛보여야 합니다. 텍스트 위주 대신 흥미로운 영상이나 게이미피케이션 요소를 도입하여 성취 자극을 조금씩 회복시킵니다.</p>
+            </div>
+          </div>
+          <button onclick="goToStudentAnalysis('S05')" class="w-full text-center py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold transition-colors">
+            S05 정밀 프로필 분석 보기 &rarr;
+          </button>
+        </div>
+
+        <!-- Outlier 4: S08 수동적 방치/이탈군 -->
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-l-4 border-l-orange-500 border-slate-100 flex flex-col justify-between">
+          <div>
+            <div class="flex justify-between items-start mb-3">
+              <div>
+                <span class="text-xs font-bold text-orange-600 tracking-wider uppercase">Type D: 은밀한 유령 학습자 (이탈군)</span>
+                <h3 class="text-lg font-bold text-slate-900 mt-1">S08: 장기 체류 비활동성 수동 탈락자</h3>
+              </div>
+              <span class="bg-orange-100 text-orange-800 text-xs font-bold px-2 py-1 rounded">시간 극대 / 상호작용 제로</span>
+            </div>
+            
+            <div class="bg-slate-50 p-3 rounded-xl mb-4 text-xs">
+              <p class="text-slate-700 leading-relaxed font-medium">
+                "모르겠음" (LMS 체류 시간 95분 최장, 동영상 완료율 10%, 클릭수 1회, 20점)
+              </p>
+            </div>
+
+            <div class="space-y-2 text-xs text-slate-600 mb-6">
+              <p><strong>진단(Pedagogical Diagnosis):</strong> 화면만 켜둔 채 인지적으로 완전히 교실을 떠난 상태(Passive Disengaged)입니다. 장시간 온라인 플랫폼에 로그인되어 있어 정밀 행동 패턴(클릭 수)을 추출하기 전엔 교사가 파악하기 가장 힘든 수동적 이탈 상태입니다.</p>
+              <p><strong>처방(Intervention Strategy):</strong> 플랫폼 내 실시간 상호작용 질문 팝업이나 중간 퀴즈를 탑재하여 오프라인 이탈을 원천 감지해야 합니다. 오프라인과 연계하여 1:1 상담 및 오프라인 조별 활동의 저난이도 단순 역할 부여가 권장됩니다.</p>
+            </div>
+          </div>
+          <button onclick="goToStudentAnalysis('S08')" class="w-full text-center py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold transition-colors">
+            S08 정밀 프로필 분석 보기 &rarr;
+          </button>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ==================== TAB 4: 맞춤형 처방 시뮬레이터 ==================== -->
+    <div id="tab-simulator" class="space-y-6 hidden">
+      <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+        <h2 class="text-lg font-bold text-slate-800 mb-1">교사용 학습 처방 및 피드백 시뮬레이터</h2>
+        <p class="text-xs text-slate-500 mb-6">가상 학생의 데이터를 임의로 조절하거나 이상치 성향을 지정하여 가장 효과적인 교육학적 개입 및 즉시 전송 가능한 메시지를 실시간 생성합니다.</p>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <!-- 좌측: 시뮬레이션 제어 패널 -->
+          <div class="lg:col-span-5 bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-4">
+            <h3 class="font-bold text-sm text-slate-700 border-b border-slate-200 pb-2">🎛️ 학생 행동 변수 조정</h3>
+
+            <div>
+              <label class="block text-xs font-bold text-slate-600 mb-1">학습 유형 신속 템플릿 로드</label>
+              <div class="grid grid-cols-2 gap-2 text-xs">
+                <button onclick="loadSimPreset('s03')" class="py-1.5 px-2 bg-blue-100 text-blue-800 font-bold rounded-lg border border-blue-200 hover:bg-blue-200 transition-colors">지루한 우등생 (S03)</button>
+                <button onclick="loadSimPreset('s10')" class="py-1.5 px-2 bg-red-100 text-red-800 font-bold rounded-lg border border-red-200 hover:bg-red-200 transition-colors">초고불안 노력형 (S10)</button>
+                <button onclick="loadSimPreset('s05')" class="py-1.5 px-2 bg-amber-100 text-amber-800 font-bold rounded-lg border border-amber-200 hover:bg-amber-200 transition-colors">자포자기 회피형 (S05)</button>
+                <button onclick="loadSimPreset('s08')" class="py-1.5 px-2 bg-orange-100 text-orange-800 font-bold rounded-lg border border-orange-200 hover:bg-orange-200 transition-colors">은밀한 이탈형 (S08)</button>
+              </div>
+            </div>
+
+            <div class="space-y-3 pt-2">
+              <div>
+                <div class="flex justify-between text-xs font-semibold mb-1">
+                  <span>정기시험 성취도</span>
+                  <span id="sim-val-score">3개 맞춤</span>
+                </div>
+                <input type="range" id="sim-score" min="0" max="5" step="1" value="3" oninput="runSimulation()" class="w-full accent-indigo-600">
+              </div>
+
+              <div>
+                <div class="flex justify-between text-xs font-semibold mb-1">
+                  <span>온라인 학습 참여도 (체류 시간/클릭 수)</span>
+                  <span id="sim-val-engagement">보통 (30)</span>
+                </div>
+                <input type="range" id="sim-engagement" min="1" max="100" value="30" oninput="runSimulation()" class="w-full accent-indigo-600">
+              </div>
+
+              <div>
+                <div class="flex justify-between text-xs font-semibold mb-1">
+                  <span>정서적 스트레스 수준</span>
+                  <span id="sim-val-stress">보통 (2.0)</span>
+                </div>
+                <input type="range" id="sim-stress" min="1" max="5" step="0.5" value="2" oninput="runSimulation()" class="w-full accent-indigo-600">
+              </div>
+
+              <div>
+                <label class="block text-xs font-bold text-slate-600 mb-1">주요 주관식 반응 태도</label>
+                <select id="sim-text-type" onchange="runSimulation()" class="w-full border border-slate-200 rounded-lg px-2 py-1.5 bg-white text-xs text-slate-700">
+                  <option value="positive">"재미있고 이해가 잘 됩니다" (적극 긍정)</option>
+                  <option value="bored">"학원서 다 배워서 다 아는 내용입니다" (지루함 표출)</option>
+                  <option value="anxious">"틀릴까 봐 자존심 상하고 너무 헷갈립니다" (높은 긴장감)</option>
+                  <option value="no-input">"모르겠음 / 성의 없는 글자 나열" (회피/무성의)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- 우측: AI 기반 처방 및 피드백 생성 -->
+          <div class="lg:col-span-7 space-y-4">
+            <div class="bg-indigo-50 border border-indigo-100 p-4 rounded-2xl">
+              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-200 text-indigo-900 mb-2">실시간 자동 처방 결과</span>
+              <h3 class="font-bold text-slate-800 text-base" id="sim-diagnosis-title">위험 진단 결과가 로딩됩니다.</h3>
+              <p class="text-xs text-slate-600 mt-1 leading-relaxed" id="sim-diagnosis-desc">슬라이더를 만지면 처방 알고리즘이 실시간 작동합니다.</p>
+            </div>
+
+            <!-- 교사 가이드 및 행동 플랜 -->
+            <div class="bg-white border border-slate-200 p-5 rounded-2xl">
+              <h4 class="font-bold text-slate-800 text-sm mb-2 flex items-center">
+                <span class="mr-1.5">🎓</span> 교수 설계적 처방 가이드 (Pedagogical Action)
+              </h4>
+              <ul class="text-xs text-slate-600 space-y-2 list-disc pl-4" id="sim-action-list">
+                <li>데이터에 따라 교실에서 바로 실행 가능한 팁이 바뀝니다.</li>
+              </ul>
+            </div>
+
+            <!-- 전송용 맞춤형 피드백 메일/쪽지 템플릿 -->
+            <div class="bg-slate-900 text-slate-100 p-5 rounded-2xl relative">
+              <div class="flex justify-between items-center mb-2">
+                <span class="text-xs font-semibold tracking-wider text-slate-400 uppercase">바로 활용할 수 있는 학생 맞춤형 쪽지 피드백</span>
+                <button onclick="copyFeedbackTemplate()" class="bg-slate-800 hover:bg-indigo-600 text-white text-xs px-2.5 py-1 rounded-md transition-colors flex items-center">
+                  <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
+                  복사하기
+                </button>
+              </div>
+              <div class="bg-slate-950 p-4 rounded-xl font-mono text-xs leading-relaxed text-indigo-300 select-all border border-slate-800" id="sim-feedback-box">
+                <!-- 복사할 수 있는 텍스트 -->
+              </div>
+              <div id="copy-toast" class="hidden absolute top-2 right-2 bg-emerald-500 text-white text-xs px-2.5 py-1 rounded shadow-md">
+                복사되었습니다!
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <footer class="bg-slate-900 text-slate-400 py-8 mt-12 border-t border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-xs">
+      <p>© 2026 EduAnalytics Pro - 다차원 학습 데이터 분석 실습용 교육학 알고리즘 엔진 데모</p>
+      <p class="mt-1 text-slate-600">교수 설계 모델: 문항 반응(IRT) 결합 다차원 행동 탐지 및 피드백 시뮬레이션</p>
+    </div>
+  </footer>
+
+  <!-- 자바스크립트 로직 시작 -->
+  <script>
+    // 10인의 결합 가상 데이터셋 구조화
+    const students = [
+      { id: "S01", visits: 2, stay: 35, clicks: 45, video: 100, formScore: 80, testTime: 320, q5Time: 85, q5Correct: "O", descLength: 42, descContent: "오늘 배운 내용을 시각 자료와 함께 확인해서 쉽게 이해되었습니다.", exam: [1, 3, 4, 2, 4], correctCount: 4, interest: 4.0, collab: 4.0, stress: 2.0, emotion: "안정적이고 차분함" },
+      { id: "S02", visits: 3, stay: 42, clicks: 58, video: 100, formScore: 90, testTime: 280, q5Time: 90, q5Correct: "O", descLength: 58, descContent: "어려웠던 인과 관계 그래프를 직접 분석해보는 과정이 꽤 흥미로웠습니다.", exam: [1, 3, 4, 2, 3], correctCount: 4, interest: 5.0, collab: 5.0, stress: 2.0, emotion: "배움에 대한 성취감" },
+      { id: "S03", visits: 1, stay: 1,  clicks: 2,  video: 5,   formScore: 100,testTime: 90,  q5Time: 10, q5Correct: "O", descLength: 35, descContent: "이미 학원에서 다 배운 아는 내용이라 막힘없이 쉽게 다 풀었습니다.", exam: [1, 3, 4, 2, 5], correctCount: 5, interest: 2.0, collab: 2.0, stress: 1.0, emotion: "지루함 및 언더스티뮬레이션(자극 부족)" },
+      { id: "S04", visits: 2, stay: 31, clicks: 38, video: 90,  formScore: 70, testTime: 350, q5Time: 110,q5Correct: "O", descLength: 31, descContent: "실습할 때 헷갈리는 부분이 있었지만 재미있었어요.", exam: [1, 5, 4, 1, 3], correctCount: 2, interest: 4.0, collab: 3.0, stress: 2.0, emotion: "평온하고 무난함" },
+      { id: "S05", visits: 2, stay: 15, clicks: 12, video: 100, formScore: 20, testTime: 25,  q5Time: 2,  q5Correct: "X", descLength: 12, descContent: "ㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇ", exam: [3, 5, 2, 1, 5], correctCount: 1, interest: 1.0, collab: 1.2, stress: 1.5, emotion: "무기력 및 과제 회피 경향성 강함" },
+      { id: "S06", visits: 2, stay: 28, clicks: 32, video: 85,  formScore: 60, testTime: 310, q5Time: 85, q5Correct: "X", descLength: 75, descContent: "ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ", exam: [1, 3, 4, 3, 2], correctCount: 3, interest: 4.0, collab: 2.0, stress: 1.0, emotion: "과도한 들뜸 및 주의 산만" },
+      { id: "S07", visits: 2, stay: 27, clicks: 31, video: 90,  formScore: 60, testTime: 380, q5Time: 125,q5Correct: "X", descLength: 33, descContent: "5번 빼고는 다 괜찮았는데, 5번이 제일 어렵네요.", exam: [1, 5, 4, 3, 1], correctCount: 2, interest: 3.0, collab: 3.0, stress: 3.0, emotion: "개념 적용에 대한 걱정 신호 관찰" },
+      { id: "S08", visits: 1, stay: 95, clicks: 1,  video: 10,  formScore: 20, testTime: 450, q5Time: 120,q5Correct: "X", descLength: 5,  descContent: "모르겠음", exam: [4, 2, 1, 3, 4], correctCount: 0, interest: 1.0, collab: 1.0, stress: 1.2, emotion: "배움에 대한 무관심 및 심리적 철수(Escape)" },
+      { id: "S09", visits: 2, stay: 30, clicks: 40, video: 90,  formScore: 70, testTime: 340, q5Time: 105,q5Correct: "O", descLength: 38, descContent: "전체적으로 무난했고 실습 활동이 조금 더 길었으면 좋겠습니다.", exam: [1, 5, 4, 2, 3], correctCount: 3, interest: 4.0, collab: 4.0, stress: 2.0, emotion: "긍정적이고 모범적인 태도" },
+      { id: "S10", visits: 3, stay: 40, clicks: 45, video: 100, formScore: 70, testTime: 720, q5Time: 540,q5Correct: "X", descLength: 71, descContent: "5번 문제 표에서 변인 통제 조건이 너무 헷갈렸어요. 9분 넘게 붙잡고 고민했는데 결국 틀렸네요. 자존심 상해요.", exam: [1, 3, 4, 1, 1], correctCount: 3, interest: 5.0, collab: 4.0, stress: 5.0, emotion: "과도한 불안감 및 완벽주의 성향 (실패에 과민 반응)" }
+    ];
+
+    // 차트 객체 전역 저장소 (리렌더링 시 기존 차트 destory용)
+    let scatterChartInstance = null;
+    let radarChartInstance = null;
+
+    // 초기 화면 부하
+    window.onload = function() {
+      renderDashboardMatrix();
+      initScatterChart();
+      initStudentSelector();
+      renderIndividualAnalysis();
+      runSimulation();
+    };
+
+    // 탭 스위칭
+    function switchTab(tabId) {
+      const tabs = ['dashboard', 'individual', 'outliers', 'simulator'];
+      tabs.forEach(t => {
+        document.getElementById(`tab-${t}`).classList.add('hidden');
+        document.getElementById(`tab-${t}-btn`).className = "flex-1 py-3 text-center rounded-lg font-medium text-sm transition-all duration-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50";
+      });
+
+      document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+      document.getElementById(`tab-${tabId}-btn`).className = "flex-1 py-3 text-center rounded-lg font-medium text-sm transition-all duration-200 bg-slate-900 text-white shadow-sm";
+
+      if (tabId === 'individual') {
+        setTimeout(() => { renderIndividualAnalysis(); }, 100);
+      } else if (tabId === 'dashboard') {
+        setTimeout(() => { updateScatterChart(); }, 100);
+      }
+    }
+
+    // 종합 대시보드 정기 시험 테이블 생성
+    function renderDashboardMatrix() {
+      const tbody = document.getElementById('exam-matrix-body');
+      tbody.innerHTML = '';
+
+      students.forEach(s => {
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-slate-50/80 transition-colors border-b border-slate-100";
+
+        // 정오 판단에 따른 컬러링 헬퍼
+        const getQBadge = (index, ans, key) => {
+          const isCorrect = ans === key;
+          const label = index === 1 ? '①' : index === 2 ? '③' : index === 3 ? '④' : index === 4 ? '②' : '⑤';
+          
+          if (isCorrect) {
+            return `<span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-emerald-50 text-emerald-700 font-bold border border-emerald-200">O<span class="text-[9px] font-normal block ml-0.5">${label}</span></span>`;
+          } else {
+            const displayAns = ans === 1 ? '①' : ans === 2 ? '②' : ans === 3 ? '③' : ans === 4 ? '④' : '⑤';
+            // 오개념 함정(Q2에서 3번이 정답인데 5번이나 오답을 많이 찍었는지, 특히 함정 유도 분석)
+            const isTrap = index === 2 && ans === 5; // 실제 S04, S05, S07, S09 가 5번(오개념 함정) 선택
+            const borderCol = isTrap ? 'border-amber-300 bg-amber-50 text-amber-800' : 'border-rose-200 bg-rose-50 text-rose-700';
+            return `<span class="inline-flex flex-col items-center justify-center w-8 h-8 rounded-full ${borderCol} font-bold border">X<span class="text-[9px] font-semibold block leading-none">${displayAns}</span></span>`;
+          }
+        };
+
+        // 오답 분석 및 인지적 오개념 특징 텍스트 생성
+        let diagnosticNote = "";
+        if (s.id === "S01") diagnosticNote = "최상난이도 Q5에서 함정 보기 ④에 빠짐. 4번 문항까지 완벽 적용.";
+        else if (s.id === "S02") diagnosticNote = "Q5에서 완벽한 주관식 설명에도 불구하고 문항 풀이에서 인과관계 그래프 실수(③ 선택).";
+        else if (s.id === "S03") diagnosticNote = "모든 난이도를 최단 시간 돌파하며 만점 취득. 완성형 인지 구조.";
+        else if (s.id === "S04") diagnosticNote = "Q2 오개념 함정(⑤)과 Q4 최상위 적용 모두 실패. 개념 골격 형성 중.";
+        else if (s.id === "S05") diagnosticNote = "정답수 1개. 정상적인 응답으로 보기 힘듦. 대부분 찍은 패턴.";
+        else if (s.id === "S06") diagnosticNote = "Q4, Q5 고차 적용 문제에서 완전히 이탈. 최하~중간 난이도는 정확히 마스터.";
+        else if (s.id === "S07") diagnosticNote = "Q2 오개념 함정에 빠지고 최상난이도 적용 실패. 개념 적용 한계 호소.";
+        else if (s.id === "S08") diagnosticNote = "모든 문항 오답. 문항을 정밀하게 검토하지 않고 임의 선택한 이탈 정형.";
+        else if (s.id === "S09") diagnosticNote = "Q2 오개념 함정에 빠졌으나 Q4 고급 적용은 성취. 개념 부분적 오개념화.";
+        else if (s.id === "S10") diagnosticNote = "Q4 적용 실패, Q5에서 오랜 방황 후 극도 불안 속 오답 ① 선택.";
+
+        tr.innerHTML = `
+          <td class="py-3 px-4 font-bold text-slate-900 text-center">${s.id}</td>
+          <td class="py-3 px-3 text-center">${getQBadge(1, s.exam[0], 1)}</td>
+          <td class="py-3 px-3 text-center">${getQBadge(2, s.exam[1], 3)}</td>
+          <td class="py-3 px-3 text-center">${getQBadge(3, s.exam[2], 4)}</td>
+          <td class="py-3 px-3 text-center">${getQBadge(4, s.exam[3], 2)}</td>
+          <td class="py-3 px-3 text-center">${getQBadge(5, s.exam[4], 5)}</td>
+          <td class="py-3 px-4 text-center font-extrabold text-slate-800 text-sm">${s.correctCount} / 5</td>
+          <td class="py-3 px-4 text-slate-500 font-medium">${diagnosticNote}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // 산점도 차트 초기화
+    function initScatterChart() {
+      const ctx = document.getElementById('scatterChart').getContext('2d');
+      
+      const chartData = getScatterDatasets();
+
+      scatterChartInstance = new Chart(ctx, {
+        type: 'scatter',
+        data: {
+          datasets: chartData
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'top',
+              labels: {
+                usePointStyle: true,
+                boxWidth: 8,
+                font: { size: 10, family: 'Pretendard' }
+              }
+            },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  const s = students[context.dataIndex];
+                  return `[${s.id}] 정서: ${s.emotion} | X: ${context.parsed.x}, Y: ${context.parsed.y}`;
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              title: { display: true, text: '선택 X축 값', font: { size: 11, weight: 'bold', family: 'Pretendard' } },
+              grid: { color: '#f1f5f9' }
+            },
+            y: {
+              title: { display: true, text: '선택 Y축 값', font: { size: 11, weight: 'bold', family: 'Pretendard' } },
+              grid: { color: '#f1f5f9' }
+            }
+          },
+          onClick: (e) => {
+            const points = scatterChartInstance.getElementsAtEventForMode(e, 'nearest', { intersect: true }, true);
+            if (points.length) {
+              const clickedIdx = points[0].index;
+              const studentId = students[clickedIdx].id;
+              goToStudentAnalysis(studentId);
+            }
+          }
+        }
+      });
+    }
+
+    // 산점도에 주입할 동적 데이터 세트 추출
+    function getScatterDatasets() {
+      const xKey = document.getElementById('scatter-x').value;
+      const yKey = document.getElementById('scatter-y').value;
+
+      // 차트 라벨 번역
+      const labelMap = {
+        stay: "총 체류 시간 (분)", clicks: "클릭수 (회)", visits: "접속 횟수 (회)", video: "동영상 완료율 (%)", interest: "수업 흥미도",
+        formScore: "형성평가 점수", correctCount: "정기시험 맞춘 문항", stress: "스트레스 지수", collab: "협업 기여도"
+      };
+
+      // 범주별로 다른 마커 색상 지정 (일반군 vs 이상치군 분리 시각화)
+      const dataPoints = students.map(s => {
+        let isOutlier = ["S03", "S05", "S08", "S10"].includes(s.id);
+        return {
+          x: s[xKey],
+          y: s[yKey],
+          id: s.id,
+          isOutlier: isOutlier
+        };
+      });
+
+      return [
+        {
+          label: '이상치 고위험군 (S03, S05, S08, S10)',
+          data: dataPoints.filter(p => p.isOutlier),
+          backgroundColor: '#ef4444',
+          borderColor: '#dc2626',
+          pointRadius: 8,
+          pointHoverRadius: 10,
+          pointStyle: 'triangle'
+        },
+        {
+          label: '안정 성장군 (S01, S02, S04, S06, S07, S09)',
+          data: dataPoints.filter(p => !p.isOutlier),
+          backgroundColor: '#3b82f6',
+          borderColor: '#1d4ed8',
+          pointRadius: 6,
+          pointHoverRadius: 8,
+          pointStyle: 'circle'
+        }
+      ];
+    }
+
+    // 산점도 업데이트
+    function updateScatterChart() {
+      if (!scatterChartInstance) return;
+      const xKey = document.getElementById('scatter-x').value;
+      const yKey = document.getElementById('scatter-y').value;
+      
+      const labelMap = {
+        stay: "총 체류 시간 (분)", clicks: "클릭수 (회)", visits: "접속 횟수 (회)", video: "동영상 완료율 (%)", interest: "수업 흥미도",
+        formScore: "형성평가 점수 (점)", correctCount: "정기시험 정답 수 (개)", stress: "스트레스 지수", collab: "협업 기여도"
+      };
+
+      const newDatasets = getScatterDatasets();
+      scatterChartInstance.data.datasets = newDatasets;
+      scatterChartInstance.options.scales.x.title.text = labelMap[xKey];
+      scatterChartInstance.options.scales.y.title.text = labelMap[yKey];
+      scatterChartInstance.update();
+    }
+
+    // 개별 분석 대상 셀렉터 초기화
+    function initStudentSelector() {
+      const selector = document.getElementById('student-selector');
+      selector.innerHTML = '';
+      students.forEach(s => {
+        const option = document.createElement('option');
+        option.value = s.id;
+        option.textContent = `${s.id} (정서: ${s.emotion.substring(0, 15)}...)`;
+        selector.appendChild(option);
+      });
+    }
+
+    // 이상치 카드에서 클릭 시 해당 학생 정밀진단으로 점프
+    function goToStudentAnalysis(studentId) {
+      document.getElementById('student-selector').value = studentId;
+      switchTab('individual');
+    }
+
+    // 개별 정밀 진단 탭 렌더링
+    function renderIndividualAnalysis() {
+      const studentId = document.getElementById('student-selector').value;
+      const s = students.find(item => item.id === studentId);
+      if (!s) return;
+
+      // 1. 프로필 요약 카드 데이터 교체
+      const profileCard = document.getElementById('profile-summary');
+      profileCard.innerHTML = `
+        <div class="flex justify-between items-center text-xs">
+          <span class="text-slate-400 font-bold">LMS 총 접속 시간</span>
+          <span class="font-extrabold text-slate-800">${s.stay}분 / ${s.clicks}회 클릭</span>
+        </div>
+        <div class="flex justify-between items-center text-xs">
+          <span class="text-slate-400 font-bold">LMS 완료율</span>
+          <span class="font-extrabold text-slate-800">${s.video}% 수강</span>
+        </div>
+        <div class="flex justify-between items-center text-xs">
+          <span class="text-slate-400 font-bold">형성평가 결과</span>
+          <span class="font-extrabold text-emerald-600">${s.formScore}점 (100점 만점)</span>
+        </div>
+        <div class="flex justify-between items-center text-xs">
+          <span class="text-slate-400 font-bold">정기시험 결과</span>
+          <span class="font-extrabold text-indigo-600">${s.correctCount}문항 해결 (5문항 중)</span>
+        </div>
+        <div class="flex justify-between items-center text-xs">
+          <span class="text-slate-400 font-bold">수업 흥미도 / 협업력</span>
+          <span class="font-extrabold text-slate-800">${s.interest.toFixed(1)} / ${s.collab.toFixed(1)}</span>
+        </div>
+        <div class="flex justify-between items-center text-xs">
+          <span class="text-slate-400 font-bold">인지 스트레스 수준</span>
+          <span class="font-extrabold text-rose-600">${s.stress.toFixed(1)} / 5.0</span>
+        </div>
+      `;
+
+      // 2. 정서 신호 배지 교체
+      const emotionBadge = document.getElementById('emotional-signal-badge');
+      emotionBadge.textContent = s.emotion;
+      if (s.stress >= 4.0) {
+        emotionBadge.className = "p-3 bg-red-50 rounded-xl text-xs font-semibold text-red-900 border border-red-200";
+      } else if (s.interest <= 1.5) {
+        emotionBadge.className = "p-3 bg-amber-50 rounded-xl text-xs font-semibold text-amber-900 border border-amber-200";
+      } else {
+        emotionBadge.className = "p-3 bg-indigo-50 rounded-xl text-xs font-semibold text-indigo-900 border border-indigo-200";
+      }
+
+      // 3. 정성 데이터 박스 교체
+      document.getElementById('qual-q5-badge').textContent = `5번 정오: ${s.q5Correct}`;
+      document.getElementById('qual-q5-badge').className = s.q5Correct === 'O' 
+        ? "px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800"
+        : "px-2 py-0.5 rounded text-[10px] font-bold bg-rose-100 text-rose-800";
+      document.getElementById('qual-total-time').textContent = `${s.testTime}초`;
+      document.getElementById('qual-q5-time').textContent = `${s.q5Time}초`;
+      document.getElementById('qual-desc-len').textContent = s.descLength;
+      document.getElementById('qual-desc-content').textContent = `"${s.descContent}"`;
+
+      // 4. 인지 행동 분석 메모 & 가이드 동적 계산
+      const notes = getPedagogicalAnalysis(s);
+      document.getElementById('cognitive-notes').textContent = notes.cognitiveNotes;
+      document.getElementById('pedagogical-feedback').textContent = notes.teacherFeedback;
+      
+      const actionUl = document.getElementById('pedagogical-actions');
+      actionUl.innerHTML = '';
+      notes.actions.forEach(act => {
+        const li = document.createElement('li');
+        li.textContent = act;
+        actionUl.appendChild(li);
+      });
+
+      // 5. 레이더 차트 갱신
+      renderRadarChart(s);
+    }
+
+    // 학생 맞춤형 교육학 데이터 연산기
+    function getPedagogicalAnalysis(student) {
+      let cognitiveNotes = "";
+      let teacherFeedback = "";
+      let actions = [];
+
+      // S03(자극 부족형)
+      if (student.id === "S03") {
+        cognitiveNotes = "이미 선수 지식이 완벽하게 형성되어 정상적인 교육 과정의 흐름에서 지루함(Boredom)을 겪는 상태입니다. 불성실하게 보였던 LMS 행동(체류 1분, 완료율 5%)은 태만함이 아니라 '효율적 기각'에 가깝습니다.";
+        teacherFeedback = "아는 내용을 기계적으로 반복하는 활동에서 탈피시켜 주어야 합니다. 학업적 자기효능감은 최상이지만 학업 흥미가 급감하므로 특별 인지 심화 임무가 적절합니다.";
+        actions = [
+          "교과 압축(Curriculum Compacting): 기본 이론 학습 과제를 간소화 및 면제해 줍니다.",
+          "프로젝트 스튜어드십: 급우들을 지원하는 소규모 피어 튜터링 파트너 리더십 기회 부여.",
+          "미지의 심화 탐구 Task: 현재 수업의 인과관계 그래프를 고도화한 상위 모델 분석 과제 출제."
+        ];
+      }
+      // S10(완벽주의 고불안형)
+      else if (student.id === "S10") {
+        cognitiveNotes = "완벽주의 성향이 인지 과부하 및 불안을 초래하고 있습니다. 전체 시험 시간 중 75%를 5번 한 문항에 집중 투여하고도 오답을 낸 시점에서 극도의 정서적 내상과 패배감('자존심 상해요')을 보입니다.";
+        teacherFeedback = "정답에 대한 강박을 낮추고 실패가 배움의 필수 프로세스임을 수용하게 하는 안전한 정서 지지가 최우선입니다. 수행 과정에서의 '사고 노력' 자체를 격려하십시오.";
+        actions = [
+          "과정 중심 평가 피드백: '정답은 틀렸지만, 변인 통제 조건에서 통찰을 발휘한 흔적이 훌륭해'라는 형태의 발견형 피드백.",
+          "타임박스 훈련: 문항당 최대 제한 시간 타이머를 사용해 강박적 집착 행동을 차단.",
+          "평가 긴장 이완 코칭: 오답 직후 정서 완화를 위한 인지 재구조화 일대일 미팅 실시."
+        ];
+      }
+      // S05(자포자기 회피형)
+      else if (student.id === "S05") {
+        cognitiveNotes = "전형적인 '평가 회피형 무기력'입니다. 시험을 단 25초 만에 완료했고 주관식에 초성형 자판 난타('ㅇㅇㅇ')를 적어 성의를 거부하는 형태로 자신의 학업 실패가 자신의 진정한 지능 한계 때문이 아니라고 방어하고 있습니다.";
+        teacherFeedback = "현재 인지적 자아효능감이 파괴된 상태로, 정서적 유대감 확보 및 '성공 경험의 분절화'를 통해 서서히 학습 효능감을 복원해야 합니다.";
+        actions = [
+          "성공 보장형 과제(Micro-Step): 5초 안에 답할 수 있는 극단적 기초 퀴즈로 시작.",
+          "미디어/게이미피케이션 결합: 텍스트 퀴즈를 탈피한 가벼운 퀴즈 배틀 등 자극 유도.",
+          "관계 지향적 면담: 학업 얘기 외에 학생의 관심사에 맞춘 따뜻한 공감 형성 일대일 면접."
+        ];
+      }
+      // S08(은밀한 이탈형)
+      else if (student.id === "S08") {
+        cognitiveNotes = "LMS에는 95분이나 접속해 있어 겉으로는 '우수 유저'로 식별되지만 실질 상호작용은 1클릭, 비디오도 10%만 수강한 채 화면을 켜두고 이탈해 버리는 '보이지 않는 방치 학습자' 상태입니다.";
+        teacherFeedback = "온라인 플랫폼의 특성을 도구 삼아 소극적으로 회피하고 있으므로 실제적인 물리적 체크 포인트와 즉각 반응형 학습 흐름을 설계해야 합니다.";
+        actions = [
+          "반응형 트리거 설계: 비디오 중간에 등장하는 실시간 퀴즈 체크인 기능 강화.",
+          "소형 협업 책임 부여: 1인 단독 활동 대신 밀착 관리 피어가 있는 소그룹 협동 학습 편성.",
+          "교사 물리적 체크: 온라인 장기 정체 시 오프라인 정서 안부 문자 발송 시스템 가동."
+        ];
+      }
+      // S02 (초우수 학습 성장형)
+      else if (student.id === "S02") {
+        cognitiveNotes = "배움에 대한 성취감과 메타인지가 최고조에 달한 최적의 성장형 학습자입니다. 스스로 그래프 분석을 흥미로워하며 정성 응답도 매우 성숙하게 도출하였습니다.";
+        teacherFeedback = "스스로 탐색하는 힘이 좋으므로 메타인지를 심화할 수 있는 심화 연구 기회를 제공하고 성과를 공공에 발표하도록 자율성을 적극 보장합니다.";
+        actions = [
+          "자율 심화 포트폴리오 설계 권장.",
+          "인과 관계 분석 툴 설계 프로젝트 리더 선임.",
+          "급우의 오류 사례를 진단하고 피드백을 직접 고민해 보는 고차원 인지 역할 부여."
+        ];
+      }
+      // 기타 기본 안정군 (S01, S04, S06, S07, S09)
+      else {
+        cognitiveNotes = `학습 활동을 대체로 고르게 성실히 수행하는 균형형 학습자 집단에 속합니다. 개념의 완전 학습을 위해 2단계 인지 적용 학습에 진입할 수 있도록 격려가 적절합니다.`;
+        teacherFeedback = `현재 안정적인 흐름을 잘 유지하고 있으므로 지속 가능한 흥미 유발 및 오개념 부분 교정(특히 Q2번 문항의 통제 통찰 보완)을 지도하십시오.`;
+        actions = [
+          "Q2번 변인 통제 오개념 문제의 정교한 해설 및 오답 분석 퀴즈 피드백 제공.",
+          "협업 그룹 내 핵심 서포터 역할을 부여하여 조별 학업 기여도 확장.",
+          "다음 차시 학습에 앞서 자기 계획 수립 성찰 일기 작성 권장."
+        ];
+      }
+
+      return { cognitiveNotes, teacherFeedback, actions };
+    }
+
+    // 레이더 차트 그리기
+    function renderRadarChart(student) {
+      const ctx = document.getElementById('radarChart').getContext('2d');
+
+      if (radarChartInstance) {
+        radarChartInstance.destroy();
+      }
+
+      // 5개 축 데이터 스케일링 계산 (0~100점 변환)
+      // 1. 성취도 (형성평가 점수 + 정기시험 맞춘개수 비율 평균)
+      const achievement = Math.round((student.formScore + (student.correctCount / 5 * 100)) / 2);
+      // 2. 참여 성실도 (체류 시간 백분율 + 동영상 완료율 비율 평균) -> 95분이 최대치이므로 스케일 적용
+      const maxStay = 95;
+      const stayScore = (student.stay / maxStay) * 100;
+      const engagement = Math.round((stayScore + student.video) / 2);
+      // 3. 정서적 안정도 (스트레스 수준을 100 - 스트레스 비율로 변환)
+      const emotionalStability = Math.round((1 - ((student.stress - 1) / 4)) * 100);
+      // 4. 수업 흥미도 (흥미 점수 5점 만점을 100점 환산)
+      const interest = Math.round((student.interest / 5) * 100);
+      // 5. 협업 성향 (협업 기여도 5점 만점을 100점 환산)
+      const collaboration = Math.round((student.collab / 5) * 100);
+
+      radarChartInstance = new Chart(ctx, {
+        type: 'radar',
+        data: {
+          labels: ['학업 성취 (Achievement)', '수업 참여 (Engagement)', '정서 안정 (Emotional)', '학습 흥미 (Interest)', '협업 성향 (Collaboration)'],
+          datasets: [{
+            label: `${student.id} 학생 다차원 역량`,
+            data: [achievement, engagement, emotionalStability, interest, collaboration],
+            backgroundColor: 'rgba(99, 102, 241, 0.2)',
+            borderColor: 'rgba(99, 102, 241, 1)',
+            borderWidth: 2.5,
+            pointBackgroundColor: 'rgba(99, 102, 241, 1)',
+            pointBorderColor: '#fff',
+            pointHoverBackgroundColor: '#fff',
+            pointHoverBorderColor: 'rgba(99, 102, 241, 1)'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false }
+          },
+          scales: {
+            r: {
+              angleLines: { display: true, color: '#f1f5f9' },
+              suggestedMin: 0,
+              suggestedMax: 100,
+              ticks: { stepSize: 20, font: { size: 9 } },
+              pointLabels: { font: { size: 10, weight: 'bold', family: 'Pretendard' } }
+            }
+          }
+        }
+      });
+    }
+
+    // 시뮬레이터 변수 조절에 따른 실시간 AI 기반 처방 연산 엔진
+    function runSimulation() {
+      const score = parseInt(document.getElementById('sim-score').value);
+      const engagement = parseInt(document.getElementById('sim-engagement').value);
+      const stress = parseFloat(document.getElementById('sim-stress').value);
+      const textType = document.getElementById('sim-text-type').value;
+
+      // 밸류 출력 동적 갱신
+      document.getElementById('sim-val-score').textContent = `${score}개 해결`;
+      
+      let engLabel = "보통";
+      if (engagement > 70) engLabel = `우수 (${engagement})`;
+      else if (engagement < 25) engLabel = `위험 (${engagement})`;
+      else engLabel = `보통 (${engagement})`;
+      document.getElementById('sim-val-engagement').textContent = engLabel;
+
+      document.getElementById('sim-val-stress').textContent = `${stress.toFixed(1)} / 5.0`;
+
+      // 진단 알고리즘 작동
+      let resultTitle = "";
+      let resultDesc = "";
+      let actions = [];
+      let feedbackTemplate = "";
+
+      // 1. 자극 부족형 감지
+      if (score >= 4 && engagement <= 15 && stress <= 1.5 && textType === 'bored') {
+        resultTitle = "🔔 [진단] 과소 자극형 선행 아웃라이어 (Understimulated)";
+        resultDesc = "뛰어난 두뇌 및 기초 체력을 가졌으나, 수업의 난이도가 너무 낮아 의도적으로 플랫폼 상호작용과 영상 완료를 생략한 채 지루함의 정서 신호를 내비치는 최상위권 아웃라이어입니다.";
+        actions = [
+          "수업 내용 압축 과제를 통해 기초 단계를 초고속 패스할 수 있는 재량권 제공.",
+          "해결해야 할 개방형 난제 프로젝트(Cap Stone)를 부여하여 높은 수준의 지적 몰입 유지.",
+          "학습 조력자 역할을 부여하여 학급 내부에서 성취감을 공유하는 리더십 경험 기여."
+        ];
+        feedbackTemplate = `[EduAnalytics 가드닝 메시지]\n\n안녕! 오늘 수업에서 인과 관계 분석 과제를 정말 순식간에 통과하는 활약을 보여주었네!\n네가 이미 튼튼하게 기초 지식을 마스터하고 있어서, 지금 수준은 다소 평이하게 느껴졌을 수도 있을 것 같아.\n\n다음 실습에서는 단순히 문제를 푸는 것을 넘어, '직접 인과 관계 분석 그래프를 시뮬레이션으로 코딩하거나 도식화하는 고도화 과제'를 특별 미션으로 시도해 보면 어떨까? 네가 탐색할 새로운 한계에 도전해 보는 것을 언제나 응원해!`;
+      }
+      // 2. 완벽주의 고불안형 감지
+      else if (stress >= 4.0 && score >= 2 && engagement >= 30 && textType === 'anxious') {
+        resultTitle = "🚨 [위험] 완벽주의형 인지 과적합 및 고정형 마음가짐 (Perfectionist Crisis)";
+        resultDesc = "성실한 참여와 우수한 이해를 목표로 고군분투하나, 실패에 대한 고수준 정서 방어 기제가 작동하여 극심한 긴장과 불안에 빠진 정서 고위험 상태입니다.";
+        actions = [
+          "결과(정답 수)를 전면 배제하고, 틀렸던 인과 과정 자체를 긍정적으로 시각화하는 과정 중심 멘토링.",
+          "타임아웃 전략 코칭: 한 문항에 일정 시간 이상 지체되면 강제로 쉬어가는 습관 권장.",
+          "실패 축하 문화 형성: '실패가 배움으로 전환되는 성찰 과정'에 대해 정성 가점 부여."
+        ];
+        feedbackTemplate = `[EduAnalytics 가드닝 메시지]\n\n안녕! 오늘 어려운 문제들을 끝까지 포기하지 않고 성실하게 붙잡고 치열하게 고민해 준 흔적을 가만히 들여다보았단다.\n이 문제를 이해하고 풀어내기 위해 쏟아부은 너의 몰두와 노력은 그 자체로 이미 엄청난 성장이고 가치 있는 시도란다.\n\n정답은 배움으로 가는 하나의 체크포인트일 뿐이야. 틀린 부분은 오개념을 청소할 수 있는 아주 귀한 힌트란다. 너의 치열한 배움의 과정을 선생님은 무한히 응원해!`;
+      }
+      // 3. 자포자기 회피형 감지
+      else if (score <= 1 && engagement <= 20 && textType === 'no-input') {
+        resultTitle = "⚠️ [위험] 자포자기식 과제 회피형 무기력 (Learned Helplessness)";
+        resultDesc = "수행 능력이 현저히 저하된 원인이 자신의 '노력 부족'인 척 가장하여 자존감을 보호하기 위해, 시도조차 하지 않고 도망가는 학습 거부 반응입니다.";
+        actions = [
+          "성장 단계의 나노 입자화(Nano-stepping): 맞출 수밖에 없는 원클릭 퀴즈를 제공해 자존감 뇌물 투여.",
+          "체크인 즉각 보상 설계: 수업 영상 완료 단계마다 소소한 정서적 배지 혹은 소셜 포인트 교환.",
+          "공감 관계 회복: 성적 관련 언급은 완전히 숨기고, 학생의 사적인 안부와 흥미 요소를 묻는 멘토 교류."
+        ];
+        feedbackTemplate = `[EduAnalytics 가드닝 메시지]\n\n안녕! 오늘 수업 로그를 보며 네가 잠깐 고민해 본 자국을 따라가 보았어.\n어디서부터 시작해야 할지 헷갈려서 실습실 문턱에서 막막함과 귀찮음을 한꺼번에 느꼈을 수도 있었을 것 같아.\n\n선생님이랑은 아주 가볍게, 딱 첫 번째 변인 설정하는 한 단계만 먼저 같이 켜 볼까? 아주 작고 소소한 시작만으로도 네가 가진 힘을 다시 발휘할 수 있게 도와줄게. 언제든 환영해!`;
+      }
+      // 4. 수동적 이탈형 감지
+      else if (engagement >= 60 && score <= 2 && textType === 'no-input' && stress < 3.0) {
+        resultTitle = "🔍 [감지] 방치형 유령 학습자 (Passive Disengagement)";
+        resultDesc = "접속 시간은 최상위권이나 실질적인 데이터 상호작용(클릭, 마우스 스크롤, 응답 성의)이 제로에 가까운, 온라인 플랫폼 방치 상태의 고위험 탈락자입니다.";
+        actions = [
+          "플랫폼 실시간 상호작용 피드백 인터럽트 가동 (오프라인 호출이나 팝업 강제 응답 퀴즈 활성화).",
+          "학습 그룹 내 밀착 마킹 멘토 피어(예: S02 등)를 매칭하여 오프라인에서 물리적 접점 설계.",
+          "수업 복제 체크: 오프라인 수업 시 온라인으로 켜놓고 무엇을 이해했는지 간단한 1줄 브리핑 구두 소통."
+        ];
+        feedbackTemplate = `[EduAnalytics 가드닝 메시지]\n\n안녕! 오늘 온라인 학습 공간에 아주 오랫동안 귀중한 자리를 지키며 로그인해 주었구나.\n화면은 켜져 있었지만, 내용이 마음에 크게 닿지 않거나 막상 상호작용 하기가 번거롭고 어색해서 유령처럼 머물다 간 건 아닐까 걱정이 되네.\n\n선생님이랑 다음 시간 오프라인에서 직접 그래프 보드를 손으로 만지며 10분만 재미있게 실습해 보면 어떨까? 부담 갖지 말고 편한 시간에 와서 커피 한잔하며 얘기 나누자!`;
+      }
+      // 5. 기타 일반 안정 성장군
+      else {
+        resultTitle = "✅ [정상] 지속 가능 안정 성장형 학습 상태 (Normal - Balanced)";
+        resultDesc = "참여 성실성, 시험 결과, 정서적 스트레스가 모두 안정 수준의 조화를 이룬 일반 성장 학습군입니다. 학습의 관성과 오개념 교정 중심의 피드백이 권장됩니다.";
+        actions = [
+          "개념 정밀 검토: 중간 난이도 이상에서 발생하는 흔한 오개념 오답(예: Q2 함정)에 대한 핀포인트 안내.",
+          "자기주도 학습 계획 설계 장려: 배운 통찰을 한 줄의 '성찰 포트폴리오'로 기록화하기.",
+          "협력 학습의 촉진자 역할 부여: 팀 과제 시 다른 친구의 오개념을 함께 토론해 나갈 기회 부여."
+        ];
+        feedbackTemplate = `[EduAnalytics 가드닝 메시지]\n\n안녕! 오늘 수업 로그에서 네가 차분하고 성실하게 클릭수를 쌓아가며 끝까지 개념을 파고든 멋진 흔적을 확인했어!\n다양한 변인들을 고려하면서 그래프를 해석한 노력이 참 기특하고 훌륭해.\n\n이번 과정에서 특히 2번 오개념 함정을 피하기 위해 어떤 조건을 짚어야 했는지, 다시 한번 돌아보면 완전 학습으로 완벽히 나아갈 수 있을 거야. 앞으로도 지금처럼 성실하고 적극적인 모습을 기대할게!`;
+      }
+
+      // 최종 UI 적용
+      document.getElementById('sim-diagnosis-title').textContent = resultTitle;
+      document.getElementById('sim-diagnosis-desc').textContent = resultDesc;
+      
+      const actUl = document.getElementById('sim-action-list');
+      actUl.innerHTML = '';
+      actions.forEach(a => {
+        const li = document.createElement('li');
+        li.textContent = a;
+        actUl.appendChild(li);
+      });
+
+      document.getElementById('sim-feedback-box').innerText = feedbackTemplate;
+    }
+
+    // 시뮬레이터 원클릭 프리셋 불러오기
+    function loadSimPreset(presetId) {
+      if (presetId === 's03') {
+        document.getElementById('sim-score').value = 5;
+        document.getElementById('sim-engagement').value = 5;
+        document.getElementById('sim-stress').value = 1.0;
+        document.getElementById('sim-text-type').value = 'bored';
+      } else if (presetId === 's10') {
+        document.getElementById('sim-score').value = 3;
+        document.getElementById('sim-engagement').value = 45;
+        document.getElementById('sim-stress').value = 5.0;
+        document.getElementById('sim-text-type').value = 'anxious';
+      } else if (presetId === 's05') {
+        document.getElementById('sim-score').value = 1;
+        document.getElementById('sim-engagement').value = 12;
+        document.getElementById('sim-stress').value = 1.5;
+        document.getElementById('sim-text-type').value = 'no-input';
+      } else if (presetId === 's08') {
+        document.getElementById('sim-score').value = 0;
+        document.getElementById('sim-engagement').value = 95;
+        document.getElementById('sim-stress').value = 1.2;
+        document.getElementById('sim-text-type').value = 'no-input';
+      }
+      runSimulation();
+    }
+
+    // 피드백 템플릿 복사 기능 (iframe 환경 고려하여 fallback)
+    function copyFeedbackTemplate() {
+      const box = document.getElementById('sim-feedback-box');
+      
+      // 임시로 textarea 생성 후 복사 수행
+      const tempTextarea = document.createElement('textarea');
+      tempTextarea.value = box.innerText;
+      document.body.appendChild(tempTextarea);
+      tempTextarea.select();
+      
+      try {
+        const successful = document.execCommand('copy');
+        if (successful) {
+          const toast = document.getElementById('copy-toast');
+          toast.classList.remove('hidden');
+          setTimeout(() => { toast.classList.add('hidden'); }, 1500);
+        } else {
+          console.error("복사에 실패했습니다.");
+        }
+      } catch (err) {
+        console.error("복사 오류 발생: ", err);
+      }
+      document.body.removeChild(tempTextarea);
+    }
+  </script>
+</body>
+</html>
