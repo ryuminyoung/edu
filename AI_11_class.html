@@ -472,7 +472,12 @@
                         <i class="fa-solid fa-eye text-indigo-500"></i> 입력 1) 우리 모둠의 데이터 분석 관점
                     </label>
                     <p class="text-xs text-slate-400">데이터를 독해할 때 세운 기준을 정의해 주세요. (예: "로그 접속 시간 대비 형성평가 성취가 극도로 불일치하는 유령 수강생 포커싱")</p>
-                    <textarea id="input-perspective" oninput="handleStateChange('perspective', this.value)" rows="3" placeholder="우리 모둠만의 독창적인 가설이나 분석 기준을 구체적으로 기입하세요..." class="w-full p-3.5 bg-slate-50/50 border border-slate-200 focus:border-indigo-500 focus:bg-white rounded-xl text-sm transition duration-150 focus:outline-none"></textarea>
+                    <textarea id="input-perspective" rows="3" placeholder="우리 모둠만의 독창적인 가설이나 분석 기준을 구체적으로 기입하세요..." class="w-full p-3.5 bg-slate-50/50 border border-slate-200 focus:border-indigo-500 focus:bg-white rounded-xl text-sm transition duration-150 focus:outline-none"></textarea>
+                    <div class="flex justify-end">
+                        <button onclick="submitPerspective()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl transition duration-150 shadow-sm flex items-center gap-1.5">
+                            <i class="fa-solid fa-paper-plane"></i> 관점 전송 및 저장
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Input 2: Outlier Student Registration -->
@@ -518,16 +523,13 @@
                         <i class="fa-solid fa-lightbulb text-amber-500"></i> 입력 3) 종합 평가 및 수업 설계 대안 (Try)
                     </label>
                     <p class="text-xs text-slate-400">발굴한 이상치 학생이나 학급 공통 병목에 대하여 차기 마이크로티칭(11과정) 수업 시 즉각 처방할 비계 및 발판 재배치 설계 구상을 정리해 주세요.</p>
-                    <textarea id="input-try" oninput="handleStateChange('overallTry', this.value)" rows="3" placeholder="개념 발판 추가, AI 도구 투입 시점 조정, 협업 역할 분담 보완 등 구체적인 Try를 설계하세요..." class="w-full p-3.5 bg-slate-50/50 border border-slate-200 focus:border-indigo-500 focus:bg-white rounded-xl text-sm transition duration-150 focus:outline-none"></textarea>
+                    <textarea id="input-try" rows="3" placeholder="개념 발판 추가, AI 도구 투입 시점 조정, 협업 역할 분담 보완 등 구체적인 Try를 설계하세요..." class="w-full p-3.5 bg-slate-50/50 border border-slate-200 focus:border-indigo-500 focus:bg-white rounded-xl text-sm transition duration-150 focus:outline-none"></textarea>
+                    <div class="flex justify-end">
+                        <button onclick="submitTry()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl transition duration-150 shadow-sm flex items-center gap-1.5">
+                            <i class="fa-solid fa-paper-plane"></i> 대안 전송 및 저장
+                        </button>
+                    </div>
                 </div>
-
-                <!-- Action Button for PDF Report generating modal -->
-                <div class="pt-2">
-                    <button onclick="generateReportModal()" class="w-full py-4 bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm rounded-2xl transition duration-150 flex items-center justify-center gap-2 shadow-md">
-                        <i class="fa-solid fa-file-invoice text-indigo-400 text-base"></i> 모둠 분석 보고서 작성 및 인쇄하기
-                    </button>
-                </div>
-            </div>
 
             <!-- Right Workspace: Live Reflection preview (Live Accumulator) -->
             <div class="lg:col-span-6 space-y-6">
@@ -948,11 +950,23 @@
         });
     }
 
-    // Handle single input states inside group workspace
+     // Handle single input states inside group workspace
     function handleStateChange(field, value) {
         appState[`group${currentGroupId}`][field] = value;
         saveState();
         updateGroupLiveMirror();
+    }
+
+    function submitPerspective() {
+        const value = document.getElementById('input-perspective').value;
+        handleStateChange('perspective', value);
+        showToast("모둠 데이터 분석 관점이 성공적으로 전송 및 저장되었습니다.", "success");
+    }
+
+    function submitTry() {
+        const value = document.getElementById('input-try').value;
+        handleStateChange('overallTry', value);
+        showToast("종합 평가 및 수업 설계 대안(Try)이 성공적으로 전송 및 저장되었습니다.", "success");
     }
 
     // Dynamic data rendering based on Group Selection and Data type selected
