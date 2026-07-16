@@ -3,136 +3,155 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>[연수 툴킷] 독립 관리자 콘솔</title>
-    <!-- Tailwind CSS 및 FontAwesome 아이콘 연동 -->
+    <title>관리자 콘솔 - 데이터 분석 실습 통합 제어판</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <!-- 고해상도 웹폰트 Pretendard -->
-    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { font-family: 'Pretendard', sans-serif; }
+        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css');
+        body {
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+            background-color: #fdfbf7;
+        }
     </style>
 </head>
-<body class="bg-slate-50 min-height-screen">
+<body class="min-h-screen text-slate-800 flex flex-col">
 
-    <!-- 1. 패스워드 인증 레이어 (GitHub Pages 공개 배포 시 보안용) -->
-    <div id="auth-overlay" class="fixed inset-0 bg-slate-900/90 z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl border border-slate-100 text-center space-y-6">
-            <div class="w-16 h-16 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center mx-auto text-2xl">
+    <!-- ========================================== -->
+    <!-- 1. 패스워드 인증 화면 (기본 활성화) -->
+    <!-- ========================================== -->
+    <div id="auth-view" class="fixed inset-0 bg-[#fdfbf7] z-50 flex items-center justify-center p-4">
+        <div class="max-w-md w-full bg-white rounded-3xl border border-slate-200 shadow-xl p-8 space-y-6 text-center">
+            <div class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center mx-auto text-xl shadow-sm">
                 <i class="fa-solid fa-lock"></i>
             </div>
-            <div>
-                <h2 class="text-xl font-bold text-slate-800">관리자 인증</h2>
-                <p class="text-xs text-slate-400 mt-1">연수 툴킷 설정을 관리하기 위해 관리자 암호를 입력해 주세요.</p>
+            <div class="space-y-1">
+                <h1 class="text-xl font-extrabold text-slate-800">관리자(강사) 인증</h1>
+                <p class="text-xs text-slate-400">통합 세미나 관리를 위해 비밀번호를 입력해 주세요.</p>
             </div>
-            <div class="space-y-2">
-                <input type="password" id="admin-password" placeholder="비밀번호 입력..." class="w-full px-4 py-3 bg-slate-50 border border-slate-200 focus:border-indigo-500 focus:bg-white rounded-xl text-center font-bold tracking-widest outline-none transition duration-150">
-                <p id="auth-error" class="text-xs text-rose-500 hidden">비밀번호가 올바르지 않습니다.</p>
+            <div class="space-y-3">
+                <input type="password" id="auth-password" placeholder="비밀번호 입력" class="w-full p-3 border border-slate-200 rounded-xl bg-slate-50 text-sm text-center focus:outline-none focus:border-indigo-500 focus:bg-white transition">
+                <button onclick="checkAdminAuth()" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition text-sm shadow-md">
+                    보안 접속하기
+                </button>
             </div>
-            <button onclick="checkAdminAuth()" class="w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition duration-150 shadow-md">
-                콘솔 입장하기
-            </button>
         </div>
     </div>
 
-    <!-- 2. 메인 관리자 콘솔 영역 -->
-    <div id="admin-content" class="hidden">
-        <!-- 상단 네비게이션 헤더 -->
-        <header class="bg-white border-b border-slate-200 sticky top-0 z-40">
-            <div class="max-w-7xl mx-auto px-6 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-indigo-600 text-white rounded-xl flex items-center justify-center text-lg shadow-md shadow-indigo-200">
-                        <i class="fa-solid fa-screwdriver-wrench"></i>
-                    </div>
-                    <div>
-                        <h1 class="text-lg font-bold text-slate-800">연수 툴킷 아키텍처 관리 콘솔</h1>
-                        <p class="text-xs text-slate-400">데이터 실시간 분리 및 원격 기수 설정</p>
-                    </div>
+    <!-- ========================================== -->
+    <!-- 2. 관리자 메인 컨트롤 타워 UI (인증 시 활성화) -->
+    <!-- ========================================== -->
+    <div id="admin-view" class="hidden flex-1 flex flex-col">
+        <!-- Sticky Top Header -->
+        <header class="sticky top-0 bg-white/95 backdrop-blur border-b border-slate-200/80 z-40 px-6 py-4 flex items-center justify-between shadow-sm">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600">
+                    <i class="fa-solid fa-user-shield text-lg"></i>
                 </div>
-                <div class="flex items-center gap-3">
-                    <span class="px-3 py-1 bg-emerald-50 text-emerald-600 border border-emerald-100 rounded-full text-xs font-bold flex items-center gap-1.5">
-                        <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span> Firebase Live Connected
-                    </span>
-                    <button onclick="location.reload()" class="p-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg text-sm transition">
-                        <i class="fa-solid fa-rotate"></i>
-                    </button>
+                <div>
+                    <h1 class="text-sm font-black text-slate-900 tracking-tight">강사용 데이터 제어 타워</h1>
+                    <p class="text-[10px] text-slate-400">연수 세션 관리, 다중 클래스 셋업 및 실시간 모니터링</p>
                 </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <a href="index.html" class="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold rounded-xl transition flex items-center gap-1.5 shadow-sm">
+                    <i class="fa-solid fa-right-to-bracket"></i> 실습실로 가기
+                </a>
+                <button onclick="logoutAdmin()" class="px-3.5 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-bold rounded-xl transition flex items-center gap-1">
+                    <i class="fa-solid fa-power-off"></i> 로그아웃
+                </button>
             </div>
         </header>
 
-        <main class="max-w-7xl mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <!-- Left Column: 과정 메타 설정 & 클래스 추가 -->
-            <div class="space-y-8">
-                <!-- 연수 과정명 설정 -->
+        <!-- Main Dashboard Workspace -->
+        <main class="flex-1 max-w-7xl w-full mx-auto p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            <!-- LEFT COLUMN: SEMINAR META & CLASS SETUP -->
+            <div class="space-y-6 lg:col-span-1">
+                <!-- Seminar Title Configuration -->
                 <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-                    <h3 class="font-bold text-slate-700 flex items-center gap-2">
-                        <i class="fa-solid fa-heading text-indigo-500"></i> 연수 과정명 원격 설정
+                    <h3 class="text-xs font-bold text-slate-800 tracking-wider uppercase border-b border-slate-100 pb-2 flex items-center gap-1.5">
+                        <i class="fa-solid fa-pen-to-square text-indigo-500"></i> 연수(세미나) 대주제 설정
                     </h3>
-                    <p class="text-xs text-slate-400 leading-relaxed">이곳에서 변경한 연수 과정명은 연수생들의 접속 페이지 상단 타이틀에 실시간 반영됩니다.</p>
-                    <div class="space-y-3">
-                        <input type="text" id="config-seminar-title" placeholder="인공지능 활용 교수·학습 설계 및 성찰..." class="w-full px-4 py-3 bg-slate-50 border border-slate-200 focus:border-indigo-500 focus:bg-white rounded-xl text-sm outline-none transition">
-                        <button onclick="updateSeminarMeta()" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl transition duration-150 shadow-sm flex items-center justify-center gap-2">
-                            <i class="fa-solid fa-cloud-arrow-up"></i> 연수 과정명 업데이트
+                    <div class="space-y-2">
+                        <label class="block text-[10px] font-bold text-slate-400 uppercase">공식 연수 과정명</label>
+                        <input type="text" id="config-seminar-title" placeholder="과정 타이틀 입력" class="w-full p-2.5 border border-slate-200 rounded-xl bg-slate-50 text-xs focus:outline-none focus:border-indigo-500 focus:bg-white transition">
+                        <button onclick="updateSeminarTitle()" class="w-full py-2 bg-slate-800 hover:bg-slate-900 text-white font-bold text-xs rounded-xl transition flex items-center justify-center gap-1">
+                            <i class="fa-solid fa-circle-check"></i> 과정명 원격 수정 반영
                         </button>
                     </div>
                 </div>
 
-                <!-- 클래스 생성 및 기수 라이프사이클 관리 -->
+                <!-- Create Dynamic Classes and Group Limits -->
                 <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-                    <h3 class="font-bold text-slate-700 flex items-center gap-2">
-                        <i class="fa-solid fa-school text-indigo-500"></i> 클래스(반) 라이프사이클 관리
+                    <h3 class="text-xs font-bold text-slate-800 tracking-wider uppercase border-b border-slate-100 pb-2 flex items-center gap-1.5">
+                        <i class="fa-solid fa-school-flag text-amber-500"></i> 신규 클래스 개설 및 모둠 셋업
                     </h3>
-                    <p class="text-xs text-slate-400">새로운 실습 학급이나 동시 진행될 기수를 원격으로 활성화합니다.</p>
                     <div class="space-y-3">
-                        <div class="flex gap-2">
-                            <input type="text" id="new-class-name" placeholder="예: 1학년 1반, 선도교사 1기" class="flex-grow px-4 py-3 bg-slate-50/50 border border-slate-200 focus:border-indigo-500 focus:bg-white rounded-xl text-sm outline-none transition">
-                            <button onclick="createNewClass()" class="px-4 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl transition flex items-center gap-1">
-                                <i class="fa-solid fa-plus"></i> 추가
-                            </button>
+                        <div class="space-y-1">
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase">클래스(반) 식별명</label>
+                            <input type="text" id="class-input-name" placeholder="예: 2기 중등 선도교사과정" class="w-full p-2.5 border border-slate-200 rounded-xl bg-slate-50 text-xs focus:outline-none focus:border-indigo-500 focus:bg-white transition">
                         </div>
-                        <div class="border-t border-slate-100 pt-3">
-                            <h4 class="text-xs font-bold text-slate-500 mb-2">현재 활성화된 클래스 목록</h4>
-                            <ul id="active-class-list" class="space-y-2 max-h-48 overflow-y-auto pr-1">
-                                <!-- 클래스 목록 동적 생성 -->
-                                <li class="text-center text-xs text-slate-300 py-4">활성화된 클래스를 가져오는 중...</li>
-                            </ul>
+                        <div class="space-y-1">
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase">배정할 모둠 개수 (최대 20개)</label>
+                            <input type="number" id="class-input-groups" value="5" min="1" max="20" class="w-full p-2.5 border border-slate-200 rounded-xl bg-slate-50 text-xs focus:outline-none focus:border-indigo-500 focus:bg-white transition">
                         </div>
+                        <button onclick="createNewClass()" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl transition shadow-sm flex items-center justify-center gap-1">
+                            <i class="fa-solid fa-plus"></i> 연수 학급 개설하기
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Existing Classes Listing -->
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+                    <h3 class="text-xs font-bold text-slate-800 tracking-wider uppercase border-b border-slate-100 pb-2 flex items-center gap-1.5">
+                        <i class="fa-solid fa-list-check text-indigo-500"></i> 현재 개설된 클래스 목록
+                    </h3>
+                    <div id="classes-list-container" class="space-y-2 max-h-60 overflow-y-auto pr-1">
+                        <!-- Dynamic values populate -->
+                        <p class="text-xs text-slate-400 italic">클래스를 불러오는 중입니다...</p>
                     </div>
                 </div>
             </div>
 
-            <!-- Right Column: 학급별 데이터 현황판 및 대시보드 모니터링 (2/3 영역 차지) -->
-            <div class="lg:col-span-2 space-y-8">
-                <!-- 전체 모둠 데이터 실시간 현황 대시보드 -->
-                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-6">
-                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-                        <div>
-                            <h3 class="font-bold text-slate-700 flex items-center gap-2">
-                                <i class="fa-solid fa-chart-simple text-indigo-500"></i> 학급별 모둠 데이터 실시간 모니터링
+            <!-- RIGHT COLUMN: MONITORING & BATCH DISMISS -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Live Monitoring Grid -->
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4 flex flex-col h-full min-h-[400px]">
+                    <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3 border-b border-slate-100 pb-3">
+                        <div class="space-y-1">
+                            <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+                                <i class="fa-solid fa-arrows-spin text-indigo-500 animate-spin"></i> 실습 학급 실시간 진행 모니터링
                             </h3>
-                            <p class="text-xs text-slate-400 mt-1">실습생들이 작성 중인 데이터를 실시간으로 감시하고, 즉각적으로 초기화(Reset)할 수 있습니다.</p>
+                            <p class="text-[11px] text-slate-400">교사들의 모둠별 입력 현황과 전송 속도를 현장 스크리닝합니다.</p>
                         </div>
-                        <!-- 모니터링할 클래스 선택 드롭다운 -->
-                        <select id="monitor-class-select" onchange="loadClassRealtimeMonitor()" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 outline-none transition cursor-pointer">
-                            <option value="">클래스를 선택해 주세요</option>
-                        </select>
-                    </div>
-
-                    <!-- 실시간 모니터링 보드 -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="monitor-groups-container">
-                        <div class="col-span-full border-2 border-dashed border-slate-100 rounded-2xl py-12 text-center text-slate-400 text-sm">
-                            <i class="fa-solid fa-hand-pointer text-3xl mb-3 text-slate-300 block"></i>
-                            상단 드롭다운에서 실시간 모니터링할 클래스를 선택해 주세요.
+                        <!-- Monitoring Target Select -->
+                        <div>
+                            <select id="monitor-class-select" onchange="loadRealtimeClassMonitor()" class="p-2 border border-slate-200 rounded-xl bg-slate-50 text-xs font-bold focus:outline-none focus:bg-white focus:border-indigo-500">
+                                <option value="">학급을 선택해 주세요</option>
+                            </select>
                         </div>
                     </div>
 
-                    <!-- 일괄 리셋 버튼 레이아웃 -->
-                    <div class="border-t border-slate-100 pt-4 flex flex-col sm:flex-row justify-between items-center gap-3">
-                        <div class="text-xs text-slate-400">
-                            <i class="fa-solid fa-circle-info"></i> 해당 반의 데이터를 초기화하면 복구가 불가능합니다. 신중히 진행해 주세요.
+                    <!-- Dynamic Monitoring Cards Area -->
+                    <div id="monitor-cards-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-4 flex-1">
+                        <div class="col-span-full flex flex-col justify-center items-center py-16 text-slate-400 space-y-2">
+                            <i class="fa-solid fa-chalkboard-user text-3xl text-slate-200"></i>
+                            <p class="text-xs">상단 드롭다운에서 실시간 모니터링할 클래스를 지정해 주세요.</p>
                         </div>
-                        <button id="reset-class-btn" disabled onclick="purgeClassData()" class="px-5 py-3 bg-rose-50 hover:bg-rose-100 text-rose-600 disabled:opacity-40 disabled:hover:bg-rose-50 font-bold text-xs rounded-xl border border-rose-100 transition flex items-center gap-1.5 cursor-pointer disabled:cursor-not-allowed">
-                            <i class="fa-solid fa-trash-can"></i> 이 반의 전체 데이터 초기화(Reset)
+                    </div>
+
+                    <!-- Batch Reset & Data Management -->
+                    <div class="bg-rose-50/40 p-4 border border-rose-100 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 mt-4">
+                        <div class="space-y-0.5">
+                            <h4 class="text-xs font-bold text-rose-800 flex items-center gap-1">
+                                <i class="fa-solid fa-triangle-exclamation"></i> 주의: 전체 데이터 일괄 비우기
+                            </h4>
+                            <p class="text-[10px] text-rose-600/90 leading-relaxed">다음 세션 실습 및 다음 기수 연수 배치를 위해 저장소 데이터를 일괄 클리닝 포맷팅합니다.</p>
+                        </div>
+                        <button onclick="confirmResetAllData()" class="px-3.5 py-2 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-xl transition flex items-center gap-1 shadow-sm shrink-0">
+                            <i class="fa-solid fa-dumpster"></i> 실습 데이터 초기화
                         </button>
                     </div>
                 </div>
@@ -140,13 +159,18 @@
         </main>
     </div>
 
-    <!-- 3. 파이어베이스 라이브러리 및 호스팅 연동 스크립트 -->
-    <!-- Firestore 호환 라이브러리 CDN 로드 (v10 버전) -->
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-    
+    <!-- UI Toast Container -->
+    <div id="toast-container" class="fixed top-5 right-5 z-50 space-y-2 pointer-events-none"></div>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
+
     <script>
-        // 🚨 중요: index.html에 세팅한 동일한 firebaseConfig 정보를 이곳에 치환하여 붙여넣으세요!
+        // ==========================================
+        // Firebase Config (이전 파일에 입력된 정보와 동일하게 유지)
+        // ==========================================
         const firebaseConfig = {
         apiKey: "AIzaSyBGAFIDJ90L5i92dfFrrR5UdbpQxtmkzQE",
         authDomain: "ai-teacher-fbebf.firebaseapp.com",
@@ -156,296 +180,363 @@
         appId: "1:386839565220:web:edc887ff7e0a493ce12731"
         };
 
-        // Firebase 초기화 진행
-        let app, db;
-        try {
-            app = firebase.initializeApp(firebaseConfig);
-            db = firebase.firestore(app);
-        } catch (e) {
-            console.error("Firebase 초기화 에러: ", e);
+        const appId = 'default-app-id';
+        let db, auth;
+        let isFirebaseActive = false;
+
+        if (firebaseConfig.apiKey) {
+            try {
+                firebase.initializeApp(firebaseConfig);
+                auth = firebase.auth();
+                db = firebase.firestore();
+                isFirebaseActive = true;
+            } catch (err) {
+                console.warn("Firebase Initialisation error.", err);
+            }
         }
 
-        // 전역 상태 변수
-        let currentMonitorClassId = "";
-        let realtimeMonitorListener = null;
+        let classesList = [];
+        let currentMonitorUnsubscribes = [];
 
-        // 1. 보안 패스워드 인증 함수
+        // ==========================================
+        // AUTHENTICATION GUARD
+        // ==========================================
         function checkAdminAuth() {
-            const pwdInput = document.getElementById('admin-password').value;
-            const errorText = document.getElementById('auth-error');
-            
-            // 비밀번호 2026 기본 하드코딩
-            if (pwdInput === "2026") {
-                document.getElementById('auth-overlay').classList.add('hidden');
-                document.getElementById('admin-content').classList.remove('hidden');
+            const pwd = document.getElementById('auth-password').value;
+            if (pwd === "2026") {
+                document.getElementById('auth-view').classList.add('hidden');
+                document.getElementById('admin-view').classList.remove('hidden');
+                showToast("인증되었습니다. 실습 관리 콘솔이 활성화됩니다.", "success");
                 
-                // 데이터 실시간 스트림 시작
-                loadSeminarTitleMeta();
-                loadClassesLifecycle();
+                if (isFirebaseActive) {
+                    initAdminDataSync();
+                } else {
+                    showToast("피드백: 파이어베이스 설정 정보가 없어 무연동 오프라인 모드로 실행됩니다.", "warning");
+                    loadSimulationData();
+                }
             } else {
-                errorText.classList.remove('hidden');
+                showToast("비밀번호가 올바르지 않습니다.", "error");
             }
         }
 
-        // 엔터키 로그인 처리 추가
-        document.getElementById('admin-password').addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') checkAdminAuth();
-        });
-
-        // 2. 연수 과정명 메타 데이터 로드
-        function loadSeminarTitleMeta() {
-            db.collection("config").doc("seminar_meta").onSnapshot((doc) => {
-                if (doc.exists) {
-                    document.getElementById('config-seminar-title').value = doc.data().title || "";
-                }
-            });
+        function logoutAdmin() {
+            document.getElementById('auth-password').value = "";
+            document.getElementById('auth-view').classList.remove('hidden');
+            document.getElementById('admin-view').classList.add('hidden');
+            
+            // Clean up live listeners
+            cleanupMonitorListeners();
         }
 
-        // 3. 연수 과정명 업데이트 전송
-        function updateSeminarMeta() {
-            const newTitle = document.getElementById('config-seminar-title').value.trim();
-            if (!newTitle) {
-                alert("연수 과정명을 입력해 주세요.");
+        // ==========================================
+        // FIREBASE DATA INITIALIZER
+        // ==========================================
+        async function initAdminDataSync() {
+            try {
+                await auth.signInAnonymously();
+                
+                // 1. Fetch Seminar Meta
+                db.collection('artifacts').doc(appId).collection('public').doc('data')
+                    .collection('config').doc('seminar_meta').onSnapshot((doc) => {
+                        if (doc.exists) {
+                            document.getElementById('config-seminar-title').value = doc.data().title || "";
+                        }
+                    });
+
+                // 2. Fetch Classes List
+                db.collection('artifacts').doc(appId).collection('public').doc('data')
+                    .collection('classes').onSnapshot((snapshot) => {
+                        let list = [];
+                        snapshot.forEach((doc) => {
+                            const d = doc.data();
+                            list.push({ 
+                                id: doc.id, 
+                                name: d.name, 
+                                groupCount: d.groupCount || 5 
+                            });
+                        });
+                        classesList = list;
+                        renderClassesList();
+                        renderMonitorDropdown();
+                    });
+            } catch (err) {
+                console.error("Auth / Fetch error inside admin panel.", err);
+            }
+        }
+
+        function loadSimulationData() {
+            classesList = [
+                { id: "class_sim1", name: "1기 AI 융합 교사 연수 (시뮬레이션)", groupCount: 5 },
+                { id: "class_sim2", name: "2기 데이터 리터러시 워크숍 (시뮬레이션)", groupCount: 8 }
+            ];
+            renderClassesList();
+            renderMonitorDropdown();
+        }
+
+        // ==========================================
+        // SEMINAR CONFIG ACTIONS
+        // ==========================================
+        function updateSeminarTitle() {
+            const titleVal = document.getElementById('config-seminar-title').value.trim();
+            if (!titleVal) {
+                showToast("세미나 대주제 이름을 적어주세요.", "error");
                 return;
             }
-
-            db.collection("config").doc("seminar_meta").set({
-                title: newTitle,
-                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-            }).then(() => {
-                showToast("연수 과정명이 동적으로 실시간 업데이트되었습니다.", "success");
-            }).catch(err => {
-                console.error("업데이트 실패: ", err);
-                showToast("오류가 발생했습니다.", "error");
-            });
+            if (isFirebaseActive) {
+                db.collection('artifacts').doc(appId).collection('public').doc('data')
+                    .collection('config').doc('seminar_meta').set({ title: titleVal })
+                    .then(() => showToast("과정 타이틀명이 실시간 수정 변경되었습니다.", "success"))
+                    .catch(e => showToast("반영 실패", "error"));
+            } else {
+                showToast("시뮬레이션 모드에서는 동적 설정이 연동되지 않습니다.", "info");
+            }
         }
 
-        // 4. 클래스 라이프사이클 로드 및 실시간 동기화
-        function loadClassesLifecycle() {
-            db.collection("classes").orderBy("createdAt", "desc").onSnapshot((snapshot) => {
-                const activeList = document.getElementById('active-class-list');
-                const monitorSelect = document.getElementById('monitor-class-select');
-                
-                activeList.innerHTML = "";
-                
-                // 모니터 드롭다운 보존용 selected 설정
-                const prevSelectedValue = monitorSelect.value;
-                monitorSelect.innerHTML = '<option value="">클래스를 선택해 주세요</option>';
-
-                if (snapshot.empty) {
-                    activeList.innerHTML = `<li class="text-center text-xs text-slate-400 py-6">등록된 클래스가 없습니다.</li>`;
-                    return;
-                }
-
-                snapshot.forEach((doc) => {
-                    const data = doc.data();
-                    const classId = doc.id;
-                    const className = data.name;
-
-                    // 좌측 기수 관리 리스트 아이템 추가
-                    const li = document.createElement('li');
-                    li.className = "flex justify-between items-center bg-slate-50 p-2.5 rounded-xl border border-slate-100 hover:border-slate-200 transition text-xs";
-                    li.innerHTML = `
-                        <span class="font-bold text-slate-700">${className}</span>
-                        <button onclick="deleteClass('${classId}', '${className}')" class="text-slate-400 hover:text-rose-500 p-1 transition">
-                            <i class="fa-solid fa-trash-can"></i>
-                        </button>
-                    `;
-                    activeList.appendChild(li);
-
-                    // 우측 모니터링 드롭다운 추가
-                    const option = document.createElement('option');
-                    option.value = classId;
-                    option.innerText = className;
-                    if (classId === prevSelectedValue) option.selected = true;
-                    monitorSelect.appendChild(option);
-                });
-            });
-        }
-
-        // 5. 신규 클래스 추가
         function createNewClass() {
-            const classNameInput = document.getElementById('new-class-name');
-            const className = classNameInput.value.trim();
+            const nameVal = document.getElementById('class-input-name').value.trim();
+            const groupCountVal = parseInt(document.getElementById('class-input-groups').value) || 5;
 
-            if (!className) {
-                alert("생성할 클래스명을 입력해 주세요.");
+            if (!nameVal) {
+                showToast("학급 구별 이름을 지정해 주세요.", "error");
+                return;
+            }
+            if (groupCountVal < 1 || groupCountVal > 20) {
+                showToast("모둠 개수는 1개부터 20개 사이만 가능합니다.", "error");
                 return;
             }
 
-            db.collection("classes").add({
-                name: className,
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
-            }).then(() => {
-                classNameInput.value = "";
-                showToast(`[${className}] 클래스가 활성화되었습니다.`, "success");
-            }).catch(err => {
-                console.error("클래스 추가 오류:", err);
-            });
-        }
+            const cleanId = 'class_' + Date.now();
 
-        // 6. 클래스 삭제
-        function deleteClass(classId, className) {
-            if (!confirm(`[${className}] 클래스를 정말로 완전히 삭제하시겠습니까?\n해당 클래스 아래 진행되던 모든 모둠 분석 데이터가 영구 유실됩니다.`)) return;
-
-            // 서브콜렉션 데이터 일괄 삭제 및 클래스 문서 삭제
-            db.collection("classes").doc(classId).collection("groups").get().then((snapshot) => {
-                const batch = db.batch();
-                snapshot.forEach(doc => {
-                    batch.delete(doc.ref);
-                });
-                batch.delete(db.collection("classes").doc(classId));
-                return batch.commit();
-            }).then(() => {
-                showToast(`[${className}] 클래스가 성공적으로 삭제되었습니다.`, "success");
-                if (currentMonitorClassId === classId) {
-                    currentMonitorClassId = "";
-                    document.getElementById('monitor-groups-container').innerHTML = `
-                        <div class="col-span-full border-2 border-dashed border-slate-100 rounded-2xl py-12 text-center text-slate-400 text-sm">
-                            선택했던 클래스가 삭제되어 모니터링이 중단되었습니다.
-                        </div>
-                    `;
-                    document.getElementById('reset-class-btn').disabled = true;
-                }
-            });
-        }
-
-        // 7. 실시간 모둠 데이터 모니터링 보드 로드
-        function loadClassRealtimeMonitor() {
-            const classSelect = document.getElementById('monitor-class-select');
-            const classId = classSelect.value;
-            const container = document.getElementById('monitor-groups-container');
-            const resetBtn = document.getElementById('reset-class-btn');
-
-            // 실시간 리스너 해제(메모리 누수 방지)
-            if (realtimeMonitorListener) {
-                realtimeMonitorListener();
-                realtimeMonitorListener = null;
+            if (isFirebaseActive) {
+                db.collection('artifacts').doc(appId).collection('public').doc('data')
+                    .collection('classes').doc(cleanId).set({
+                        name: nameVal,
+                        groupCount: groupCountVal
+                    })
+                    .then(() => {
+                        showToast(`클래스 [${nameVal}] (${groupCountVal}개 모둠)가 원격 개설되었습니다.`, "success");
+                        document.getElementById('class-input-name').value = "";
+                        document.getElementById('class-input-groups').value = "5";
+                    })
+                    .catch(e => showToast("원격 추가 실패", "error"));
+            } else {
+                classesList.push({ id: cleanId, name: nameVal, groupCount: groupCountVal });
+                renderClassesList();
+                renderMonitorDropdown();
+                showToast(`[시뮬레이션] 클래스 [${nameVal}]이 추가되었습니다.`, "success");
             }
+        }
+
+        function deleteClass(classId, className) {
+            if (!confirm(`[${className}] 학급을 완전히 삭제하시겠습니까?\n이 동작은 복구할 수 없습니다.`)) return;
+
+            if (isFirebaseActive) {
+                db.collection('artifacts').doc(appId).collection('public').doc('data')
+                    .collection('classes').doc(classId).delete()
+                    .then(() => showToast("클래스가 성공적으로 삭제 처리되었습니다.", "info"))
+                    .catch(e => showToast("삭제 실패", "error"));
+            } else {
+                classesList = classesList.filter(c => c.id !== classId);
+                renderClassesList();
+                renderMonitorDropdown();
+                showToast("삭제 완료", "info");
+            }
+        }
+
+        // ==========================================
+        // MONITORING ENGINE (REALTIME LISTENERS)
+        // ==========================================
+        function cleanupMonitorListeners() {
+            currentMonitorUnsubscribes.forEach(unsub => unsub());
+            currentMonitorUnsubscribes = [];
+        }
+
+        function loadRealtimeClassMonitor() {
+            cleanupMonitorListeners();
+            const classId = document.getElementById('monitor-class-select').value;
+            const grid = document.getElementById('monitor-cards-grid');
 
             if (!classId) {
-                container.innerHTML = `
-                    <div class="col-span-full border-2 border-dashed border-slate-100 rounded-2xl py-12 text-center text-slate-400 text-sm">
-                        <i class="fa-solid fa-hand-pointer text-3xl mb-3 text-slate-300 block"></i>
-                        상단 드롭다운에서 실시간 모니터링할 클래스를 선택해 주세요.
+                grid.innerHTML = `
+                    <div class="col-span-full flex flex-col justify-center items-center py-16 text-slate-400 space-y-2">
+                        <i class="fa-solid fa-chalkboard-user text-3xl text-slate-200"></i>
+                        <p class="text-xs">상단 드롭다운에서 실시간 모니터링할 클래스를 지정해 주세요.</p>
                     </div>
                 `;
-                resetBtn.disabled = true;
-                currentMonitorClassId = "";
                 return;
             }
 
-            currentMonitorClassId = classId;
-            resetBtn.disabled = false;
-            container.innerHTML = `<div class="col-span-full text-center text-xs text-slate-400 py-12">해당 클래스의 데이터 스트림을 여는 중...</div>`;
+            const activeClass = classesList.find(c => c.id === classId);
+            if (!activeClass) return;
 
-            // 해당 클래스의 groups 서브콜렉션 실시간 추적 시작
-            realtimeMonitorListener = db.collection("classes").doc(classId).collection("groups").onSnapshot((snapshot) => {
-                container.innerHTML = "";
+            grid.innerHTML = "";
 
-                // 모둠 데이터가 비어 있을 때
-                if (snapshot.empty) {
-                    container.innerHTML = `
-                        <div class="col-span-full bg-slate-50/50 border border-slate-200 border-dashed rounded-2xl py-12 text-center text-slate-400 text-xs">
-                            <i class="fa-solid fa-users-slash text-2xl mb-2 text-slate-300 block"></i>
-                            이 반에 활성화되거나 제출을 시작한 모둠 데이터가 현재 없습니다.
+            // Render skeleton/empty cards for all active groupCount numbers
+            const totalGroups = activeClass.groupCount;
+            for (let i = 1; i <= totalGroups; i++) {
+                grid.innerHTML += `
+                    <div id="monitor-card-g${i}" class="bg-slate-50 border border-slate-200 p-5 rounded-2xl flex flex-col justify-between space-y-4">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <span class="px-2 py-0.5 bg-slate-200 text-slate-700 text-[9px] font-bold rounded-md">CLASS</span>
+                                <h4 class="text-xs font-black text-slate-800 mt-1">모둠 ${i}</h4>
+                            </div>
+                            <span class="text-xs font-bold text-slate-400" id="monitor-count-g${i}"><i class="fa-solid fa-spinner animate-spin"></i> 로딩 중</span>
                         </div>
-                    `;
-                    return;
-                }
-
-                // 모둠 데이터 렌더링
-                snapshot.forEach((doc) => {
-                    const data = doc.data();
-                    const groupId = doc.id; // 예: group1
-                    const members = data.members || [];
-                    const perspective = data.perspective || "";
-                    const overallTry = data.overallTry || "";
-                    const outliers = data.outliers || [];
-
-                    const card = document.createElement('div');
-                    card.className = "bg-slate-50/80 border border-slate-200 rounded-2xl p-5 space-y-4 shadow-sm";
-                    card.innerHTML = `
-                        <div class="flex justify-between items-center border-b border-slate-200 pb-2.5">
-                            <span class="font-bold text-slate-800 text-sm flex items-center gap-1.5">
-                                <i class="fa-solid fa-users text-indigo-500"></i> ${groupId.toUpperCase()} 실습 모둠
-                            </span>
-                            <span class="text-[10px] bg-slate-200 px-2 py-0.5 rounded-full text-slate-500 font-bold">
-                                멤버수 ${members.length}명
-                            </span>
+                        <div class="space-y-1 text-[11px] text-slate-500">
+                            <div><span class="font-bold">분석 관점:</span> <span id="monitor-p-g${i}" class="italic">대기 중...</span></div>
+                            <div><span class="font-bold">이상 진단:</span> <span id="monitor-o-g${i}" class="italic">0명</span></div>
+                            <div><span class="font-bold">수업 대안:</span> <span id="monitor-t-g${i}" class="italic">대기 중...</span></div>
                         </div>
-                        <div class="space-y-3">
-                            <div>
-                                <span class="block text-[10px] font-bold text-slate-400">참여 명단</span>
-                                <span class="text-xs text-slate-600 font-bold">${members.length > 0 ? members.join(', ') : '미등록'}</span>
-                            </div>
-                            <div>
-                                <span class="block text-[10px] font-bold text-slate-400">1) 모둠의 데이터 분석 관점 (Perspective)</span>
-                                <p class="text-xs text-slate-600 font-medium bg-white p-2 rounded-lg border border-slate-100 max-h-16 overflow-y-auto mt-1">${perspective || '<span class="text-slate-300">미전송</span>'}</p>
-                            </div>
-                            <div>
-                                <span class="block text-[10px] font-bold text-slate-400">2) 진단한 이상치 학생 수 (Outliers)</span>
-                                <div class="flex flex-wrap gap-1 mt-1">
-                                    ${outliers.length > 0 ? outliers.map(o => `<span class="px-2 py-0.5 bg-rose-50 border border-rose-100 rounded text-[10px] text-rose-500 font-bold">${o.studentId} - ${o.type}</span>`).join('') : '<span class="text-xs text-slate-300">선별 및 분석 진행 중...</span>'}
-                                </div>
-                            </div>
-                            <div>
-                                <span class="block text-[10px] font-bold text-slate-400">3) 종합 대안 및 교수 처방 설계 (Try)</span>
-                                <p class="text-xs text-slate-600 font-medium bg-white p-2 rounded-lg border border-slate-100 max-h-16 overflow-y-auto mt-1">${overallTry || '<span class="text-slate-300">미전송</span>'}</p>
-                            </div>
+                    </div>
+                `;
+            }
+
+            if (!isFirebaseActive) {
+                showToast("오프라인 시뮬레이션에서는 실시간 모니터링을 진행할 수 없습니다.", "info");
+                return;
+            }
+
+            // Bind each active group count to separate Firestore listener
+            for (let i = 1; i <= totalGroups; i++) {
+                const docId = `${classId}_group${i}`;
+                const unsub = db.collection('artifacts').doc(appId).collection('public').doc('data')
+                    .collection('groupWork').doc(docId).onSnapshot((doc) => {
+                        const card = document.getElementById(`monitor-card-g${i}`);
+                        const cnt = document.getElementById(`monitor-count-g${i}`);
+                        const pEl = document.getElementById(`monitor-p-g${i}`);
+                        const oEl = document.getElementById(`monitor-o-g${i}`);
+                        const tEl = document.getElementById(`monitor-t-g${i}`);
+
+                        if (!card) return;
+
+                        if (doc.exists) {
+                            const d = doc.data();
+                            const membersCount = d.members ? d.members.length : 0;
+                            const hasP = d.perspective && d.perspective.trim().length > 0;
+                            const hasT = d.overallTry && d.overallTry.trim().length > 0;
+                            const outliersCount = d.outliers ? d.outliers.length : 0;
+
+                            // Update styling for active submissions
+                            if (membersCount > 0 || hasP || hasT) {
+                                card.className = "bg-white border-2 border-indigo-100 p-5 rounded-2xl flex flex-col justify-between space-y-4 shadow-sm transition duration-300";
+                                cnt.innerHTML = `<span class="text-indigo-600 font-extrabold flex items-center gap-1"><i class="fa-solid fa-user-check text-[10px]"></i> ${membersCount}명 활동 중</span>`;
+                            } else {
+                                card.className = "bg-slate-50/50 border border-slate-200/50 p-5 rounded-2xl flex flex-col justify-between space-y-4 transition";
+                                cnt.innerHTML = `<span class="text-slate-400">비활성 모둠</span>`;
+                            }
+
+                            pEl.innerText = hasP ? (d.perspective.substring(0, 45) + '...') : '작성 중...';
+                            oEl.innerHTML = outliersCount > 0 ? `<span class="text-rose-600 font-bold">${outliersCount}명 감지</span>` : '0명';
+                            tEl.innerText = hasT ? (d.overallTry.substring(0, 45) + '...') : '작성 중...';
+                        } else {
+                            cnt.innerHTML = `<span class="text-slate-400">미개설</span>`;
+                            pEl.innerText = "대기 중...";
+                            oEl.innerText = "0명";
+                            tEl.innerText = "대기 중...";
+                        }
+                    }, (err) => {
+                        console.error("Monitor listener failed for", docId, err);
+                    });
+                currentMonitorUnsubscribes.push(unsub);
+            }
+        }
+
+        // ==========================================
+        // DATA CLEANUP / RESET ALL FUNCTION
+        // ==========================================
+        function confirmResetAllData() {
+            if (!confirm("🚨 경고!\n현재 데이터베이스에 저장된 모든 모둠들의 실습 산출물(모둠원, 분석 관점, Try 대안 등)이 완전히 삭제되어 초기 상태로 되돌아갑니다. 새로운 반 연수 시작 시에만 수행해 주세요.\n\n정말로 전체 데이터를 포맷팅하시겠습니까?")) return;
+
+            if (isFirebaseActive) {
+                // Delete docs inside /groupWork collection
+                db.collection('artifacts').doc(appId).collection('public').doc('data')
+                    .collection('groupWork').get()
+                    .then((snapshot) => {
+                        let batch = db.batch();
+                        snapshot.forEach((doc) => {
+                            batch.delete(doc.ref);
+                        });
+                        return batch.commit();
+                    })
+                    .then(() => {
+                        showToast("서버 측 전체 실습 가상 데이터들이 안전하게 포맷되었습니다.", "success");
+                        loadRealtimeClassMonitor(); // Refresh
+                    })
+                    .catch(e => showToast("서버 리셋 실패", "error"));
+            } else {
+                localStorage.clear();
+                showToast("[시뮬레이션] 브라우저 내 가상 로컬 스토리지가 초기화되었습니다.", "success");
+            }
+        }
+
+        // ==========================================
+        // UI RENDERING HELPERS
+        // ==========================================
+        function renderClassesList() {
+            const container = document.getElementById('classes-list-container');
+            container.innerHTML = "";
+            if (classesList.length === 0) {
+                container.innerHTML = `<p class="text-xs text-slate-400 italic py-4">개설된 클래스가 존재하지 않습니다.</p>`;
+                return;
+            }
+            classesList.forEach(c => {
+                container.innerHTML += `
+                    <div class="flex items-center justify-between p-3 bg-slate-50 border border-slate-200/60 rounded-xl text-xs hover:bg-slate-100/50 transition">
+                        <div class="space-y-0.5">
+                            <h4 class="font-bold text-slate-800">${c.name}</h4>
+                            <p class="text-[10px] text-indigo-600 font-bold"><i class="fa-solid fa-users-rectangle"></i> 모둠 개수: ${c.groupCount}개</p>
                         </div>
-                    `;
-                    container.appendChild(card);
-                });
+                        <button onclick="deleteClass('${c.id}', '${c.name}')" class="text-slate-400 hover:text-rose-600 transition p-1">
+                            <i class="fa-solid fa-circle-xmark text-sm"></i>
+                        </button>
+                    </div>
+                `;
             });
         }
 
-        // 8. 해당 학급의 모든 모둠 실습 데이터 일괄 초기화(Purge)
-        function purgeClassData() {
-            if (!currentMonitorClassId) return;
-
-            const selectElement = document.getElementById('monitor-class-select');
-            const className = selectElement.options[selectElement.selectedIndex].text;
-
-            if (!confirm(`[⚠️ 경고] [${className}] 클래스 아래 동기화되어 저장된 모든 모둠 분석 보고서와 대안 기입란 데이터가 즉시 비워집니다.\n다음 차수 연수 세팅을 위한 경우에만 수락해 주세요. 데이터 복구가 불가능합니다.`)) return;
-
-            db.collection("classes").doc(currentMonitorClassId).collection("groups").get().then((snapshot) => {
-                const batch = db.batch();
-                snapshot.forEach(doc => {
-                    batch.delete(doc.ref);
-                });
-                return batch.commit();
-            }).then(() => {
-                showToast(`[${className}] 클래스의 모둠 데이터가 초기화(Reset)되었습니다.`, "success");
-            }).catch(err => {
-                console.error("초기화 실패:", err);
+        function renderMonitorDropdown() {
+            const dropdown = document.getElementById('monitor-class-select');
+            const prevVal = dropdown.value;
+            dropdown.innerHTML = `<option value="">클래스 선택하기</option>`;
+            classesList.forEach(c => {
+                const opt = document.createElement('option');
+                opt.value = c.id;
+                opt.innerText = c.name;
+                dropdown.appendChild(opt);
             });
+            dropdown.value = prevVal;
         }
 
-        // 9. 사용자 알림 토스트 유틸리티 함수
-        function showToast(message, type = "success") {
-            const toast = document.createElement("div");
-            toast.className = `fixed bottom-6 right-6 z-50 flex items-center gap-2 px-5 py-3.5 rounded-2xl shadow-xl border text-sm font-bold transition duration-300 transform translate-y-10 opacity-0`;
+        function showToast(message, type = "info") {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            let icon = '<i class="fa-solid fa-circle-info text-sky-500"></i>';
+            let bgBorder = 'bg-white border-slate-200';
             
             if (type === "success") {
-                toast.className += " bg-emerald-500 border-emerald-600 text-white";
-                toast.innerHTML = `<i class="fa-solid fa-circle-check"></i> ${message}`;
-            } else {
-                toast.className += " bg-rose-500 border-rose-600 text-white";
-                toast.innerHTML = `<i class="fa-solid fa-circle-exclamation"></i> ${message}`;
+                icon = '<i class="fa-solid fa-circle-check text-emerald-500"></i>';
+            } else if (type === "error") {
+                icon = '<i class="fa-solid fa-circle-exclamation text-rose-500"></i>';
+            } else if (type === "warning") {
+                icon = '<i class="fa-solid fa-triangle-exclamation text-amber-500"></i>';
             }
-            
-            document.body.appendChild(toast);
-            
-            // 트리거 애니메이션
-            setTimeout(() => {
-                toast.classList.remove("translate-y-10", "opacity-0");
-            }, 50);
 
-            // 3초 뒤에 자동 삭제
+            toast.className = `p-4 rounded-xl border shadow-lg ${bgBorder} flex items-center gap-2 text-xs font-semibold max-w-sm pointer-events-auto transition duration-300 transform translate-y-2 opacity-0`;
+            toast.innerHTML = `${icon} <span>${message}</span>`;
+            
+            container.appendChild(toast);
+            
             setTimeout(() => {
-                toast.classList.add("translate-y-10", "opacity-0");
-                setTimeout(() => toast.remove(), 300);
+                toast.classList.remove('translate-y-2', 'opacity-0');
+            }, 10);
+
+            setTimeout(() => {
+                toast.classList.add('translate-y-2', 'opacity-0');
+                setTimeout(() => {
+                    toast.remove();
+                }, 300);
             }, 3000);
         }
     </script>
