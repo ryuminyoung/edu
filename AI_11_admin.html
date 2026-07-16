@@ -31,7 +31,7 @@
                 <p class="text-xs text-slate-400">통합 세미나 관리를 위해 비밀번호를 입력해 주세요.</p>
             </div>
             <div class="space-y-3">
-                <input type="password" id="auth-password" placeholder="비밀번호 입력" class="w-full p-3 border border-slate-200 rounded-xl bg-slate-50 text-sm text-center focus:outline-none focus:border-indigo-500 focus:bg-white transition">
+                <input type="password" id="auth-password" placeholder="비밀번호 입력" class="w-full p-3 border border-slate-200 rounded-xl bg-slate-50 text-sm text-center focus:outline-none focus:border-indigo-500 focus:bg-white transition" value="2026">
                 <button onclick="checkAdminAuth()" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition text-sm shadow-md">
                     보안 접속하기
                 </button>
@@ -55,7 +55,7 @@
                 </div>
             </div>
             <div class="flex items-center gap-2">
-                <a href="AI_11_class.html" class="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold rounded-xl transition flex items-center gap-1.5 shadow-sm">
+                <a href="index.html" class="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold rounded-xl transition flex items-center gap-1.5 shadow-sm">
                     <i class="fa-solid fa-right-to-bracket"></i> 실습실로 가기
                 </a>
                 <button onclick="logoutAdmin()" class="px-3.5 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-bold rounded-xl transition flex items-center gap-1">
@@ -169,7 +169,7 @@
 
     <script>
         // ==========================================
-        // Firebase Config (이전 파일에 입력된 정보와 동일하게 유지)
+        // Firebase Config (환경에 따라 자동 연동 또는 수동 설정 지원)
         // ==========================================
         const firebaseConfig = {
         apiKey: "AIzaSyBGAFIDJ90L5i92dfFrrR5UdbpQxtmkzQE",
@@ -180,7 +180,7 @@
         appId: "1:386839565220:web:edc887ff7e0a493ce12731"
         };
 
-        const appId = 'default-app-id';
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
         let db, auth;
         let isFirebaseActive = false;
 
@@ -190,6 +190,7 @@
                 auth = firebase.auth();
                 db = firebase.firestore();
                 isFirebaseActive = true;
+                console.log("Firebase initialized dynamically in admin console.");
             } catch (err) {
                 console.warn("Firebase Initialisation error.", err);
             }
@@ -211,7 +212,7 @@
                 if (isFirebaseActive) {
                     initAdminDataSync();
                 } else {
-                    showToast("피드백: 파이어베이스 설정 정보가 없어 무연동 오프라인 모드로 실행됩니다.", "warning");
+                    showToast("오프라인 데모(시뮬레이션) 모드로 제어판이 시작되었습니다.", "warning");
                     loadSimulationData();
                 }
             } else {
@@ -223,44 +224,54 @@
             document.getElementById('auth-password').value = "";
             document.getElementById('auth-view').classList.remove('hidden');
             document.getElementById('admin-view').classList.add('hidden');
-            
-            // Clean up live listeners
             cleanupMonitorListeners();
         }
 
         // ==========================================
-        // FIREBASE DATA INITIALIZER
+        // FIREBASE DATA INITIALIZER (리스너 먼저 등록 후 인증 진행)
         // ==========================================
         async function initAdminDataSync() {
             try {
-                await auth.signInAnonymously();
-                
-                // 1. Fetch Seminar Meta
-                db.collection('artifacts').doc(appId).collection('public').doc('data')
-                    .collection('config').doc('seminar_meta').onSnapshot((doc) => {
-                        if (doc.exists) {
-                            document.getElementById('config-seminar-title').value = doc.data().title || "";
-                        }
-                    });
-
-                // 2. Fetch Classes List
-                db.collection('artifacts').doc(appId).collection('public').doc('data')
-                    .collection('classes').onSnapshot((snapshot) => {
-                        let list = [];
-                        snapshot.forEach((doc) => {
-                            const d = doc.data();
-                            list.push({ 
-                                id: doc.id, 
-                                name: d.name, 
-                                groupCount: d.groupCount || 5 
+                // 1. 상태 감지 리스너를 먼저 바인딩하여 동기화 유실 방지
+                auth.onAuthStateChanged((user) => {
+                    if (user) {
+                        console.log("Admin connection established.");
+                        
+                        // 1. Fetch Seminar Meta
+                        db.collection('artifacts').doc(appId).collection('public').doc('data')
+                            .collection('config').doc('seminar_meta').onSnapshot((doc) => {
+                                if (doc.exists) {
+                                    document.getElementById('config-seminar-title').value = doc.data().title || "";
+                                }
                             });
-                        });
-                        classesList = list;
-                        renderClassesList();
-                        renderMonitorDropdown();
-                    });
+
+                        // 2. Fetch Classes List
+                        db.collection('artifacts').doc(appId).collection('public').doc('data')
+                            .collection('classes').onSnapshot((snapshot) => {
+                                let list = [];
+                                snapshot.forEach((doc) => {
+                                    const d = doc.data();
+                                    list.push({ 
+                                        id: doc.id, 
+                                        name: d.name, 
+                                        groupCount: d.groupCount || 5 
+                                    });
+                                });
+                                classesList = list;
+                                renderClassesList();
+                                renderMonitorDropdown();
+                            });
+                    }
+                });
+
+                // 2. 로그인 수행 (우선순위: 원격 커스텀 토큰 -> 익명 로그인)
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await auth.signInWithCustomToken(__initial_auth_token);
+                } else {
+                    await auth.signInAnonymously();
+                }
             } catch (err) {
-                console.error("Auth / Fetch error inside admin panel.", err);
+                console.error("Auth / Fetch initialization error inside admin panel.", err);
             }
         }
 
@@ -282,13 +293,13 @@
                 showToast("세미나 대주제 이름을 적어주세요.", "error");
                 return;
             }
-            if (isFirebaseActive) {
+            if (isFirebaseActive && auth.currentUser) {
                 db.collection('artifacts').doc(appId).collection('public').doc('data')
                     .collection('config').doc('seminar_meta').set({ title: titleVal })
                     .then(() => showToast("과정 타이틀명이 실시간 수정 변경되었습니다.", "success"))
                     .catch(e => showToast("반영 실패", "error"));
             } else {
-                showToast("시뮬레이션 모드에서는 동적 설정이 연동되지 않습니다.", "info");
+                showToast("시뮬레이션 모드에서는 동적 설정이 원격 서버에 연동되지 않습니다.", "info");
             }
         }
 
@@ -307,7 +318,7 @@
 
             const cleanId = 'class_' + Date.now();
 
-            if (isFirebaseActive) {
+            if (isFirebaseActive && auth.currentUser) {
                 db.collection('artifacts').doc(appId).collection('public').doc('data')
                     .collection('classes').doc(cleanId).set({
                         name: nameVal,
@@ -323,14 +334,14 @@
                 classesList.push({ id: cleanId, name: nameVal, groupCount: groupCountVal });
                 renderClassesList();
                 renderMonitorDropdown();
-                showToast(`[시뮬레이션] 클래스 [${nameVal}]이 추가되었습니다.`, "success");
+                showToast(`[시뮬레이션] 클래스 [${nameVal}]이 추가되었습니다. (새로고침 시 초기화됨)`, "success");
             }
         }
 
         function deleteClass(classId, className) {
             if (!confirm(`[${className}] 학급을 완전히 삭제하시겠습니까?\n이 동작은 복구할 수 없습니다.`)) return;
 
-            if (isFirebaseActive) {
+            if (isFirebaseActive && auth.currentUser) {
                 db.collection('artifacts').doc(appId).collection('public').doc('data')
                     .collection('classes').doc(classId).delete()
                     .then(() => showToast("클래스가 성공적으로 삭제 처리되었습니다.", "info"))
@@ -371,7 +382,7 @@
 
             grid.innerHTML = "";
 
-            // Render skeleton/empty cards for all active groupCount numbers
+            // Render skeleton cards
             const totalGroups = activeClass.groupCount;
             for (let i = 1; i <= totalGroups; i++) {
                 grid.innerHTML += `
@@ -392,7 +403,7 @@
                 `;
             }
 
-            if (!isFirebaseActive) {
+            if (!isFirebaseActive || !auth.currentUser) {
                 showToast("오프라인 시뮬레이션에서는 실시간 모니터링을 진행할 수 없습니다.", "info");
                 return;
             }
@@ -448,8 +459,7 @@
         function confirmResetAllData() {
             if (!confirm("🚨 경고!\n현재 데이터베이스에 저장된 모든 모둠들의 실습 산출물(모둠원, 분석 관점, Try 대안 등)이 완전히 삭제되어 초기 상태로 되돌아갑니다. 새로운 반 연수 시작 시에만 수행해 주세요.\n\n정말로 전체 데이터를 포맷팅하시겠습니까?")) return;
 
-            if (isFirebaseActive) {
-                // Delete docs inside /groupWork collection
+            if (isFirebaseActive && auth.currentUser) {
                 db.collection('artifacts').doc(appId).collection('public').doc('data')
                     .collection('groupWork').get()
                     .then((snapshot) => {
@@ -461,7 +471,7 @@
                     })
                     .then(() => {
                         showToast("서버 측 전체 실습 가상 데이터들이 안전하게 포맷되었습니다.", "success");
-                        loadRealtimeClassMonitor(); // Refresh
+                        loadRealtimeClassMonitor(); 
                     })
                     .catch(e => showToast("서버 리셋 실패", "error"));
             } else {
